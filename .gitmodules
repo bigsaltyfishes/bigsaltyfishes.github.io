@@ -1,6 +1,3 @@
-[submodule "static/assets/live2d-widge"]
-	path = static/assets/live2d-widge
-	url = https://github.com/bigsaltyfishes/live2d-widget
 [submodule "static/assets/live2d-widget"]
 	path = static/assets/live2d-widget
 	url = https://github.com/bigsaltyfishes/live2d-widget

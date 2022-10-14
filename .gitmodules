@@ -1,0 +1,12 @@
+[submodule "static/assets/live2d-widge"]
+	path = static/assets/live2d-widge
+	url = https://github.com/bigsaltyfishes/live2d-widget
+[submodule "static/assets/live2d-widget"]
+	path = static/assets/live2d-widget
+	url = https://github.com/bigsaltyfishes/live2d-widget
+[submodule "static/assets/live2d_api"]
+	path = static/assets/live2d_api
+	url = https://github.com/bigsaltyfishes/live2d_api
+[submodule "themes/hugo-theme-stack"]
+	path = themes/hugo-theme-stack
+	url = https://github.com/bigsaltyfishes/hugo-theme-stack

@@ -53,14 +53,14 @@
 </span><span class=lnt>3
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ git clone https://github.com/bigsaltyfishes/device_lenovo_J607F -b pe-13.0 device/lenovo/J607F --depth<span class=o>=</span><span class=m>1</span>
 </span></span><span class=line><span class=cl>$ git clone https://github.com/bigsaltyfishes/kernel_lenovo_J607Z -b kernel-next kernel/lenovo/J607Z --depth<span class=o>=</span><span class=m>1</span>
-</span></span><span class=line><span class=cl>$ git clone https://github.com/bigsaltyfishes/vendor_lenovo_J607Z -b thirteen --depth<span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>$ git clone https://github.com/bigsaltyfishes/vendor_lenovo_J607Z -b thirteen vendor/lenovo/J607Z --depth<span class=o>=</span><span class=m>1</span>
 </span></span></code></pre></td></tr></table></div></div><p>有些设备使用了通用设备树的则需要将通用设备树一起拉取下来，这里就不做示范了，方法一样</p><p>因为联想在内核里面掺了些奇奇怪怪的东西，我也不好随便修改，因此里面引用的一个没用的构建内核模块用的 Makefile 我也没有清理掉（其实就是我懒😏），所以我们需要手动新建一个空的 Makefile 避免报错</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ mkdir -p device/qcom/common/dlkm
 </span></span><span class=line><span class=cl>$ touch device/qcom/common/dlkm/AndroidKernelModule.mk
 </span></span></code></pre></td></tr></table></div></div><p>我的内核使用了 Proton Clang 进行编译，我们需要拉取这个工具链下来，不同开发者使用的工具链可能不同，根据情况来获取相应的工具链即可（也有可能会用 AOSP 自带的，自带的就跳过这步吧）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ git clone https://github.com/kdrag0n/proton-clang.git prebuilts/clang/host/linux-x86/proton-clang --depth<span class=o>=</span><span class=m>1</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=构建系统>构建系统</h3><p>我们先配置下 CCACHE，这个东西其实就是个缓存，虽然可以不用它，但是用了编译会快不少，所以还是用吧，我们吧缓存大小限制在 50GB</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><h3 id=构建系统>构建系统</h3><p>我们先配置下 CCACHE，这个东西其实就是个缓存，虽然可以不用它，但是用了编译会快不少，所以还是用吧，我们把缓存大小限制在 50GB</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ ccache -M 50G
 </span></span></code></pre></td></tr></table></div></div><p>在环境变量中定义使用 CCACHE，并启用缓存压缩</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2

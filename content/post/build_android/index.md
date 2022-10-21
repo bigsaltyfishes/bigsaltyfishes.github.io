@@ -164,7 +164,7 @@ $ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```shell
 $ git clone https://github.com/bigsaltyfishes/device_lenovo_J607F -b pe-13.0 device/lenovo/J607F --depth=1
 $ git clone https://github.com/bigsaltyfishes/kernel_lenovo_J607Z -b kernel-next kernel/lenovo/J607Z --depth=1
-$ git clone https://github.com/bigsaltyfishes/vendor_lenovo_J607Z -b thirteen --depth=1
+$ git clone https://github.com/bigsaltyfishes/vendor_lenovo_J607Z -b thirteen vendor/lenovo/J607Z --depth=1
 ```
 
 有些设备使用了通用设备树的则需要将通用设备树一起拉取下来，这里就不做示范了，方法一样
@@ -184,7 +184,7 @@ $ git clone https://github.com/kdrag0n/proton-clang.git prebuilts/clang/host/lin
 
 
 ### 构建系统
-我们先配置下 CCACHE，这个东西其实就是个缓存，虽然可以不用它，但是用了编译会快不少，所以还是用吧，我们吧缓存大小限制在 50GB
+我们先配置下 CCACHE，这个东西其实就是个缓存，虽然可以不用它，但是用了编译会快不少，所以还是用吧，我们把缓存大小限制在 50GB
 
 ```shell
 $ ccache -M 50G

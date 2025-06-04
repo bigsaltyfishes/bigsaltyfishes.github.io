@@ -18,9 +18,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      TAILWIND_INSTALL_METHOD: ${{ github.event.inputs.tailwind_install_method || 'binary' }}
-
     steps:
       - uses: actions/checkout@v4
 

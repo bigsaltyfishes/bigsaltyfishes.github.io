@@ -11,8 +11,8 @@ This blog is a demonstration of a pure WASM application built with Rust and the 
 Test SPA navigation with the following links:
 
 **Internal Article Links (should use SPA navigation):**
-- [My First Post](/article/first-post)
-- [Exploring Rust and WASM](/article/rust-and-wasm)
+- [My First Post](/articles/first-post)
+- [Exploring Rust and WASM](/articles/rust-and-wasm)
 
 **Internal Route Links (should use SPA navigation):**
 - [Home Page](/)

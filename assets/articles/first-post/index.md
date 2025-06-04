@@ -21,4 +21,4 @@ $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 
-Check out the [About](/article/about) page for more info on the tech stack.
+Check out the [About](/articles/about) page for more info on the tech stack.

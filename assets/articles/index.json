@@ -1,0 +1,10 @@
+{
+    "first-post": {
+        "title": "My First Post",
+        "description": "This is a short description of my very first blog post."
+    },
+    "rust-and-wasm": {
+        "title": "Exploring Rust and WASM",
+        "description": "A dive into the world of WebAssembly with Rust."
+    }
+}

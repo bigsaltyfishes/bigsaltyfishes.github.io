@@ -1,0 +1,54 @@
+// _articles.scss
+// Article list and article detail styles
+
+@use 'variables';
+@use 'colors';
+
+.page-title {
+  font-size: var(--font-size-page-title);
+  color: var(--current-on-background);
+  margin-bottom: 0.8em;
+  padding-left: 0;
+
+  &.articles-list {
+    margin-bottom: 25px;
+  }
+}
+
+.articles-list-container {
+  .articles-ul {
+    list-style-type: none;
+    padding-left: 0;
+
+    li {
+      margin-bottom: 1.8em;
+
+      h2 {
+        font-size: var(--font-size-article-list-item-title);
+        margin-top: 0;
+        margin-bottom: 0.3em;
+
+        a {
+          color: var(--current-article-list-link-color);
+          text-decoration: none;
+          font-weight: 700;
+
+          &:hover {
+            text-decoration: underline;
+            color: var(--current-primary);
+          }
+        }
+      }
+
+      p {
+        color: var(--current-on-surface);
+        opacity: 0.9;
+        margin-top: 0.3em;
+        font-size: var(--font-size-small);
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+// Article detail content styles will be added here when needed

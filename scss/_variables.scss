@@ -1,0 +1,19 @@
+// _variables.scss
+// Global CSS variables for typography, spacing, and breakpoints
+
+:root {
+  /* Typography */
+  --m3-font-family: "JetBrains Mono", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Source Han Sans CN", "WenQuanYi Micro Hei", sans-serif;
+  --m3-code-font-family: 'JetBrains Mono', "Noto Sans SC", "Cascadia Code", "Consolas", "Microsoft YaHei", "Courier New", monospace;
+
+  /* Typography - Font Sizes */
+  --font-size-page-title: 2.0rem;
+  --font-size-article-list-item-title: 1.15rem;
+  --font-size-markdown-h1: 1.8rem;
+  --font-size-normal: 1rem;
+  --font-size-small: 0.9rem;
+  --font-size-site-title: 1.25rem;
+
+  /* Breakpoints */
+  --mobile-breakpoint: 768px;
+}

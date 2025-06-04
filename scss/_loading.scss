@@ -1,0 +1,227 @@
+// _loading.scss
+// Loading states and spinner animations
+
+@use 'variables';
+@use 'colors';
+
+.loading-container {  position: fixed;
+  top: 3px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--current-background);
+  color: var(--current-on-background);
+  z-index: 9998; // One layer below the progress bar
+
+  .loading-content {
+    text-align: center;
+    max-width: 400px;
+    padding: 2rem;
+
+    .loading-icon {
+      margin-bottom: 1.5rem;
+
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--current-surface-variant);
+        border-top: 4px solid var(--current-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      &.error {
+        .material-symbols-outlined {
+          font-size: 48px;
+          color: var(--current-error);
+        }
+
+        &.error-404 .material-symbols-outlined {
+          color: var(--current-secondary);
+        }
+
+        &.error-500 .material-symbols-outlined {
+          color: var(--current-error);
+        }
+
+        &.error-network .material-symbols-outlined {
+          color: var(--current-tertiary);
+        }
+
+        &.error-error .material-symbols-outlined {
+          color: var(--current-error);
+        }
+      }
+    }
+
+    h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--current-on-background);
+    }
+
+    p {
+      margin: 0 0 1.5rem 0;
+      color: var(--current-on-surface-variant);
+      line-height: 1.5;
+    }
+
+    button {
+      background-color: var(--current-primary);
+      color: var(--current-on-primary);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--current-primary-container);
+        color: var(--current-on-primary-container);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+
+    .error-details {
+      margin: 1rem 0;
+      text-align: left;
+      background-color: var(--current-surface-variant);
+      border-radius: 8px;
+      padding: 1rem;
+
+      summary {
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--current-on-surface-variant);
+        margin-bottom: 0.5rem;
+
+        &:hover {
+          color: var(--current-primary);
+        }
+      }
+
+      p {
+        font-family: monospace;
+        font-size: 0.875rem;
+        background-color: var(--current-surface);
+        padding: 0.5rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    }
+
+    .error-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 2rem;
+
+      @media (min-width: 480px) {
+        flex-direction: row;
+        justify-content: center;
+      }
+
+      button,
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+
+        .material-symbols-outlined {
+          font-size: 1.25rem;
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+      }
+
+      .retry-button {
+        background-color: var(--current-primary);
+        color: var(--current-on-primary);
+
+        &:hover {
+          background-color: var(--current-primary-container);
+          color: var(--current-on-primary-container);
+        }
+      }
+
+      .home-button {
+        background-color: var(--current-secondary);
+        color: var(--current-on-secondary);
+
+        &:hover {
+          background-color: var(--current-secondary-container);
+          color: var(--current-on-secondary-container);
+        }
+      }
+
+      .articles-button {
+        background-color: var(--current-tertiary);
+        color: var(--current-on-tertiary);
+
+        &:hover {
+          background-color: var(--current-tertiary-container);
+          color: var(--current-on-tertiary-container);
+        }
+      }
+    }
+  }
+
+  &.error {
+    .loading-content {
+      .material-symbols-outlined {
+        font-size: 48px;
+      }
+      h2 {
+        color: var(--current-error);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Fade in animation for when content loads
+.app-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

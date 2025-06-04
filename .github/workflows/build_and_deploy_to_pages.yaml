@@ -1,0 +1,77 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  CARGO_TERM_COLOR: always
+  TRUNK_VERSION: "0.21.14"
+  PUBLIC_URL: "https://blog.molyuu.me/"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      TAILWIND_INSTALL_METHOD: ${{ github.event.inputs.tailwind_install_method || 'binary' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run workspace tests
+        run: cargo test
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          toolchain: stable-x86_64-unknown-linux-gnu
+          components: rust-src
+
+      - name: Create ci-tools directory
+        run: mkdir ci-tools
+
+      - name: Download and install Trunk binary
+        run: |
+          wget -qO- https://github.com/trunk-rs/trunk/releases/download/v${{ env.TRUNK_VERSION }}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+          mv trunk ci-tools
+          chmod +x ci-tools/trunk
+
+      - name: Set PATH to ci-tools
+        run: echo "PATH=$(pwd)/ci-tools:$PATH" >> $GITHUB_ENV
+
+      - name: Ensure tools exist
+        run: |
+          test -f ci-tools/trunk || (echo "❌ trunk not found!" && exit 1)
+
+      - name: Build with Trunk
+        run: trunk build --release --public-url ${{ env.PUBLIC_URL }}
+
+      - name: Check dist exists
+        run: test -d dist || (echo "❌ dist/ folder not found!" && exit 1)
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,181 @@
+// _markdown.scss
+// Markdown content rendering styles
+
+@use 'variables';
+@use 'colors';
+
+.markdown-body {
+  h1 {
+    font-size: var(--font-size-markdown-h1);
+    color: var(--current-on-background);
+    margin-bottom: 0.8em;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--current-on-background);
+  }
+
+  p,
+  ul,
+  ol,
+  blockquote,
+  table,
+  pre {
+    margin-bottom: 1em;
+  }
+
+  // Pre-formatted code blocks
+  pre {
+    background-color: var(--current-surface-variant);
+    color: var(--current-on-surface-variant);
+    padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--current-outline);
+    font-family: var(--m3-code-font-family);
+    margin-bottom: 1em;
+
+    // Ensure code content has proper styling
+    code {
+      font-family: var(--m3-code-font-family);
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+      color: var(--current-on-surface-variant);
+    }
+  }
+
+  // Inline code styling
+  code {
+    font-family: var(--m3-code-font-family);
+
+    &:not(pre code) {
+      background-color: var(--current-surface-variant);
+      color: var(--current-on-surface-variant);
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      border-radius: 4px;
+    }
+  }
+
+  blockquote {
+    margin-left: 0;
+    padding-left: 1em;
+    border-left: 0.25em solid var(--current-outline);
+    color: var(--current-on-surface);
+    opacity: 0.9;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: auto;
+    margin-bottom: 1em;
+
+    th,
+    td {
+      border: 1px solid var(--current-outline);
+      padding: 0.5em;
+      color: var(--current-on-surface);
+    }
+
+    th {
+      background-color: var(--current-surface-variant);
+    }  }
+
+  // Syntax highlighting
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--current-outline);
+    font-style: italic;
+  }
+
+  // Language keywords and selectors
+  .hljs-keyword,
+  .hljs-selector-tag {
+    color: var(--current-primary);
+    font-weight: bold;
+  }
+
+  // Strings and literals
+  .hljs-string,
+  .hljs-regexp,
+  .hljs-literal {
+    color: var(--current-tertiary);
+  }
+
+  // Titles, sections, and element names
+  .hljs-title,
+  .hljs-section,
+  .hljs-name {
+    color: var(--current-secondary);
+  }
+
+  // Variables
+  .hljs-variable,
+  .hljs-template-variable {
+    color: var(--current-on-surface-variant);
+  }
+
+  // Types and classes
+  .hljs-type,
+  .hljs-class {
+    color: var(--current-primary);
+    font-weight: bold;
+  }
+
+  // Attributes and numbers
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-selector-id,
+  .hljs-number {
+    color: var(--current-tertiary-container);
+  }
+
+  // Symbols and bullets
+  .hljs-symbol,
+  .hljs-bullet {
+    color: var(--current-secondary-container);
+  }
+
+  // Built-ins
+  .hljs-built_in,
+  .hljs-builtin-name {
+    color: var(--current-tertiary);
+  }
+
+  // Additions and deletions (diff)
+  .hljs-addition {
+    background-color: rgba(var(--current-primary-rgb), 0.15);
+  }
+
+  .hljs-deletion {
+    background-color: rgba(var(--current-error-rgb), 0.15);
+  }
+
+  // Text formatting
+  .hljs-emphasis {
+    font-style: italic;
+  }
+
+  .hljs-strong {
+    font-weight: bold;
+  }
+
+  a {
+    color: var(--current-article-link-color);
+    text-decoration: underline;
+    font-weight: normal;
+
+    &:hover {
+      color: var(--current-primary);
+      text-decoration: underline wavy;
+    }
+  }
+}

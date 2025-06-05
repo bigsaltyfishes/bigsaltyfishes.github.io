@@ -21,6 +21,5 @@ Test SPA navigation with the following links:
 **External Links (should open normally):**
 - [GitHub](https://github.com)
 - [Rust Lang](https://www.rust-lang.org)
-- [Exampe][exmape.com]
 
 The links above marked as "should use SPA navigation" should navigate without page reload and should have the `data-spa-link` attribute when rendered.

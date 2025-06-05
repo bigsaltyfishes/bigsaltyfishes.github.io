@@ -35,6 +35,8 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
     match article_result.as_ref() {
         Some(Ok((title, markdown_content))) => {
             // Article exists, render normally
+            // Render Markdown
+            let html_output = render_markdown(&markdown_content);
             let title_clone = title.clone();
             let site_name = site.long();
             use_effect(use_reactive((&props.id,), move |(_,)| {
@@ -52,8 +54,7 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
                     anim_class.set("page-content page-enter-active");
                 });
             }));
-            // Render Markdown
-            let html_output = render_markdown(&markdown_content);
+
             stop_progress_bar();
             rsx! {
                 div {
@@ -142,7 +143,7 @@ fn render_markdown(markdown_content: &str) -> String {
 
                 if dest_url.starts_with("/") {
                     match link_type {
-                        pulldown_cmark::LinkType::Inline | pulldown_cmark::LinkType::Autolink => {
+                        pulldown_cmark::LinkType::Inline => {
                             // Create SPA navigation link for other internal routes
                             iterator.push(pulldown_cmark::Event::Html(
                                 format!("<a href=\"{dest_url}\" data-spa-link>",).into(),

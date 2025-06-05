@@ -13,6 +13,7 @@ web-sys = { version = "0.3.77", features = [
     "Element",
     "HtmlElement",
     "HtmlBodyElement",
+    "HtmlInputElement",
     "DomTokenList",
     "Window",
     "Document",
@@ -29,6 +30,7 @@ lazy_static = "1.5.0"
 katex-wasmbind = "0.10.0"
 log = "0.4.27"
 wasm-logger = "0.2.0"
+web-time = "1.1.0"
 
 [profile.release]
 lto = true

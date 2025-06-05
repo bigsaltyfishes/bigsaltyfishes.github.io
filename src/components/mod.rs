@@ -1,3 +1,4 @@
+pub mod articles;
 pub mod error_page;
 pub mod layout;
 pub mod navbar;

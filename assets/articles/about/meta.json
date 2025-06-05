@@ -1,4 +1,7 @@
 {
     "title": "About This Blog",
-    "description": "About This Blog"
+    "description": "About This Blog",
+    "category": "General",
+    "tags": ["about", "blog", "dioxus", "rust"],
+    "date": "2024-01-01"
 }

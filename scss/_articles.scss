@@ -3,6 +3,7 @@
 
 @use 'variables';
 @use 'colors';
+@use 'mixins';
 
 .page-title {
   font-size: var(--font-size-page-title);
@@ -11,41 +12,375 @@
   padding-left: 0;
 
   &.articles-list {
-    margin-bottom: 25px;
+    margin-bottom: 0;
   }
 }
 
 .articles-list-container {
+
+  // Header with title and search
+  .articles-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    min-height: 48px;
+    position: relative;
+
+    .page-title {
+      margin: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .search-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .search-toggle {
+        padding: 8px 10px;
+        margin: 0 4px;
+        color: var(--current-on-background);
+        border-radius: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.2s ease, color 0.2s ease, opacity 0.3s ease, visibility 0.3s ease;
+        position: relative;
+        z-index: 2;
+
+        .material-symbols-outlined {
+          transform: translateY(-1px);
+          font-size: 20px;
+        }
+
+        &:hover {
+          background-color: var(--current-primary-container);
+          color: var(--current-on-primary-container);
+        }
+      }
+
+      .search-input {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        opacity: 0;
+        padding: 8px 12px;
+        border: 2px solid var(--current-primary);
+        border-radius: 6px;
+        background: var(--current-surface);
+        color: var(--current-on-surface);
+        font-size: 14px;
+        overflow: hidden;
+        pointer-events: none;
+        transition: width 0.3s ease, opacity 0.3s ease;
+
+        &.expanded {
+          width: 300px;
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: var(--current-primary-variant);
+          box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+        }
+      }
+    }
+
+    // When search is expanded, hide title and button on desktop
+    &.search-active {
+      .search-container .search-toggle {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+  }
+
+  // Filters section
+  .filters-section {
+    margin-bottom: 30px;
+
+    .filters {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .clear-filters {
+        align-self: flex-start;
+        background: var(--current-error);
+        color: var(--current-on-error);
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+
+      .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .filter-label {
+          font-weight: 600;
+          color: var(--current-on-background);
+          margin-right: 5px;
+          font-size: 14px;
+        }
+
+        .filter-pill {
+          background: transparent;
+          color: var(--current-on-background);
+          border: 2px solid var(--current-outline);
+          padding: 6px 12px;
+          border-radius: 16px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: var(--current-primary-container);
+            color: var(--current-on-primary-container);
+            border-color: var(--current-primary);
+          }
+
+          &.active {
+            background: var(--current-primary);
+            color: var(--current-on-primary);
+            border-color: var(--current-primary);
+          }
+
+          &.tag {
+            background: transparent;
+            color: var(--current-primary);
+            border: 1px solid var(--current-primary);
+
+            &:hover {
+              background: var(--current-primary);
+              color: var(--current-on-primary);
+            }
+
+            &.active {
+              background: var(--current-primary);
+              color: var(--current-on-primary);
+            }
+          }
+        }
+      }
+    }
+  }
+
   .articles-ul {
     list-style-type: none;
     padding-left: 0;
 
     li {
-      margin-bottom: 1.8em;
+      margin-bottom: 2.5em;
+      padding-bottom: 2.5em;
+      border-bottom: 1px solid var(--current-outline);
 
-      h2 {
-        font-size: var(--font-size-article-list-item-title);
-        margin-top: 0;
-        margin-bottom: 0.3em;
+      &:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
 
-        a {
-          color: var(--current-article-list-link-color);
-          text-decoration: none;
-          font-weight: 700;
+      .article-header {
+        margin-bottom: 0.8em;
 
-          &:hover {
-            text-decoration: underline;
-            color: var(--current-primary);
+        h2 {
+          font-size: var(--font-size-article-list-item-title);
+          margin: 0 0 0.5em 0;
+
+          a {
+            color: var(--current-article-list-link-color);
+            text-decoration: none;
+            font-weight: 700;
+
+            &:hover {
+              text-decoration: underline;
+              color: var(--current-primary);
+            }
+          }
+        }
+
+        .article-meta {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+
+          .category-pill {
+            background: var(--current-primary);
+            color: var(--current-on-primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+
+            .tag-pill {
+              background: transparent;
+              color: var(--current-primary);
+              border: 1px solid var(--current-primary);
+              padding: 3px 8px;
+              border-radius: 10px;
+              font-size: 10px;
+              font-weight: 500;
+            }
           }
         }
       }
 
-      p {
+      .article-description {
         color: var(--current-on-surface);
         opacity: 0.9;
-        margin-top: 0.3em;
+        margin: 0;
         font-size: var(--font-size-small);
         line-height: 1.5;
+      }
+    }
+  }
+
+  // No articles message
+  .no-articles {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--current-on-surface);
+    opacity: 0.7;
+
+    p {
+      margin: 0;
+      font-size: var(--font-size-base);
+    }
+  }
+
+  // Pagination
+  .pagination {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 40px;
+    gap: 8px;
+
+    .page-button {
+      background: var(--current-surface);
+      color: var(--current-on-surface);
+      border: 1px solid var(--current-outline);
+      padding: 8px 12px;
+      margin: 0 2px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--current-primary);
+        color: var(--current-on-primary);
+        border-color: var(--current-primary);
+      }
+
+      &.active {
+        background: var(--current-primary);
+        color: var(--current-on-primary);
+        border-color: var(--current-primary);
+      }
+    }
+
+    .pagination-info {
+      font-size: 12px;
+      color: var(--current-on-surface);
+      opacity: 0.7;
+      text-align: center;
+    }
+  }
+}
+
+// Mobile responsive styles
+@include mixins.mobile-only {
+  .articles-list-container {
+    .articles-header {
+      // Keep title and search button on same line in mobile by default
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+      min-height: 48px;
+
+      .page-title {
+        flex: 1;
+        margin: 0;
+      }
+
+      .search-container {
+        flex-shrink: 0;
+
+        .search-input {
+          &.expanded {
+            // On mobile, when expanded, make it full width and overlay
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 40px;
+            padding: 10px 16px;
+            border-radius: 0;
+            border: none;
+            border-bottom: 2px solid var(--current-primary);
+            z-index: 1000;
+            font-size: 16px; // Prevent zoom on iOS
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: none;
+            top: 0;
+          }
+        }
+      }
+
+      // When search is active on mobile, hide everything else
+      &.search-active {
+        .page-title {
+          display: none;
+        }
+
+        .search-container .search-toggle {
+          display: none;
+        }
+      }
+    }
+
+    .filters-section .filters .filter-group {
+      .filter-label {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+    }
+
+    .pagination {
+      .page-button {
+        padding: 10px 14px;
+        margin: 0 1px;
       }
     }
   }

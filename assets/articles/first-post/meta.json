@@ -1,4 +1,7 @@
 {
     "title": "My First Post",
-    "description": "This is a short description of my very first blog post."
+    "description": "This is a short description of my very first blog post.",
+    "category": "General",
+    "tags": ["first-post", "introduction", "blog"],
+    "date": "2024-01-15"
 }

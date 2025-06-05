@@ -1,23 +1,33 @@
-use dioxus::prelude::*;
-use dioxus_router::prelude::Link;
-
 use crate::{
-    components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
-    models,
-    router::Route,
+    components::{
+        articles::list::{
+            article_filters::ArticleFilters, article_search_bar::ArticleSearchBar,
+            articles_list::ArticlesList, articles_pagination::ArticlesPagination,
+        },
+        error_page::ErrorPage,
+        progress_bar::stop_progress_bar,
+    },
+    models::{self, ArticleSearchIndex, SearchableArticle},
     types::site::SiteContext,
 };
+use dioxus::prelude::*;
 
 #[component]
 pub fn ArticlesListPage() -> Element {
     let site_context = use_context::<SiteContext>();
-    let site = &site_context.0;
-    let articles = use_resource(|| async {
-        models::ArticleIndex::fetch().await.map(|index| {
-            let mut articles: Vec<_> = index.common.into_iter().collect();
-            articles.sort_by_key(|article| article.1.title.clone());
-            articles
-        })
+    let site = &site_context.0; // State for search and filtering
+    let mut search_query = use_signal(|| String::new());
+    let search_expanded = use_signal(|| false);
+    let mut current_page = use_signal(|| 0usize);
+    let filter_category = use_signal(|| None::<String>);
+    let filter_tag = use_signal(|| None::<String>);
+
+    const ARTICLES_PER_PAGE: usize = 10;
+
+    let articles_index = use_resource(|| async {
+        models::ArticleIndex::fetch()
+            .await
+            .map(|index| index.to_search_index())
     });
 
     let mut animation_class = use_signal(|| "page-content");
@@ -34,39 +44,93 @@ pub fn ArticlesListPage() -> Element {
         }
     });
 
-    let articles_guard = articles.read();
+    // Event handlers for child components
+    let handle_search_change = move |query: String| {
+        search_query.set(query);
+        current_page.set(0);
+    };
+
+    let handle_filter_change = move |_: ()| {
+        current_page.set(0);
+    };
+
+    let handle_page_change = move |page: usize| {
+        current_page.set(page);
+    };
+
+    let articles_guard = articles_index.read();
     match articles_guard.as_ref() {
-        Some(Ok(articles)) => {
-            // Articles successfully fetched, render them
+        Some(Ok(search_index)) => {
+            // Filter articles based on search and filters
+            let filtered_articles: Vec<&SearchableArticle> =
+                if let Some(category) = filter_category.read().as_ref() {
+                    search_index.filter_by_category(category)
+                } else if let Some(tag) = filter_tag.read().as_ref() {
+                    search_index.filter_by_tag(tag)
+                } else {
+                    search_index.search(&search_query.read())
+                };
+
+            let total_articles = filtered_articles.len();
+            let total_pages = ArticleSearchIndex::total_pages(total_articles, ARTICLES_PER_PAGE);
+            let current_page_articles: Vec<SearchableArticle> = ArticleSearchIndex::paginate(
+                &filtered_articles,
+                current_page.read().clone(),
+                ARTICLES_PER_PAGE,
+            )
+            .iter()
+            .map(|&article| article.clone())
+            .collect();
+
+            let is_empty_state = current_page_articles.is_empty();
+            let empty_message = if filtered_articles.is_empty() {
+                if search_query.read().is_empty()
+                    && filter_category.read().is_none()
+                    && filter_tag.read().is_none()
+                {
+                    "No articles yet!".to_string()
+                } else {
+                    "No articles found matching your criteria.".to_string()
+                }
+            } else {
+                "No articles on this page.".to_string()
+            };
+
             stop_progress_bar();
+
             rsx! {
                 div {
                     class: "articles-list-container {animation_class.read()}",
-                    h1 { class: "page-title", "Articles" }
-                    if articles.is_empty() {
-                        p { "No articles yet!" }
-                    } else {
-                        ul { class: "articles-ul",
-                            for article_entry in articles { // Changed variable name for clarity
-                                li {
-                                    key: "{article_entry.0}",
-                                    h2 {
-                                        Link {
-                                            to: Route::ArticlePage { id: article_entry.0.clone() },
-                                            "{article_entry.1.title}" // Use title from ArticleEntry
-                                        }
-                                    }
-                                    p { "{article_entry.1.description}" }
-                                }
-                            }
-                        }
+
+                    ArticleSearchBar {
+                        search_query,
+                        search_expanded,
+                        on_search_change: handle_search_change,
+                    }
+
+                    ArticleFilters {
+                        search_index: search_index.clone(),
+                        filter_category,
+                        filter_tag,
+                        on_filter_change: handle_filter_change,
+                    }
+
+                    ArticlesList {
+                        articles: current_page_articles,
+                        is_empty_state,
+                        empty_message,
+                    }
+
+                    ArticlesPagination {
+                        current_page,
+                        total_pages,
+                        total_articles,
+                        on_page_change: handle_page_change,
                     }
                 }
             }
         }
         Some(Err(_)) => {
-            // Error fetching articles, show error page
-            // Show 404 error page or similar
             rsx! {
                 ErrorPage {
                     title: "Unexpected Error".to_string(),
@@ -80,7 +144,6 @@ pub fn ArticlesListPage() -> Element {
         }
         None => {
             rsx! {
-                // Loading state, render noting
                 div {}
             }
         }

@@ -1,7 +1,7 @@
 use crate::{
     components::{
         articles::list::{
-            article_filters::ArticleFilters, article_search_bar::ArticleSearchBar,
+            articles_filters::ArticleFilters, articles_title::ArticleTitleBar,
             articles_list::ArticlesList, articles_pagination::ArticlesPagination,
         },
         error_page::ErrorPage,
@@ -82,7 +82,6 @@ pub fn ArticlesListPage() -> Element {
             .map(|&article| article.clone())
             .collect();
 
-            let is_empty_state = current_page_articles.is_empty();
             let empty_message = if filtered_articles.is_empty() {
                 if search_query.read().is_empty()
                     && filter_category.read().is_none()
@@ -102,7 +101,7 @@ pub fn ArticlesListPage() -> Element {
                 div {
                     class: "articles-list-container {animation_class.read()}",
 
-                    ArticleSearchBar {
+                    ArticleTitleBar {
                         search_query,
                         search_expanded,
                         on_search_change: handle_search_change,
@@ -117,7 +116,6 @@ pub fn ArticlesListPage() -> Element {
 
                     ArticlesList {
                         articles: current_page_articles,
-                        is_empty_state,
                         empty_message,
                     }
 

@@ -18,13 +18,17 @@ pub fn ArticleFilters(props: ArticleFiltersProps) -> Element {
         on_filter_change,
     } = props;
 
+    let clear_filters_visible = filter_category.read().is_some() || filter_tag.read().is_some();
+
     rsx! {
         div { class: "filters-section",
             if !search_index.categories.is_empty() || !search_index.tags.is_empty() {
-                div { class: "filters",
-                    if filter_category.read().is_some() || filter_tag.read().is_some() {
+                div { 
+                    class: "filters",
+                    div {
+                        class: if clear_filters_visible { "clear-filters-container visible" } else { "clear-filters-container" },
                         button {
-                            class: "clear-filters",
+                            class: if clear_filters_visible { "clear-filters visible" } else { "clear-filters" },
                             onclick: move |_| {
                                 filter_category.set(None);
                                 filter_tag.set(None);

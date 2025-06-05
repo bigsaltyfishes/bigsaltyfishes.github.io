@@ -11,7 +11,7 @@ pub struct ArticleSearchBarProps {
 }
 
 #[component]
-pub fn ArticleSearchBar(props: ArticleSearchBarProps) -> Element {
+pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
     let ArticleSearchBarProps {
         search_query,
         mut search_expanded,

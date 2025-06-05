@@ -111,20 +111,36 @@
       flex-direction: column;
       gap: 15px;
 
-      .clear-filters {
-        align-self: flex-start;
-        background: var(--current-error);
-        color: var(--current-on-error);
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 500;
-        transition: opacity 0.2s ease;
+      .clear-filters-container {
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.4s ease;
 
-        &:hover {
-          opacity: 0.9;
+        &.visible {
+          max-height: 100px; // Adjust based on content
+          opacity: 1;
+        }
+
+        .clear-filters {
+          align-self: flex-start;
+          background: var(--current-error);
+          color: var(--current-on-error);
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+          transition: opacity 0.4s ease;
+          opacity: 0;
+
+          &.visible {
+            opacity: 1;
+          }
+
+          &:hover {
+            opacity: 0.9;
+          }
         }
       }
 
@@ -184,95 +200,103 @@
     }
   }
 
-  .articles-ul {
-    list-style-type: none;
-    padding-left: 0;
+  .article-cards {
+    transition: opacity 0.4s ease;
 
-    li {
-      margin-bottom: 2.5em;
-      padding-bottom: 2.5em;
-      border-bottom: 1px solid var(--current-outline);
+    &.hidden {
+      opacity: 0;
+    }
 
-      &:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-      }
+    // No articles message
+    .no-articles {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--current-on-surface);
+      opacity: 0.7;
 
-      .article-header {
-        margin-bottom: 0.8em;
-
-        h2 {
-          font-size: var(--font-size-article-list-item-title);
-          margin: 0 0 0.5em 0;
-
-          a {
-            color: var(--current-article-list-link-color);
-            text-decoration: none;
-            font-weight: 700;
-
-            &:hover {
-              text-decoration: underline;
-              color: var(--current-primary);
-            }
-          }
-        }
-
-        .article-meta {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-
-          .category-pill {
-            background: var(--current-primary);
-            color: var(--current-on-primary);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-
-          .tags {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-
-            .tag-pill {
-              background: transparent;
-              color: var(--current-primary);
-              border: 1px solid var(--current-primary);
-              padding: 3px 8px;
-              border-radius: 10px;
-              font-size: 10px;
-              font-weight: 500;
-            }
-          }
-        }
-      }
-
-      .article-description {
-        color: var(--current-on-surface);
-        opacity: 0.9;
+      p {
         margin: 0;
-        font-size: var(--font-size-small);
-        line-height: 1.5;
+        font-size: var(--font-size-base);
       }
     }
-  }
 
-  // No articles message
-  .no-articles {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--current-on-surface);
-    opacity: 0.7;
+    .articles-ul {
+      list-style-type: none;
+      padding-left: 0;
 
-    p {
-      margin: 0;
-      font-size: var(--font-size-base);
+      li {
+        margin-bottom: 2.5em;
+        padding-bottom: 2.5em;
+        border-bottom: 1px solid var(--current-outline);
+
+        &:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-bottom: 0;
+        }
+
+        .article-header {
+          margin-bottom: 0.8em;
+
+          h2 {
+            font-size: var(--font-size-article-list-item-title);
+            margin: 0 0 0.5em 0;
+
+            a {
+              color: var(--current-article-list-link-color);
+              text-decoration: none;
+              font-weight: 700;
+
+              &:hover {
+                text-decoration: underline;
+                color: var(--current-primary);
+              }
+            }
+          }
+
+          .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+
+            .category-pill {
+              background: var(--current-primary);
+              color: var(--current-on-primary);
+              padding: 4px 10px;
+              border-radius: 12px;
+              font-size: 11px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .tags {
+              display: flex;
+              gap: 5px;
+              flex-wrap: wrap;
+
+              .tag-pill {
+                background: transparent;
+                color: var(--current-primary);
+                border: 1px solid var(--current-primary);
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: 500;
+              }
+            }
+          }
+        }
+
+        .article-description {
+          color: var(--current-on-surface);
+          opacity: 0.9;
+          margin: 0;
+          font-size: var(--font-size-small);
+          line-height: 1.5;
+        }
+      }
     }
   }
 

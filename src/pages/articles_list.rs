@@ -2,13 +2,13 @@ use crate::{
     app::SITE_CONFIGURATION,
     components::{
         articles::list::{
-            articles_filters::ArticleFilters, articles_list::ArticlesList,
-            articles_pagination::ArticlesPagination, articles_title::ArticleTitleBar,
+            articles_list::ArticlesList, articles_pagination::ArticlesPagination,
+            articles_title::ArticleTitleBar,
         },
         error_page::ErrorPage,
         progress_bar::stop_progress_bar,
     },
-    models::{self, ArticleSearchIndex, SearchableArticle},
+    models::{self, ArticleSearchIndex, SearchCriteria, SearchableArticle},
 };
 use dioxus::prelude::*;
 
@@ -20,8 +20,6 @@ pub fn ArticlesListPage() -> Element {
     let mut search_query = use_signal(|| String::new());
     let search_expanded = use_signal(|| false);
     let mut current_page = use_signal(|| 0usize);
-    let filter_category = use_signal(|| None::<String>);
-    let filter_tag = use_signal(|| None::<String>);
 
     const ARTICLES_PER_PAGE: usize = 10;
 
@@ -56,26 +54,18 @@ pub fn ArticlesListPage() -> Element {
         current_page.set(0);
     };
 
-    let handle_filter_change = move |_: ()| {
-        current_page.set(0);
-    };
-
     let handle_page_change = move |page: usize| {
         current_page.set(page);
     };
-
     let articles_guard = articles_index.read();
     match articles_guard.as_ref() {
         Some(Ok(search_index)) => {
-            // Filter articles based on search and filters
+            // Parse search criteria from query
+            let search_criteria = SearchCriteria::parse(&search_query.read());
+
+            // Filter articles using the new search criteria
             let filtered_articles: Vec<&SearchableArticle> =
-                if let Some(category) = filter_category.read().as_ref() {
-                    search_index.filter_by_category(category)
-                } else if let Some(tag) = filter_tag.read().as_ref() {
-                    search_index.filter_by_tag(tag)
-                } else {
-                    search_index.search(&search_query.read())
-                };
+                search_index.search_with_criteria(&search_criteria);
 
             let total_articles = filtered_articles.len();
             let total_pages = ArticleSearchIndex::total_pages(total_articles, ARTICLES_PER_PAGE);
@@ -89,18 +79,14 @@ pub fn ArticlesListPage() -> Element {
             .collect();
 
             let empty_message = if filtered_articles.is_empty() {
-                if search_query.read().is_empty()
-                    && filter_category.read().is_none()
-                    && filter_tag.read().is_none()
-                {
+                if search_criteria.is_empty() {
                     "No articles yet!".to_string()
                 } else {
-                    "No articles found matching your criteria.".to_string()
+                    "No articles found matching your search criteria.".to_string()
                 }
             } else {
                 "No articles on this page.".to_string()
             };
-
             stop_progress_bar();
 
             rsx! {
@@ -111,13 +97,6 @@ pub fn ArticlesListPage() -> Element {
                         search_query,
                         search_expanded,
                         on_search_change: handle_search_change,
-                    }
-
-                    ArticleFilters {
-                        search_index: search_index.clone(),
-                        filter_category,
-                        filter_tag,
-                        on_filter_change: handle_filter_change,
                     }
 
                     ArticlesList {

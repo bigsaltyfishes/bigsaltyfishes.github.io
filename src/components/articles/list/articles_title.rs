@@ -56,7 +56,7 @@ pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
                 input {
                     class: if *search_expanded.read() { "search-input expanded" } else { "search-input" },
                     r#type: "text",
-                    placeholder: "Search articles...",
+                    placeholder: "Search: category:<any> tag:<any> keywords",
                     value: "{search_query.read()}",
                     oninput: move |evt| {
                         on_search_change.call(evt.value());

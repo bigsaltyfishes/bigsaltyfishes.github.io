@@ -1,4 +1,3 @@
-use dioxus::hooks::use_context;
 use std::collections::HashMap;
 use web_time::Instant;
 
@@ -96,11 +95,6 @@ impl ArticleIndex {
         })
     }
 
-    /// Find an article by its ID.
-    pub fn find_article(&self, id: &str) -> Option<&Article> {
-        self.common.get(id).or_else(|| self.special.get(id))
-    }
-
     /// Convert to searchable index
     pub fn to_search_index(&self) -> ArticleSearchIndex {
         let mut articles = Vec::new();
@@ -137,41 +131,54 @@ impl ArticleIndex {
 }
 
 impl ArticleSearchIndex {
-    /// Search articles by query string (searches title and description)
-    pub fn search(&self, query: &str) -> Vec<&SearchableArticle> {
-        if query.trim().is_empty() {
+
+    /// Search articles using SearchCriteria
+    pub fn search_with_criteria(&self, criteria: &SearchCriteria) -> Vec<&SearchableArticle> {
+        if criteria.is_empty() {
             return self.articles.iter().collect();
         }
 
-        let query_lower = query.to_lowercase();
         self.articles
             .iter()
             .filter(|article| {
-                article.article.title.to_lowercase().contains(&query_lower)
-                    || article
-                        .article
-                        .description
-                        .to_lowercase()
-                        .contains(&query_lower)
-            })
-            .collect()
-    }
+                // Check categories
+                if !criteria.categories.is_empty() {
+                    let matches_category = if let Some(ref article_category) = article.article.category {
+                        criteria.categories.iter().any(|c| c == article_category)
+                    } else {
+                        false
+                    };
+                    if !matches_category {
+                        return false;
+                    }
+                }
 
-    /// Filter articles by category
-    pub fn filter_by_category(&self, category: &str) -> Vec<&SearchableArticle> {
-        self.articles
-            .iter()
-            .filter(|article| {
-                article.article.category.as_ref().map(|c| c.as_str()) == Some(category)
-            })
-            .collect()
-    }
+                // Check tags
+                if !criteria.tags.is_empty() {
+                    let matches_tag = criteria.tags.iter().any(|search_tag| {
+                        article.article.tags.iter().any(|article_tag| article_tag == search_tag)
+                    });
+                    if !matches_tag {
+                        return false;
+                    }
+                }
 
-    /// Filter articles by tag
-    pub fn filter_by_tag(&self, tag: &str) -> Vec<&SearchableArticle> {
-        self.articles
-            .iter()
-            .filter(|article| article.article.tags.iter().any(|t| t == tag))
+                // Check title parts
+                if !criteria.title_parts.is_empty() {
+                    let title_lower = article.article.title.to_lowercase();
+                    let description_lower = article.article.description.to_lowercase();
+                    
+                    let matches_content = criteria.title_parts.iter().all(|part| {
+                        let part_lower = part.to_lowercase();
+                        title_lower.contains(&part_lower) || description_lower.contains(&part_lower)
+                    });
+                    if !matches_content {
+                        return false;
+                    }
+                }
+
+                true
+            })
             .collect()
     }
 
@@ -201,5 +208,141 @@ impl PartialEq for ArticleSearchIndex {
     /// Compare based on creation time
     fn eq(&self, other: &Self) -> bool {
         self.create_time == other.create_time
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchCriteria {
+    pub categories: Vec<String>,
+    pub tags: Vec<String>,
+    pub title_parts: Vec<String>,
+}
+
+impl SearchCriteria {
+    pub fn new() -> Self {
+        Self {
+            categories: Vec::new(),
+            tags: Vec::new(),
+            title_parts: Vec::new(),
+        }
+    }
+
+    pub fn parse(pattern: &str) -> Self {
+        let mut criteria = Self::new();
+        let pattern = pattern.trim();
+
+        if pattern.is_empty() {
+            return criteria;
+        }
+
+        let mut chars = pattern.chars().peekable();
+        let mut current_token = String::new();
+        let mut in_quotes = false;
+        let mut escape_next = false;
+
+        while let Some(ch) = chars.next() {
+            if escape_next {
+                current_token.push(ch);
+                escape_next = false;
+                continue;
+            }
+
+            match ch {
+                '\\' => {
+                    escape_next = true;
+                }
+                '"' => {
+                    in_quotes = !in_quotes;
+                }
+                ' ' | '\t' | '\n' if !in_quotes => {
+                    if !current_token.is_empty() {
+                        Self::process_token(&mut criteria, current_token);
+                        current_token = String::new();
+                    }
+                }
+                _ => {
+                    current_token.push(ch);
+                }
+            }
+        }
+
+        // Process the last token
+        if !current_token.is_empty() {
+            Self::process_token(&mut criteria, current_token);
+        }
+
+        criteria
+    }
+
+    fn process_token(criteria: &mut SearchCriteria, token: String) {
+        if let Some(category) = token.strip_prefix("category:") {
+            if !category.is_empty() {
+                criteria.categories.push(category.to_string());
+            }
+        } else if let Some(tag) = token.strip_prefix("tag:") {
+            if !tag.is_empty() {
+                criteria.tags.push(tag.to_string());
+            }
+        } else if !token.is_empty() {
+            criteria.title_parts.push(token);
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.categories.is_empty() && self.tags.is_empty() && self.title_parts.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_search_criteria_parsing() {
+        // Test empty string
+        let criteria = SearchCriteria::parse("");
+        assert!(criteria.is_empty());
+
+        // Test simple keyword
+        let criteria = SearchCriteria::parse("hello");
+        assert_eq!(criteria.title_parts, vec!["hello"]);
+        assert!(criteria.categories.is_empty());
+        assert!(criteria.tags.is_empty());
+
+        // Test category filter
+        let criteria = SearchCriteria::parse("category:Technology");
+        assert_eq!(criteria.categories, vec!["Technology"]);
+        assert!(criteria.title_parts.is_empty());
+        assert!(criteria.tags.is_empty());
+
+        // Test tag filter
+        let criteria = SearchCriteria::parse("tag:blog");
+        assert_eq!(criteria.tags, vec!["blog"]);
+        assert!(criteria.title_parts.is_empty());
+        assert!(criteria.categories.is_empty());
+
+        // Test quoted strings
+        let criteria = SearchCriteria::parse("category:\"Web Development\"");
+        assert_eq!(criteria.categories, vec!["Web Development"]);
+
+        // Test complex query
+        let criteria = SearchCriteria::parse("category:Technology tag:blog Hello World");
+        assert_eq!(criteria.categories, vec!["Technology"]);
+        assert_eq!(criteria.tags, vec!["blog"]);
+        assert_eq!(criteria.title_parts, vec!["Hello", "World"]);
+
+        // Test quoted keywords
+        let criteria = SearchCriteria::parse("\"Hello World\" category:Tech");
+        assert_eq!(criteria.title_parts, vec!["Hello World"]);
+        assert_eq!(criteria.categories, vec!["Tech"]);
+
+        // Test multiple categories and tags
+        let criteria = SearchCriteria::parse("category:Tech category:Science tag:blog tag:tutorial");
+        assert_eq!(criteria.categories, vec!["Tech", "Science"]);
+        assert_eq!(criteria.tags, vec!["blog", "tutorial"]);
+
+        // Test escaped quotes
+        let criteria = SearchCriteria::parse("\"test \\\"quoted\\\" content\"");
+        assert_eq!(criteria.title_parts, vec!["test \"quoted\" content"]);
     }
 }

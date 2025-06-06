@@ -36,8 +36,6 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
         })
     });
 
-    let animation_class = use_signal(|| "page-content");
-
     // Effect for updating page title
     use_effect(use_reactive((&props.id,), move |(_,)| {
         let article_result = article_result.read();
@@ -50,17 +48,6 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
         }
     }));
 
-    // Effect for animation
-    let animation_class_clone = animation_class;
-    use_effect(use_reactive((&props.id,), move |(_,)| {
-        let mut anim_class = animation_class_clone;
-        spawn(async move {
-            anim_class.set("page-content");
-            TimeoutFuture::new(10).await;
-            anim_class.set("page-content page-enter-active");
-        });
-    }));
-
     let article_result = article_result.read();
     match article_result.as_ref() {
         Some(Ok((_, markdown_content))) => {
@@ -71,7 +58,7 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
             stop_progress_bar();
             rsx! {
                 div {
-                    class: "{animation_class.read()}", key: "{props.id}",
+                    key: "{props.id}",
                     // Article class "article-content" handles content styling and spacing
                     // No longer using component-rendered page title
                     article { class: "article-content",

@@ -86,7 +86,7 @@
 
         &:focus {
           outline: none;
-          border-color: var(--current-primary-variant);
+          border-color: var(--current-primary);
           box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
         }
       }
@@ -260,13 +260,17 @@
       .search-container {
         flex-shrink: 0;
 
+        .search-toggle {
+          transform: translateX(12px);
+        }
+
         .search-input {
           // On mobile, when expanded, make it full width and overlay
           position: fixed;
           top: 0;
-          left: 0;
+          left: 3%;
           right: 0;
-          width: 100%;
+          width: 85%;
           height: 40px;
           padding: 10px 16px;
           border-radius: 0;
@@ -275,7 +279,7 @@
           z-index: 1000;
           font-size: 16px; // Prevent zoom on iOS
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          transform: none;
+          transform: translateY(100%);
           top: 0;
           opacity: 0;
 

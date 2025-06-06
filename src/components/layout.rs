@@ -16,6 +16,7 @@ pub struct ThemeContext(pub Signal<bool>); // true for dark mode
 pub fn AppLayout() -> Element {
     let mut site_resource = use_resource(move || async move { Site::fetch().await });
     let nav_progress_active = use_signal(|| false);
+    let router = router();
 
     // Provide ProgressContext to all child components
     use_context_provider(|| ProgressContext(nav_progress_active));
@@ -98,6 +99,17 @@ pub fn AppLayout() -> Element {
         }
     });
 
+    let current_route = router.full_route_string();
+    let mut animation_class = use_signal(|| "");
+    use_effect(use_reactive((&current_route,), move |(_,)| {
+        spawn(async move {
+            // Reset progress bar animation state
+            animation_class.set("");
+            TimeoutFuture::new(10).await;
+            animation_class.set("active");
+        });
+    }));
+
     let site_result = site_resource.read();
     match site_result.as_ref() {
         Some(Ok(site)) => {
@@ -115,7 +127,7 @@ pub fn AppLayout() -> Element {
                     class: "app-container",
                     ProgressBar { nav_progress_active } // Use componentized progress bar
                     Navbar { } // Pass an hide signal to progress bar
-                    div { class: "content-area", Outlet::<Route> {} }
+                    div { class: "content-area {animation_class.read()}", Outlet::<Route> {} }
                 }
             }
         }

@@ -25,10 +25,6 @@ body {
 }
 
 // Route transition animations
-.page-enter-active {
-  animation: fadeInFromUp 0.5s ease-out forwards;
-}
-
 @keyframes fadeInFromUp {
   from {
     opacity: 0;

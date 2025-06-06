@@ -98,106 +98,7 @@
         opacity: 0;
         visibility: hidden;
       }
-    }
-  }
-
-  // Filters section
-  .filters-section {
-    margin-bottom: 30px;
-
-    .filters {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-
-      .clear-filters-container {
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 0.4s ease;
-
-        &.visible {
-          max-height: 100px; // Adjust based on content
-          opacity: 1;
-        }
-
-        .clear-filters {
-          align-self: flex-start;
-          background: var(--current-error);
-          color: var(--current-on-error);
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 500;
-          transition: opacity 0.4s ease;
-          opacity: 0;
-
-          &.visible {
-            opacity: 1;
-          }
-
-          &:hover {
-            opacity: 0.9;
-          }
-        }
-      }
-
-      .filter-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-
-        .filter-label {
-          font-weight: 600;
-          color: var(--current-on-background);
-          margin-right: 5px;
-          font-size: 14px;
-        }
-
-        .filter-pill {
-          background: transparent;
-          color: var(--current-on-background);
-          border: 2px solid var(--current-outline);
-          padding: 6px 12px;
-          border-radius: 16px;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 500;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background-color: var(--current-primary-container);
-            color: var(--current-on-primary-container);
-            border-color: var(--current-primary);
-          }
-
-          &.active {
-            background: var(--current-primary);
-            color: var(--current-on-primary);
-            border-color: var(--current-primary);
-          }
-
-          &.tag {
-            background: transparent;
-            color: var(--current-primary);
-            border: 1px solid var(--current-primary);
-
-            &:hover {
-              background: var(--current-primary);
-              color: var(--current-on-primary);
-            }
-
-            &.active {
-              background: var(--current-primary);
-              color: var(--current-on-primary);
-            }
-          }
-        }
-      }
-    }
-  }
+    }  }
 
   .article-cards {
     transition: opacity 0.4s ease;
@@ -395,15 +296,7 @@
           opacity: 0;
           visibility: hidden;
         }
-      }
-    }
-
-    .filters-section .filters .filter-group {
-      .filter-label {
-        width: 100%;
-        margin-bottom: 5px;
-      }
-    }
+      }    }
 
     .pagination {
       .page-button {

@@ -36,29 +36,37 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
         })
     });
 
-    let article_result = article_result.read();
-    match article_result.as_ref() {
-        Some(Ok((title, markdown_content))) => {
-            // Article exists, render normally
-            // Render Markdown
-            let html_output = render_markdown(&markdown_content);
+    let animation_class = use_signal(|| "page-content");
+
+    // Effect for updating page title
+    use_effect(use_reactive((&props.id,), move |(_,)| {
+        let article_result = article_result.read();
+        if let Some(Ok((title, _))) = article_result.as_ref() {
             let title_clone = title.clone();
             let site_name = site.long();
-            use_effect(use_reactive((&props.id,), move |(_,)| {
-                if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                    document.set_title(&format!("{} - {}", title_clone, site_name));
-                }
-            }));
-            let animation_class = use_signal(|| "page-content");
-            let animation_class_clone = animation_class;
-            use_effect(use_reactive((&props.id,), move |(_,)| {
-                let mut anim_class = animation_class_clone;
-                spawn(async move {
-                    anim_class.set("page-content");
-                    TimeoutFuture::new(10).await;
-                    anim_class.set("page-content page-enter-active");
-                });
-            }));
+            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                document.set_title(&format!("{} - {}", title_clone, site_name));
+            }
+        }
+    }));
+
+    // Effect for animation
+    let animation_class_clone = animation_class;
+    use_effect(use_reactive((&props.id,), move |(_,)| {
+        let mut anim_class = animation_class_clone;
+        spawn(async move {
+            anim_class.set("page-content");
+            TimeoutFuture::new(10).await;
+            anim_class.set("page-content page-enter-active");
+        });
+    }));
+
+    let article_result = article_result.read();
+    match article_result.as_ref() {
+        Some(Ok((_, markdown_content))) => {
+            // Article exists, render normally
+            // Render Markdown
+            let html_output = render_markdown(&markdown_content, &props.id);
 
             stop_progress_bar();
             rsx! {
@@ -95,7 +103,7 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
     }
 }
 
-fn render_markdown(markdown_content: &str) -> String {
+fn render_markdown(markdown_content: &str, article_id: &str) -> String {
     let mut html_output = String::new();
     let mut in_code_block = false;
     let mut in_link_block = false;
@@ -146,6 +154,17 @@ fn render_markdown(markdown_content: &str) -> String {
                 in_link_block = true;
                 link_updated = false; // Reset link_updated for each new link
 
+                if let Some(rewritten_url) = try_rewrite_assets_link(&dest_url, article_id) {
+                    // Rewrite asset links to point to the correct assets directory
+                    iterator.push(pulldown_cmark::Event::Start(pulldown_cmark::Tag::Link {
+                        link_type,
+                        dest_url: rewritten_url.into(),
+                        title,
+                        id,
+                    }));
+                    continue; // Skip to next event to avoid pushing the original link
+                }
+
                 if dest_url.starts_with("/") {
                     match link_type {
                         pulldown_cmark::LinkType::Inline => {
@@ -177,10 +196,56 @@ fn render_markdown(markdown_content: &str) -> String {
                 // Reset link_updated for next link
                 link_updated = false;
             }
+            pulldown_cmark::Event::Start(pulldown_cmark::Tag::Image {
+                link_type,
+                dest_url,
+                title,
+                id,
+            }) => {
+                // Handle image links
+                if let Some(rewritten_url) = try_rewrite_assets_link(&dest_url, article_id) {
+                    // Rewrite asset links to point to the correct assets directory
+                    iterator.push(pulldown_cmark::Event::Start(pulldown_cmark::Tag::Image {
+                        link_type,
+                        dest_url: rewritten_url.into(),
+                        title,
+                        id,
+                    }));
+                } else {
+                    // Fallback to original image link
+                    iterator.push(pulldown_cmark::Event::Start(pulldown_cmark::Tag::Image {
+                        link_type,
+                        dest_url,
+                        title,
+                        id,
+                    }));
+                }
+            }
             _ => iterator.push(e),
         }
     }
 
     pulldown_cmark::html::push_html(&mut html_output, iterator.into_iter());
     html_output
+}
+
+fn try_rewrite_assets_link(link: &str, article_id: &str) -> Option<String> {
+    let site = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration not initialized");
+    let assets_re = web_sys::js_sys::RegExp::new(r"\/\$ASSETS\/(.+)", "i");
+    let assets_match = assets_re.exec(&link);
+    if let Some(m) = assets_match {
+        // Replace $ASSETS with the actual assets URL
+        let asset_path = m.get(1).as_string();
+        if let Some(asset_path) = asset_path {
+            // Rewrite the URL to point to the assets directory
+            let assets_url = format!(
+                "/{}/{}/{}/{}",
+                site.assets.directory, site.assets.articles, article_id, asset_path
+            );
+            return Some(assets_url);
+        }
+    }
+    None
 }

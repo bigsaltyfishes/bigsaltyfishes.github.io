@@ -1,7 +1,10 @@
-use web_time::Instant;
+use dioxus::hooks::use_context;
 use std::collections::HashMap;
+use web_time::Instant;
 
 use serde::Deserialize;
+
+use crate::types::site::Site;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Article {
@@ -16,8 +19,11 @@ pub struct Article {
 }
 
 impl Article {
-    pub async fn fetch_metadata(id: &str) -> Result<Self, ()> {
-        let url = format!("/assets/articles/{}/meta.json", id);
+    pub async fn fetch_metadata(id: &str, site: &Site) -> Result<Self, ()> {
+        let url = format!(
+            "/{}/{}/{}/meta.json",
+            site.assets.directory, site.assets.articles, id
+        );
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
@@ -27,14 +33,17 @@ impl Article {
         Ok(article)
     }
 
-    pub async fn fetch(id: &str) -> Result<(Self, String), ()> {
-        let url = format!("/assets/articles/{}/index.md", id);
+    pub async fn fetch(id: &str, site: &Site) -> Result<(Self, String), ()> {
+        let url = format!(
+            "/{}/{}/{}/index.md",
+            site.assets.directory, site.assets.articles, id
+        );
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
             .map_err(|_| ())?;
         let markdown = response.text().await.map_err(|_| ())?;
-        let metadata = Self::fetch_metadata(id).await?;
+        let metadata = Self::fetch_metadata(id, site).await?;
         Ok((metadata, markdown))
     }
 }
@@ -68,13 +77,13 @@ pub struct ArticleSearchIndex {
 impl ArticleIndex {
     /// Fetch the article index from the server.
     /// This will load both the common and special articles.
-    pub async fn fetch() -> Result<Self, ()> {
-        const PREFIX: &str = "/assets/articles";
-        let common_resp = gloo_net::http::Request::get(&format!("{}/index.json", PREFIX))
+    pub async fn fetch(site: &Site) -> Result<Self, ()> {
+        let prefix = format!("/{}/{}", site.assets.directory, site.assets.articles);
+        let common_resp = gloo_net::http::Request::get(&format!("{}/index.json", prefix))
             .send()
             .await
             .map_err(|_| ())?;
-        let special_resp = gloo_net::http::Request::get(&format!("{}/special.json", PREFIX))
+        let special_resp = gloo_net::http::Request::get(&format!("{}/special.json", prefix))
             .send()
             .await
             .map_err(|_| ())?;

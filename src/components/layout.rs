@@ -1,11 +1,12 @@
 use dioxus::prelude::*;
 use gloo_timers::future::TimeoutFuture;
 
+use crate::app::SITE_CONFIGURATION;
 use crate::components::error_page::ErrorPage;
 use crate::components::navbar::Navbar;
 use crate::components::progress_bar::{ProgressBar, ProgressContext};
 use crate::router::Route;
-use crate::types::site::{Site, SiteContext};
+use crate::types::site::Site;
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct ThemeContext(pub Signal<bool>); // true for dark mode
@@ -86,22 +87,24 @@ pub fn AppLayout() -> Element {
             body.class_list().remove_1("dark-mode").unwrap();
         }
     });
+    
+    use_effect(move || {
+        let site_result = site_resource.read();
+        if let Some(Ok(site)) = site_result.as_ref() {
+            let site_name = site.long();
+            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                document.set_title(&site_name);
+            }
+        }
+    });
 
     let site_result = site_resource.read();
     match site_result.as_ref() {
         Some(Ok(site)) => {
             // Site config loaded successfully, provide SiteContext and render app
-            use_context_provider(|| SiteContext(site.clone()));
-
-            // Update page title
-            use_effect({
-                let site_name = site.long();
-                move || {
-                    if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                        document.set_title(&site_name);
-                    }
-                }
-            });
+            SITE_CONFIGURATION
+                .set(site.clone())
+                .expect("Failed to set site configuration");
             rsx! {
                 // The progress bar is now at the very top of the app container
                 div {

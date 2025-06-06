@@ -1,3 +1,7 @@
 {
-    "name": "Molyuu Blog"
+    "name": "Molyuu Blog",
+    "assets": {
+        "directory": "_assets",
+        "articles": "articles"
+    }
 }

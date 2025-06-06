@@ -1,18 +1,22 @@
 use gloo_net::http::Request;
 use serde::Deserialize;
 
-#[derive(Clone)]
-pub struct SiteContext(pub Site); // true for dark mode
+#[derive(Debug, Clone, Deserialize)]
+pub struct AssetsOptions {
+    pub directory: String,
+    pub articles: String,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Site {
     pub name: String,
+    pub assets: AssetsOptions,
 }
 
 impl Site {
     // Fetch site configuration from a JSON file
     pub async fn fetch() -> Result<Self, Box<dyn std::error::Error>> {
-        let response = Request::get("/assets/site.json")
+        let response = Request::get("/site.json")
             .send()
             .await
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
@@ -38,13 +42,5 @@ impl Site {
         }
 
         result
-    }
-}
-
-impl Default for Site {
-    fn default() -> Self {
-        Self {
-            name: "Default Site".to_string(),
-        }
     }
 }

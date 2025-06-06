@@ -48,7 +48,7 @@ pub fn ArticlesList(props: ArticlesListProps) -> Element {
         div {
             class: if *show_group.read() { "article-cards" } else { "article-cards hidden" },
             if update_group.is_empty() {
-                div { 
+                div {
                     class: "no-articles",
                     p { "{update_msg}" }
                 }

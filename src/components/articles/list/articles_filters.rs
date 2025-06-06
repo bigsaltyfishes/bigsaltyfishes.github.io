@@ -23,7 +23,7 @@ pub fn ArticleFilters(props: ArticleFiltersProps) -> Element {
     rsx! {
         div { class: "filters-section",
             if !search_index.categories.is_empty() || !search_index.tags.is_empty() {
-                div { 
+                div {
                     class: "filters",
                     div {
                         class: if clear_filters_visible { "clear-filters-container visible" } else { "clear-filters-container" },

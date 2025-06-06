@@ -34,14 +34,17 @@ impl Article {
 
     pub async fn fetch(id: &str, site: &Site) -> Result<(Self, String), ()> {
         let url = format!(
-            "/{}/{}/{}/index.md",
+            "/{}/{}/{}/index.zst",
             site.assets.directory, site.assets.articles, id
         );
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
             .map_err(|_| ())?;
-        let markdown = response.text().await.map_err(|_| ())?;
+        let markdown_zstd = response.binary().await.map_err(|_| ())?;
+        let markdown_array = zstd::decode_all(markdown_zstd.as_slice())
+            .map_err(|_| ())?;
+        let markdown = String::from_utf8(markdown_array).map_err(|_| ())?;
         let metadata = Self::fetch_metadata(id, site).await?;
         Ok((metadata, markdown))
     }

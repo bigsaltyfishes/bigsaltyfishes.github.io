@@ -11,7 +11,6 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  TRUNK_VERSION: "0.21.14"
   PUBLIC_URL: "https://blog.molyuu.me/"
 
 jobs:
@@ -30,25 +29,41 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown x86_64-unknown-linux-gnu
           toolchain: stable-x86_64-unknown-linux-gnu
           components: rust-src
 
       - name: Create ci-tools directory
         run: mkdir ci-tools
 
-      - name: Download and install Trunk binary
+      - name: Compile trunk for Linux
         run: |
-          wget -qO- https://github.com/trunk-rs/trunk/releases/download/v${{ env.TRUNK_VERSION }}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
-          mv trunk ci-tools
+          git clone https://github.com/bigsaltyfishes/trunk.git -b feat/gzip --depth 1
+          cd trunk
+          cargo build --release --target x86_64-unknown-linux-gnu
+          # Move the compiled binary to ci-tools directory
+          mv target/x86_64-unknown-linux-gnu/release/trunk ../ci-tools/
+          cd ..
           chmod +x ci-tools/trunk
 
       - name: Set PATH to ci-tools
         run: echo "PATH=$(pwd)/ci-tools:$PATH" >> $GITHUB_ENV
 
+      - name: Install jq and zstd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq zstd
+
       - name: Ensure tools exist
         run: |
           test -f ci-tools/trunk || (echo "❌ trunk not found!" && exit 1)
+          command -v jq || (echo "❌ jq not found!" && exit 1)
+          command -v zstd || (echo "❌ zstd not found!" && exit 1)
+
+      - name: Build Assets
+        run: |
+          chmod +x compile_assets.sh
+          ./compile_assets.sh || (echo "❌ Asset compilation failed!" && exit 1)
 
       - name: Build with Trunk
         run: trunk build --release --public-url ${{ env.PUBLIC_URL }}

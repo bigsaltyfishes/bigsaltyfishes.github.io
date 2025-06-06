@@ -102,9 +102,13 @@ pub fn AppLayout() -> Element {
     match site_result.as_ref() {
         Some(Ok(site)) => {
             // Site config loaded successfully, provide SiteContext and render app
-            SITE_CONFIGURATION
-                .set(site.clone())
-                .expect("Failed to set site configuration");
+            if SITE_CONFIGURATION.get().is_none() {
+                // Set the site configuration globally
+                SITE_CONFIGURATION
+                    .set(site.clone())
+                    .expect("Failed to set site configuration");
+            }
+            
             rsx! {
                 // The progress bar is now at the very top of the app container
                 div {

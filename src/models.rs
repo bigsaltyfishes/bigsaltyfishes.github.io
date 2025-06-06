@@ -144,7 +144,7 @@ impl ArticleSearchIndex {
                 // Check categories
                 if !criteria.categories.is_empty() {
                     let matches_category = if let Some(ref article_category) = article.article.category {
-                        criteria.categories.iter().any(|c| c == article_category)
+                        criteria.categories.iter().any(|c| article_category.to_lowercase().contains(&c.to_lowercase()))
                     } else {
                         false
                     };
@@ -156,7 +156,7 @@ impl ArticleSearchIndex {
                 // Check tags
                 if !criteria.tags.is_empty() {
                     let matches_tag = criteria.tags.iter().any(|search_tag| {
-                        article.article.tags.iter().any(|article_tag| article_tag == search_tag)
+                        article.article.tags.iter().any(|article_tag| article_tag.to_lowercase().contains(&search_tag.to_lowercase()))
                     });
                     if !matches_tag {
                         return false;

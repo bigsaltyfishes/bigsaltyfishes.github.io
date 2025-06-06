@@ -67,7 +67,7 @@
         right: 0;
         top: 50%;
         transform: translateY(-50%);
-        width: 0;
+        width: 300px;
         opacity: 0;
         padding: 8px 12px;
         border: 2px solid var(--current-primary);
@@ -77,10 +77,9 @@
         font-size: 14px;
         overflow: hidden;
         pointer-events: none;
-        transition: width 0.3s ease, opacity 0.3s ease;
+        transition: opacity 0.3s ease;
 
         &.expanded {
-          width: 300px;
           opacity: 1;
           pointer-events: auto;
         }
@@ -361,23 +360,26 @@
         flex-shrink: 0;
 
         .search-input {
+          // On mobile, when expanded, make it full width and overlay
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          width: 100%;
+          height: 40px;
+          padding: 10px 16px;
+          border-radius: 0;
+          border: none;
+          border-bottom: 2px solid var(--current-primary);
+          z-index: 1000;
+          font-size: 16px; // Prevent zoom on iOS
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          transform: none;
+          top: 0;
+          opacity: 0;
+
           &.expanded {
-            // On mobile, when expanded, make it full width and overlay
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 40px;
-            padding: 10px 16px;
-            border-radius: 0;
-            border: none;
-            border-bottom: 2px solid var(--current-primary);
-            z-index: 1000;
-            font-size: 16px; // Prevent zoom on iOS
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transform: none;
-            top: 0;
+            opacity: 1;
           }
         }
       }
@@ -385,11 +387,13 @@
       // When search is active on mobile, hide everything else
       &.search-active {
         .page-title {
-          display: none;
+          opacity: 0;
+          visibility: hidden;
         }
 
         .search-container .search-toggle {
-          display: none;
+          opacity: 0;
+          visibility: hidden;
         }
       }
     }

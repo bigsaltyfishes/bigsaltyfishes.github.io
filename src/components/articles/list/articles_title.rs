@@ -51,13 +51,7 @@ pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
                         let expanded = *search_expanded.read();
                         search_expanded.set(!expanded);
                     },
-                    span { class: "material-symbols-outlined",
-                        if *search_expanded.read() {
-                            "close"
-                        } else {
-                            "search"
-                        }
-                    }
+                    span { class: "material-symbols-outlined", "search" }
                 }
                 input {
                     class: if *search_expanded.read() { "search-input expanded" } else { "search-input" },

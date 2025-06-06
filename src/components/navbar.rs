@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use dioxus_router::prelude::{router, Link};
 use gloo_timers::future::TimeoutFuture;
 
-use crate::{components::theme_toggle::ThemeToggle, router::Route, types::site::SiteContext};
+use crate::{app::SITE_CONFIGURATION, components::theme_toggle::ThemeToggle, router::Route};
 
 #[component]
 fn NavbarSeparator() -> Element {
@@ -16,8 +16,9 @@ pub fn Navbar() -> Element {
     let nav = router();
 
     // Get site configuration
-    let site_context = use_context::<SiteContext>();
-    let site = &site_context.0;
+    let site = SITE_CONFIGURATION
+        .get()
+        .expect("SITE_CONFIGURATION must be initialized before Navbar is rendered");
 
     // Auto-close mobile menu when route changes
     use_effect(move || {

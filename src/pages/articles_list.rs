@@ -1,21 +1,22 @@
 use crate::{
+    app::SITE_CONFIGURATION,
     components::{
         articles::list::{
-            articles_filters::ArticleFilters, articles_title::ArticleTitleBar,
-            articles_list::ArticlesList, articles_pagination::ArticlesPagination,
+            articles_filters::ArticleFilters, articles_list::ArticlesList,
+            articles_pagination::ArticlesPagination, articles_title::ArticleTitleBar,
         },
         error_page::ErrorPage,
         progress_bar::stop_progress_bar,
     },
     models::{self, ArticleSearchIndex, SearchableArticle},
-    types::site::SiteContext,
 };
 use dioxus::prelude::*;
 
 #[component]
 pub fn ArticlesListPage() -> Element {
-    let site_context = use_context::<SiteContext>();
-    let site = &site_context.0; // State for search and filtering
+    let site = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration not initialized");
     let mut search_query = use_signal(|| String::new());
     let search_expanded = use_signal(|| false);
     let mut current_page = use_signal(|| 0usize);
@@ -24,10 +25,15 @@ pub fn ArticlesListPage() -> Element {
 
     const ARTICLES_PER_PAGE: usize = 10;
 
-    let articles_index = use_resource(|| async {
-        models::ArticleIndex::fetch()
-            .await
-            .map(|index| index.to_search_index())
+    let site_clone = site.clone();
+    let articles_index = use_resource(move || {
+        let site = site_clone.clone();
+        async move {
+            let site = site.clone();
+            models::ArticleIndex::fetch(&site)
+                .await
+                .map(|index| index.to_search_index())
+        }
     });
 
     let mut animation_class = use_signal(|| "page-content");

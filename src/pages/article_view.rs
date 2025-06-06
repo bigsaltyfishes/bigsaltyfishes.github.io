@@ -4,10 +4,10 @@ use katex_wasmbind::KaTeXOptions;
 use pulldown_cmark::{Options, TextMergeStream};
 
 use crate::{
+    app::SITE_CONFIGURATION,
     bindgen,
     components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
     models::Article,
-    types::site::SiteContext,
 };
 
 #[derive(Props, Clone, PartialEq)]
@@ -17,19 +17,24 @@ pub struct ArticlePageProps {
 
 #[component]
 pub fn ArticlePage(props: ArticlePageProps) -> Element {
-    let site_context = use_context::<SiteContext>();
-    let site = &site_context.0;
+    let site = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration not initialized");
 
     // Use use_resource with dependency on props.id to ensure refresh when route changes
-    let article_result = use_resource(use_reactive((&props.id,), |(id,)| {
-        let id = id.clone();
-        async move {
-            Article::fetch(&id).await.map(|(meta, body)| {
-                // Article exists, return title and content
-                (meta.title, body)
-            })
-        }
-    }));
+    let article_result = use_resource({
+        let site = site.clone();
+        use_reactive((&props.id,), move |(id,)| {
+            let id = id.clone();
+            let site = site.clone();
+            async move {
+                Article::fetch(&id, &site).await.map(|(meta, body)| {
+                    // Article exists, return title and content
+                    (meta.title, body)
+                })
+            }
+        })
+    });
 
     let article_result = article_result.read();
     match article_result.as_ref() {

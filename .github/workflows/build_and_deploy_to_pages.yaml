@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Update submodules
+        run: git submodule update --init --recursive
+
       - name: Run workspace tests
         run: cargo test
 
@@ -65,6 +68,20 @@ jobs:
 
       - name: Check dist exists
         run: test -d dist || (echo "❌ dist/ folder not found!" && exit 1)
+
+      - name: Minfy dist
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y uglifyjs python3-pip
+          find dist/ -type f \
+            -name "*.js" ! -name "*.min.*" ! -name "vfs_fonts*" \
+            -exec echo {} \; \
+            -exec uglifyjs -o {}.min {} \; \
+            -exec rm {} \; \
+            -exec mv {}.min {} \;
+
+          pip install argparse bs4
+          python3 ./integrity_update.py -i dist/index.html
 
       - name: Upload static files as artifact
         id: deployment

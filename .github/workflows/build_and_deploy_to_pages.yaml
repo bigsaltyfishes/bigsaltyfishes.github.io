@@ -81,7 +81,7 @@ jobs:
             -exec mv {}.min {} \;
 
           pip install argparse bs4
-          python3 ./integrity_update.py -i dist/index.html
+          python3 ./integrity_update.py -u ${{ env.PUBLIC_URL }} -i dist/index.html
 
       - name: Upload static files as artifact
         id: deployment

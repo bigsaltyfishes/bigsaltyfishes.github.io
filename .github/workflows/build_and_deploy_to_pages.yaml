@@ -49,11 +49,6 @@ jobs:
       - name: Set PATH to ci-tools
         run: echo "PATH=$(pwd)/ci-tools:$PATH" >> $GITHUB_ENV
 
-      - name: Install jq and zstd
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq zstd
-
       - name: Ensure tools exist
         run: |
           test -f ci-tools/trunk || (echo "❌ trunk not found!" && exit 1)

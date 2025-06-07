@@ -36,7 +36,6 @@
 .content-area {
   flex-grow: 1;
   position: relative;
-  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   padding-top: 60px;
@@ -92,6 +91,8 @@
   .articles-list-container {
     padding: 20px 12px;
     margin: 0;
+    box-sizing: border-box;
+    width: 100%;
   }
 }
 

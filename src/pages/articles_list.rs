@@ -34,6 +34,11 @@ pub fn ArticlesListPage() -> Element {
         }
     });
 
+    let mut animation_class = use_signal(|| "page-content");
+    use_effect(move || {
+        animation_class.set("page-content page-enter-active");
+    });
+
     use_effect({
         let site_name = site.long();
         move || {
@@ -86,7 +91,7 @@ pub fn ArticlesListPage() -> Element {
 
             rsx! {
                 div {
-                    class: "articles-list-container",
+                    class: "articles-list-container {animation_class.read()}",
 
                     ArticleTitleBar {
                         search_query,

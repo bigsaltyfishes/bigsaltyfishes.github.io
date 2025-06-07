@@ -1,7 +1,6 @@
 // _layout.scss
 // Page layout, containers, progress bar, and responsive design
 
-@use 'base';
 @use 'variables';
 @use 'mixins';
 @use 'colors';
@@ -41,11 +40,6 @@
   display: flex;
   flex-direction: column;
   padding-top: 60px;
-  opacity: 0;
-
-  &.active {
-    animation: fadeInFromUp 0.5s ease-out forwards;
-  }
 }
 
 // Home page wrapper

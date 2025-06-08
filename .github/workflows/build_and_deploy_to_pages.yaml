@@ -36,6 +36,12 @@ jobs:
           toolchain: stable-x86_64-unknown-linux-gnu
           components: rust-src
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+      - run: npm ci
+
       - name: Create ci-tools directory
         run: mkdir ci-tools
 

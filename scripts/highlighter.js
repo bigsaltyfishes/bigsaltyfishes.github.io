@@ -1,5 +1,5 @@
 // markdown_renderer.js
-import hljs from 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/es/highlight.js';
+import hljs from 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/es/highlight.min.js';
 
 export function highlightCode(code, lang) {
   try {

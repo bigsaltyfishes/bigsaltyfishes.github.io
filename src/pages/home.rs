@@ -4,12 +4,24 @@ use crate::components::progress_bar::stop_progress_bar;
 
 #[component]
 pub fn HomePage() -> Element {
+    let site = crate::app::SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration not initialized");
+    
+    // Set the document title
+    use_effect(move || {
+        if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+            document.set_title(format!("Home - {}", site.long()).as_str());
+        }
+    });
+
     stop_progress_bar();
 
     let mut animation_class = use_signal(|| "page-content"); // Initial state for animation triggerAdd commentMore actions
     use_effect(move || {
         animation_class.set("page-content animate-fade-in-up");
-    });    rsx! {
+    });
+    rsx! {
         // Home page wrapper: grows to fill space and centers content.
         // Padding and animation are now handled by the parent layout.
         div {

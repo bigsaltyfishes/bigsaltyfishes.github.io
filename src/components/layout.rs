@@ -48,7 +48,8 @@ pub fn AppLayout() -> Element {
             .body()
             .unwrap();
 
-        body.class_list().add_1("no-theme-transition").unwrap();
+        // Use `no-transition` class defined in CSS to disable transitions initially
+        body.class_list().add_1("no-transition").unwrap();
 
         spawn(async move {
             TimeoutFuture::new(50).await;
@@ -58,7 +59,7 @@ pub fn AppLayout() -> Element {
                 .unwrap()
                 .body()
                 .unwrap();
-            body.class_list().remove_1("no-theme-transition").unwrap();
+            body.class_list().remove_1("no-transition").unwrap();
         });
     });
 
@@ -80,21 +81,11 @@ pub fn AppLayout() -> Element {
         let _ = storage.set_item("theme", theme_value);
 
         if current_is_dark {
-            body.class_list().add_1("dark-mode").unwrap();
-            body.class_list().remove_1("light-mode").unwrap();
+            body.class_list().add_1("dark").unwrap();
+            body.class_list().remove_1("light").unwrap();
         } else {
-            body.class_list().add_1("light-mode").unwrap();
-            body.class_list().remove_1("dark-mode").unwrap();
-        }
-    });
-    
-    use_effect(move || {
-        let site_result = site_resource.read();
-        if let Some(Ok(site)) = site_result.as_ref() {
-            let site_name = site.long();
-            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                document.set_title(&site_name);
-            }
+            body.class_list().add_1("light").unwrap();
+            body.class_list().remove_1("dark").unwrap();
         }
     });
 
@@ -102,16 +93,25 @@ pub fn AppLayout() -> Element {
     match site_result.as_ref() {
         Some(Ok(site)) => {
             // Site config loaded successfully, provide SiteContext and render app
-            SITE_CONFIGURATION
-                .set(site.clone())
-                .expect("Failed to set site configuration");
+            if SITE_CONFIGURATION.get().is_none() {
+                SITE_CONFIGURATION
+                    .set(site.clone())
+                    .expect("Failed to set site configuration");
+            }
+
             rsx! {
-                // The progress bar is now at the very top of the app container
                 div {
-                    class: "app-container",
-                    ProgressBar { nav_progress_active } // Use componentized progress bar
-                    Navbar { } // Pass an hide signal to progress bar
-                    div { class: "content-area", Outlet::<Route> {} }
+                    // Overall app container: with background colors, flex column, and full viewport height
+                    // Changed from min-h-screen to h-screen to prevent unnecessary scrolling
+                    class: "app-layout",
+                    ProgressBar { nav_progress_active }
+                    Navbar {}
+                    // Main content area: now a flex container to center its children, with padding and animation.
+                    // The `key` attribute re-triggers the animation on route changes.
+                    main {
+                        class: "main-content",
+                        Outlet::<Route> {}
+                    }
                 }
             }
         }
@@ -119,8 +119,8 @@ pub fn AppLayout() -> Element {
             // Loading error, display error message using ErrorPage component
             rsx! {
                 div {
-                    class: "app-container",
-                    ProgressBar { nav_progress_active } // Use componentized progress bar
+                    class: "app-layout",
+                    ProgressBar { nav_progress_active }
                     ErrorPage {
                         title: "Failed to Load Configuration".to_string(),
                         message: "Unable to load site configuration. Please check your network connection and try again.".to_string(),
@@ -136,8 +136,8 @@ pub fn AppLayout() -> Element {
             // Loading, only show progress bar
             rsx! {
                 div {
-                    class: "app-container",
-                    ProgressBar { nav_progress_active } // Use componentized progress bar
+                    class: "app-layout",
+                    ProgressBar { nav_progress_active }
                 }
             }
         }

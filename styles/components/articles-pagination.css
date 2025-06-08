@@ -1,0 +1,20 @@
+/* Articles Pagination Components */
+.pagination-container {
+  @apply flex flex-row flex-wrap items-center justify-center mt-10 gap-2;
+}
+
+.pagination-button {
+  @apply px-3 py-2 md:px-4 md:py-2 mx-0.5 border rounded cursor-pointer text-sm font-medium transition-colors duration-200;
+}
+
+.pagination-button-active {
+  @apply bg-primary text-on-primary border-primary;
+}
+
+.pagination-button-inactive {
+  @apply bg-surface text-on-surface border-outline hover:bg-primary-container hover:border-primary;
+}
+
+.pagination-info {
+  @apply w-full text-center mt-2 text-xs text-on-surface/70;
+}

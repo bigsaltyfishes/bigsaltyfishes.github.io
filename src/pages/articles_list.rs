@@ -36,7 +36,7 @@ pub fn ArticlesListPage() -> Element {
 
     let mut animation_class = use_signal(|| "page-content");
     use_effect(move || {
-        animation_class.set("page-content page-enter-active");
+        animation_class.set("page-content animate-fade-in-up");
     });
 
     use_effect({
@@ -57,6 +57,7 @@ pub fn ArticlesListPage() -> Element {
     let handle_page_change = move |page: usize| {
         current_page.set(page);
     };
+    
     let articles_guard = articles_index.read();
     match articles_guard.as_ref() {
         Some(Ok(search_index)) => {
@@ -87,11 +88,11 @@ pub fn ArticlesListPage() -> Element {
             } else {
                 "No articles on this page.".to_string()
             };
-            stop_progress_bar();
-
+            stop_progress_bar();            
             rsx! {
+                // Main container. Padding and animation are now handled by the parent layout.
                 div {
-                    class: "articles-list-container {animation_class.read()}",
+                    class: "page-container {animation_class.read()}",
 
                     ArticleTitleBar {
                         search_query,

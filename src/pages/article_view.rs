@@ -50,14 +50,13 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
         }
     }));
 
-    // Effect for animation
     let animation_class_clone = animation_class;
     use_effect(use_reactive((&props.id,), move |(_,)| {
         let mut anim_class = animation_class_clone;
         spawn(async move {
             anim_class.set("page-content");
             TimeoutFuture::new(10).await;
-            anim_class.set("page-content page-enter-active");
+            anim_class.set("page-content animate-fade-in-up");
         });
     }));
 
@@ -65,18 +64,22 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
     match article_result.as_ref() {
         Some(Ok((_, markdown_content))) => {
             // Article exists, render normally
-            // Render Markdown
+            // Render Markdown to HTML
             let html_output = render_markdown(&markdown_content, &props.id);
 
-            stop_progress_bar();
-            rsx! {
+            stop_progress_bar();              rsx! {
+                // Padding and animation are now handled by the parent AppLayout.
                 div {
-                    class: "{animation_class.read()}", key: "{props.id}",
-                    // Article class "article-content" handles content styling and spacing
-                    // No longer using component-rendered page title
-                    article { class: "article-content",
-                        // Markdown content is now responsible for its own H1 title
-                        div { class:"markdown-body", dangerous_inner_html: "{html_output}" }
+                    key: "{props.id}",
+                    class: "article-container {animation_class.read()}",
+                    // Article container, centered with a max-width for readability
+                    article {
+                        class: "article-content",
+                        // The 'markdown-body' class is styled by the typography plugin
+                        div {
+                            class: "markdown-body",
+                            dangerous_inner_html: "{html_output}"
+                        }
                     }
                 }
             }
@@ -103,6 +106,8 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
     }
 }
 
+// The render_markdown and try_rewrite_assets_link functions remain the same.
+// They are not directly affected by the CSS framework change.
 fn render_markdown(markdown_content: &str, article_id: &str) -> String {
     let mut html_output = String::new();
     let mut in_code_block = false;

@@ -6,18 +6,18 @@ use crate::components::progress_bar::stop_progress_bar;
 pub fn HomePage() -> Element {
     stop_progress_bar();
 
-    let mut animation_class = use_signal(|| "page-content"); // Initial state for animation trigger
+    let mut animation_class = use_signal(|| "page-content"); // Initial state for animation triggerAdd commentMore actions
     use_effect(move || {
-        animation_class.set("page-content page-enter-active");
-    });
-
-    rsx! {
+        animation_class.set("page-content animate-fade-in-up");
+    });    rsx! {
+        // Home page wrapper: grows to fill space and centers content.
+        // Padding and animation are now handled by the parent layout.
         div {
-            class: "home-page-wrapper {animation_class.read()}",
-            div { class: "home-page-content",
-                h1 { "Welcome" }
-                p { "Happy Molyuu Everyday🐟." }
-                p { "Navigate using the links in the bar." }
+            class: "home-page-container {animation_class.read()}",
+            div {
+                h1 { class: "home-page-title", "Welcome" }
+                p { class: "home-page-text", "Happy Molyuu Everyday🐟." }
+                p { class: "home-page-text", "Navigate using the links in the bar." }
             }
         }
     }

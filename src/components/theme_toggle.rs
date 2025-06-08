@@ -7,37 +7,64 @@ pub fn ThemeToggle() -> Element {
     let theme_ctx = use_context::<ThemeContext>();
     let mut is_dark = theme_ctx.0; // is_dark_mode signal
     let current_is_dark = is_dark.read().clone();
+
     let toggle_theme = move |_| {
         let current_is_dark = is_dark.read().clone();
-        let new_is_dark = !current_is_dark;
-        is_dark.set(new_is_dark);
+        is_dark.set(!current_is_dark);
     };
-    let switch_class = if current_is_dark {
-        "theme-switch active"
+
+    // Use Material 3 colors with automatic dark mode
+    let track_bg = if current_is_dark {
+        "bg-primary-container"
     } else {
-        "theme-switch"
+        "bg-surface-variant"
     };
+    
+    let (thumb_bg, thumb_icon_color, thumb_position) = if current_is_dark {
+        (
+            "bg-primary",
+            "text-on-primary",
+            "theme-toggle-thumb-dark",
+        )
+    } else {
+        (
+            "bg-secondary",
+            "text-on-secondary",
+            "theme-toggle-thumb-light",
+        )
+    };
+    
     rsx! {
         button {
             "aria-label": "Toggle theme",
-            class: "{switch_class}",
+            class: "theme-toggle-button {track_bg}",
             onclick: toggle_theme,
-            div { class: "switch-track",                div {
-                    class: "switch-thumb",
-                    // Use two icons, control their visibility and transitions via CSS
+            
+            // Thumb
+            div {
+                class: "theme-toggle-thumb {thumb_bg} {thumb_position}",
+                
+                // Light Mode Icon
+                span {
+                    class: format!(
+                        "theme-toggle-icon-container {}",
+                        if current_is_dark { "theme-toggle-icon-hidden" } else { "theme-toggle-icon-visible" }
+                    ),
                     span {
-                        class: "icon-container light-icon",
-                        span {
-                            class: "material-symbols-outlined",
-                            "light_mode"
-                        }
+                        class: "material-symbols-outlined theme-toggle-icon {thumb_icon_color}",
+                        "light_mode"
                     }
+                }
+                
+                // Dark Mode Icon
+                span {
+                    class: format!(
+                        "theme-toggle-icon-container {}",
+                        if current_is_dark { "theme-toggle-icon-visible" } else { "theme-toggle-icon-hidden" }
+                    ),
                     span {
-                        class: "icon-container dark-icon",
-                        span {
-                            class: "material-symbols-outlined",
-                            "dark_mode"
-                        }
+                        class: "material-symbols-outlined theme-toggle-icon {thumb_icon_color}",
+                        "dark_mode"
                     }
                 }
             }

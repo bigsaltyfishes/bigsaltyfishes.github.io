@@ -9,32 +9,52 @@ pub struct ArticleCardProps {
 
 #[component]
 pub fn ArticleCard(props: ArticleCardProps) -> Element {
-    let ArticleCardProps { article } = props;
-
-    rsx! {
+    let ArticleCardProps { article } = props;    rsx! {
+        // List item with bottom border and spacing, removing them for the last item
         li {
             key: "{article.id}",
-            div { class: "article-header",
+            class: "article-card",
+            
+            // Header containing title and meta info
+            div {
+                class: "article-card-header",
                 h2 {
+                    class: "article-card-title",
                     Link {
                         to: Route::ArticlePage { id: article.id.clone() },
+                        class: "article-card-title-link",
                         "{article.article.title}"
                     }
                 }
-                div { class: "article-meta",
+                
+                // Meta information (category and tags)
+                div {
+                    class: "article-card-meta",
                     if let Some(ref category) = article.article.category {
-                        span { class: "category-pill", "{category}" }
+                        span {
+                            class: "article-card-category",
+                            "{category}"
+                        }
                     }
                     if !article.article.tags.is_empty() {
-                        div { class: "tags",
+                        div {
+                            class: "article-card-tags",
                             for tag in &article.article.tags {
-                                span { class: "tag-pill", "#{tag}" }
+                                span {
+                                    class: "article-card-tag",
+                                    "#{tag}"
+                                }
                             }
                         }
                     }
                 }
             }
-            p { class: "article-description", "{article.article.description}" }
+            
+            // Article description
+            p {
+                class: "article-card-description",
+                "{article.article.description}"
+            }
         }
     }
 }

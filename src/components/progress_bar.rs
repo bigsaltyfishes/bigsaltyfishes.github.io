@@ -28,37 +28,27 @@ pub fn ProgressBar(props: ProgressBarProps) -> Element {
             }
             nav_progress_active.set(true); // Activate progress bar
         });
-    }));
-
+    }));    // Dynamically set width and transition classes based on the active state
     let progress_class = if *nav_progress_active.read() {
-        "page-progress active"
+        // Active state: full width with a longer ease-out transition
+        "progress-bar-active"
     } else {
-        "page-progress inactive"
+        // Inactive state: zero width with a shorter ease-out transition
+        "progress-bar-inactive"
     };
 
     rsx! {
-        div { class: "{progress_class}" }
+        // Progress bar container: fixed position, full width, specific height, and z-index
+        div {
+            class: "progress-bar-container",
+            // The actual progress bar element with dynamic width and color
+            div {
+                class: "{progress_class}"
+            }
+        }
     }
 }
 
-#[derive(Props, Clone, PartialEq)]
-pub struct StaticProgressBarProps {
-    pub active: bool,
-}
-
-/// Static progress bar component for error or loading pages
-#[component]
-pub fn StaticProgressBar(props: StaticProgressBarProps) -> Element {
-    let progress_class = if props.active {
-        "page-progress active"
-    } else {
-        "page-progress inactive"
-    };
-
-    rsx! {
-        div { class: "{progress_class}" }
-    }
-}
 
 pub fn stop_progress_bar() {
     // Try to get the context, but don't panic if it's not available

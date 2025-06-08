@@ -5,11 +5,6 @@ use gloo_timers::future::TimeoutFuture;
 use crate::{app::SITE_CONFIGURATION, components::theme_toggle::ThemeToggle, router::Route};
 
 #[component]
-fn NavbarSeparator() -> Element {
-    rsx! { div { class: "navbar-separator" } }
-}
-
-#[component]
 pub fn Navbar() -> Element {
     let mut is_mobile_menu_open = use_signal(|| false);
     let mut is_closing = use_signal(|| false);
@@ -27,25 +22,8 @@ pub fn Navbar() -> Element {
         is_closing.set(false);
     });
 
-    let toggle_mobile_menu = move |_| {
-        let current_state = *is_mobile_menu_open.read();
-        if current_state {
-            // Start closing animation
-            is_closing.set(true);
-            // Use spawn to create an async task for the delay
-            spawn(async move {
-                TimeoutFuture::new(100).await;
-                is_mobile_menu_open.set(false);
-                is_closing.set(false);
-            });
-        } else {
-            // Open menu
-            is_mobile_menu_open.set(true);
-            is_closing.set(false);
-        }
-    };
-
-    let close_mobile_menu = move |_| {
+    // A helper function to handle the closing logic
+    let mut close_mobile_menu = move || {
         if *is_mobile_menu_open.read() {
             is_closing.set(true);
             spawn(async move {
@@ -56,132 +34,130 @@ pub fn Navbar() -> Element {
         }
     };
 
-    rsx! {
+    let toggle_mobile_menu = move |_| {
+        let current_state = *is_mobile_menu_open.read();
+        if current_state {
+            close_mobile_menu();
+        } else {
+            // Open menu
+            is_mobile_menu_open.set(true);
+            is_closing.set(false);
+        }
+    };    rsx! {
         nav {
-            class: "navbar top-navbar",
+            class: "navbar",
+            
+            // Inner container with max-width, padding, and flexbox layout
             div {
-                class: "navbar-inner-container",                div {
-                    class: "navbar-brand",
+                class: "navbar-inner",
+                  // --- Site Brand / Title (Always visible, on the left) ---
+                div {
                     Link {
                         to: Route::HomePage {},
-                        class: "site-title-link",
-                        span { class: "site-title-full", "{site.long()}" }
-                        span { class: "site-title-short", "{site.short()}" }
+                        class: "navbar-brand",
+                        // Show full title on desktop, short on mobile
+                        span { class: "navbar-brand-long", "{site.long()}" }
+                        span { class: "navbar-brand-short", "{site.short()}" }
                     }
-                }
-
-                // Desktop navigation (hidden on mobile)
+                }                // --- Desktop Navigation (Hidden on mobile) ---
                 div {
-                    class: "navbar-right-group desktop-only",
+                    class: "navbar-desktop",
                     div {
-                        class: "navbar-links",
+                        class: "navbar-desktop-links",
                         Link {
                             to: Route::HomePage {},
-                            class: "nav-button",
-                            active_class: "active",
-                            span { class: "material-symbols-outlined", "home" }
-                            span { class: "nav-button-text", "Home" }
+                            class: "navbar-desktop-link",
+                            active_class: "navbar-desktop-link-active",
+                            span { class: "material-symbols-outlined navbar-desktop-link-icon", "home" }
+                            span { "Home" }
                         }
-                        NavbarSeparator {}
                         Link {
                             to: Route::ArticlesListPage {},
-                            class: "nav-button",
-                            active_class: "active",
-                            span { class: "material-symbols-outlined", "description" }
-                            span { class: "nav-button-text", "Articles" }
+                            class: "navbar-desktop-link",
+                            active_class: "navbar-desktop-link-active",
+                            span { class: "material-symbols-outlined navbar-desktop-link-icon", "description" }
+                            span { "Articles" }
                         }
-                        NavbarSeparator {}
                         Link {
-                            to: Route::ArticlePage {
-                                id: "about".to_string(),
-                            },
-                            class: "nav-button",
-                            active_class: "active",
-                            span { class: "material-symbols-outlined", "info" }
-                            span { class: "nav-button-text", "About" }
+                            to: Route::ArticlePage { id: "about".to_string() },
+                            class: "navbar-desktop-link",
+                            active_class: "navbar-desktop-link-active",
+                            span { class: "material-symbols-outlined navbar-desktop-link-icon", "info" }
+                            span { "About" }
                         }
                     }
-                    div { class: "navbar-actions",
+                    div { class: "navbar-actions", // Navbar actions
                         ThemeToggle {}
                     }
-                }
-
-                // Mobile menu button (hidden on desktop)
+                }                // --- Mobile Menu Button (Hidden on desktop) ---
                 button {
-                    class: "mobile-menu-button mobile-only",
+                    class: "navbar-mobile-button", // Negative margin to align to the very edge
                     onclick: toggle_mobile_menu,
                     aria_label: "Toggle mobile menu",
-                    span { class: "material-symbols-outlined", "menu" }
-                }                // Mobile menu overlay
-                if *is_mobile_menu_open.read() {
-                    {
-                        let overlay_class = if *is_closing.read() {
-                            "mobile-menu-overlay closing"
-                        } else {
-                            "mobile-menu-overlay"
-                        };
-                        let menu_class = if *is_closing.read() {
-                            "mobile-menu closing"
-                        } else {
-                            "mobile-menu"
-                        };
+                    span { class: "material-symbols-outlined navbar-mobile-button-icon", "menu" }
+                }
+            }
+              // --- Mobile Menu Overlay & Panel ---
+            if *is_mobile_menu_open.read() {
+                // Overlay
+                div {
+                    class: format!(
+                        "mobile-menu-overlay {}",
+                        if *is_closing.read() { "mobile-menu-overlay-fade-out" } else { "mobile-menu-overlay-fade-in" }
+                    ),
+                    onclick: move |_| close_mobile_menu(),
+                }
+                // Menu Panel (Now positioned on the right)
+                div {
+                    class: format!(
+                        "mobile-menu-panel {}",
+                        if *is_closing.read() { "mobile-menu-panel-slide-out" } else { "mobile-menu-panel-slide-in" }
+                    ),
+                    onclick: |e| e.stop_propagation(),
 
-                        rsx! {
-                            div {
-                                class: "{overlay_class}",
-                                onclick: close_mobile_menu,
-                                div {
-                                    class: "{menu_class}",
-                                    onclick: |e| e.stop_propagation(), // Prevent closing when clicking inside menu
-
-                                    // Mobile menu header with close button
-                                    div {
-                                        class: "mobile-menu-header",
-                                        h3 { class: "mobile-menu-title", "Navigation" }
-                                        button {
-                                            class: "mobile-menu-close",
-                                            onclick: close_mobile_menu,
-                                            "aria-label": "Close menu",
-                                            span { class: "material-symbols-outlined", "close" }
-                                        }
-                                    }
-
-                                    div {
-                                        class: "mobile-menu-links",
-                                        Link {
-                                            to: Route::HomePage {},
-                                            class: "mobile-nav-button",
-                                            active_class: "active",
-                                            onclick: close_mobile_menu,
-                                            span { class: "material-symbols-outlined", "home" }
-                                            span { "Home" }
-                                        }
-                                        Link {
-                                            to: Route::ArticlesListPage {},
-                                            class: "mobile-nav-button",
-                                            active_class: "active",
-                                            onclick: close_mobile_menu,
-                                            span { class: "material-symbols-outlined", "description" }
-                                            span { "Articles" }
-                                        }
-                                        Link {
-                                            to: Route::ArticlePage {
-                                                id: "about".to_string(),
-                                            },
-                                            class: "mobile-nav-button",
-                                            active_class: "active",
-                                            onclick: close_mobile_menu,
-                                            span { class: "material-symbols-outlined", "info" }
-                                            span { "About" }
-                                        }
-                                    }
-                                    div {
-                                        class: "mobile-menu-theme-toggle",
-                                        ThemeToggle {}
-                                    }
-                                }
-                            }
+                    // Mobile Menu Header
+                    div {
+                        class: "mobile-menu-header",
+                        h3 { class: "mobile-menu-title", "Navigation" }
+                        button {
+                            class: "mobile-menu-close-button",
+                            onclick: move |_| close_mobile_menu(),
+                            aria_label: "Close menu",
+                            span { class: "material-symbols-outlined mobile-menu-close-icon", "close" }
                         }
+                    }                    // Mobile Menu Links
+                    div {
+                        class: "mobile-menu-links",
+                        Link {
+                            to: Route::HomePage {},
+                            class: "mobile-menu-link",
+                            active_class: "mobile-menu-link-active",
+                            onclick: move |_| close_mobile_menu(),
+                            span { class: "material-symbols-outlined mobile-menu-link-icon", "home" }
+                            span { "Home" }
+                        }
+                        Link {
+                            to: Route::ArticlesListPage {},
+                            class: "mobile-menu-link",
+                            active_class: "mobile-menu-link-active",
+                            onclick: move |_| close_mobile_menu(),
+                            span { class: "material-symbols-outlined mobile-menu-link-icon", "description" }
+                            span { "Articles" }
+                        }
+                        Link {
+                            to: Route::ArticlePage { id: "about".to_string() },
+                            class: "mobile-menu-link",
+                            active_class: "mobile-menu-link-active",
+                            onclick: move |_| close_mobile_menu(),
+                            span { class: "material-symbols-outlined mobile-menu-link-icon", "info" }
+                            span { "About" }
+                        }
+                    }
+
+                    // Mobile Menu Footer (Theme Toggle)
+                    div {
+                        class: "mobile-menu-footer",
+                        ThemeToggle {}
                     }
                 }
             }

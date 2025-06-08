@@ -1,0 +1,44 @@
+/* Articles Title Bar Components */
+.articles-title-container {
+  @apply min-h-[48px] mb-6 flex items-center relative;
+}
+
+.articles-title-header {
+  @apply flex w-full items-center justify-between transition-opacity duration-300 ease-in-out;
+}
+
+.articles-title-header-visible {
+  @apply opacity-100;
+}
+
+.articles-title-header-hidden {
+  @apply opacity-0 pointer-events-none;
+}
+
+.articles-title {
+  @apply text-page-title text-on-background;
+}
+
+.articles-search-button {
+  @apply p-2 max-md:p-0 rounded-lg text-on-background hover:bg-primary-container hover:text-on-primary-container;
+}
+
+.articles-search-icon {
+  @apply translate-y-[2px];
+}
+
+.articles-search-input-container {
+  @apply absolute w-full transition-opacity duration-300 ease-in-out;
+}
+
+.articles-search-input-visible {
+  @apply opacity-100;
+}
+
+.articles-search-input-hidden {
+  @apply opacity-0 pointer-events-none;
+}
+
+.articles-search-input {
+  @apply text-base w-full h-12 px-2 bg-transparent text-on-surface placeholder:text-on-surface-variant/70 border-0 border-b-2 border-primary focus:outline-none focus:ring-0 focus:border-primary;
+}

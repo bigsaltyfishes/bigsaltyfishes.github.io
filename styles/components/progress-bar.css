@@ -1,0 +1,12 @@
+/* Progress Bar Components */
+.progress-bar-container {
+  @apply fixed top-0 left-0 right-0 h-[3px] z-[100];
+}
+
+.progress-bar-active {
+  @apply w-full transition-[width] duration-[400ms] ease-out h-full bg-primary;
+}
+
+.progress-bar-inactive {
+  @apply w-0 transition-[width] duration-100 ease-out h-full bg-primary;
+}

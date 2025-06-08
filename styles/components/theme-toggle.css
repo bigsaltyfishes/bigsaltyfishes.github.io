@@ -1,0 +1,32 @@
+/* Theme Toggle Switch */
+.theme-toggle-button {
+  @apply relative inline-flex items-center w-[52px] h-8 max-md:w-14 max-md:h-9 rounded-full cursor-pointer p-0 border-none outline-none transition-colors duration-300;
+}
+
+.theme-toggle-thumb {
+  @apply absolute top-1 left-1 w-6 h-6 max-md:w-7 max-md:h-7 rounded-full shadow-md transition-transform duration-300 ease-in-out flex items-center justify-center;
+}
+
+.theme-toggle-thumb-light {
+  @apply translate-x-0;
+}
+
+.theme-toggle-thumb-dark {
+  @apply translate-x-5;
+}
+
+.theme-toggle-icon-container {
+  @apply absolute flex items-center justify-center w-full h-full transition-opacity duration-300 ease-in-out;
+}
+
+.theme-toggle-icon-visible {
+  @apply opacity-100;
+}
+
+.theme-toggle-icon-hidden {
+  @apply opacity-0;
+}
+
+.theme-toggle-icon {
+  @apply text-base max-md:text-lg;
+}

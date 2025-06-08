@@ -44,17 +44,26 @@ pub fn ArticlesList(props: ArticlesListProps) -> Element {
 
     let update_group = update_group.read();
     let update_msg = update_msg.read();
-    rsx! {
+      rsx! {
+        // Container with transition for opacity
         div {
-            class: if *show_group.read() { "article-cards" } else { "article-cards hidden" },
+            class: format!(
+                "articles-list-container {}",
+                if *show_group.read() { "articles-list-visible" } else { "articles-list-hidden" }
+            ),
             if update_group.is_empty() {
+                // "No articles" message
                 div {
-                    class: "no-articles",
-                    p { "{update_msg}" }
+                    class: "articles-list-empty",
+                    p {
+                        class: "articles-list-empty-text",
+                        "{update_msg}"
+                    }
                 }
             } else {
+                // List of articles
                 ul {
-                    class: "articles-ul",
+                    class: "articles-list",
                     for article in update_group.iter() {
                         ArticleCard {
                             key: "{article.id}",

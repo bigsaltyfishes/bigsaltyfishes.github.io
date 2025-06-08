@@ -1,0 +1,46 @@
+/* Article card component styles */
+
+/* Main article card container */
+.article-card {
+  @apply pb-10 mb-10 border-b border-outline last:border-b-0 last:mb-0 last:pb-0;
+}
+
+/* Article header container */
+.article-card-header {
+  @apply mb-3;
+}
+
+/* Article title styling */
+.article-card-title {
+  @apply text-article-list-item-title m-0 mb-2;
+}
+
+/* Article title link */
+.article-card-title-link {
+  @apply text-primary no-underline font-bold hover:underline;
+}
+
+/* Meta information container */
+.article-card-meta {
+  @apply flex items-center flex-wrap gap-x-2.5 gap-y-2;
+}
+
+/* Category badge */
+.article-card-category {
+  @apply bg-primary text-on-primary px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
+}
+
+/* Tags container */
+.article-card-tags {
+  @apply flex flex-wrap gap-1.5;
+}
+
+/* Individual tag */
+.article-card-tag {
+  @apply border border-primary text-primary px-2 py-0.5 rounded-full text-[11px] font-medium;
+}
+
+/* Article description */
+.article-card-description {
+  @apply text-small leading-relaxed m-0 text-on-surface/90;
+}

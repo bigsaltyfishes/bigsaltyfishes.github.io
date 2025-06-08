@@ -1,1 +1,9 @@
-# Currently default config for the Trunk build tool is enough.
+[[hooks]]
+stage = "pre_build"
+command = "bash"
+command_arguments = ["-c", "npm run build:css"]
+
+[hooks.windows]
+stage = "pre_build"
+command = "cmd"
+command_arguments = ["/c", "npm run build:css"]

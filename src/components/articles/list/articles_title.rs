@@ -18,49 +18,62 @@ pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
         on_search_change,
     } = props;
 
+    let is_expanded = *search_expanded.read();
+
     // Auto-focus search input when expanded
     use_effect(move || {
         if *search_expanded.read() {
             spawn_local(async move {
-                TimeoutFuture::new(10).await;
+                // A small delay ensures the input is rendered and visible before focusing
+                TimeoutFuture::new(50).await;
 
-                if let Some(window) = web_sys::window() {
-                    if let Some(document) = window.document() {
-                        if let Some(input) = document.query_selector(".search-input").ok().flatten()
-                        {
-                            if let Some(html_input) =
-                                input.dyn_into::<web_sys::HtmlInputElement>().ok()
-                            {
-                                let _ = html_input.focus();
-                            }
+                if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                    if let Some(input) = document.query_selector(".search-input").ok().flatten() {
+                        if let Ok(html_input) = input.dyn_into::<web_sys::HtmlInputElement>() {
+                            let _ = html_input.focus();
                         }
                     }
                 }
             });
         }
-    });
-
-    rsx! {
+    });    rsx! {
+        // A container that maintains a minimum height and holds both states.
         div {
-            class: if *search_expanded.read() { "articles-header search-active" } else { "articles-header" },
-            h1 { class: "page-title articles-list", "Articles" }
-            div { class: "search-container",
-                button {
-                    class: "search-toggle",
-                    onclick: move |_| {
-                        let expanded = *search_expanded.read();
-                        search_expanded.set(!expanded);
-                    },
-                    span { class: "material-symbols-outlined", "search" }
+            class: "articles-title-container",
+
+            // State 1: Title and Search Icon (Not expanded)
+            div {
+                class: format!(
+                    "articles-title-header {}",
+                    if is_expanded { "articles-title-header-hidden" } else { "articles-title-header-visible" }
+                ),
+                h1 {
+                    class: "articles-title",
+                    "Articles"
                 }
+                button {
+                    class: "articles-search-button",
+                    onclick: move |_| { search_expanded.set(true); },                    span {
+                        // Added `translate-y-px` to vertically align the icon.
+                        class: "material-symbols-outlined articles-search-icon",
+                        "search"
+                    }
+                }
+            }
+
+            // State 2: Full-width search input (Expanded)
+            // This is absolutely positioned to overlay the other state.
+            div {
+                class: format!(
+                    "articles-search-input-container {}",
+                    if is_expanded { "articles-search-input-visible" } else { "articles-search-input-hidden" }
+                ),
                 input {
-                    class: if *search_expanded.read() { "search-input expanded" } else { "search-input" },
+                    class: "search-input articles-search-input",
                     r#type: "text",
                     placeholder: "Search: category:<any> tag:<any> keywords",
                     value: "{search_query.read()}",
-                    oninput: move |evt| {
-                        on_search_change.call(evt.value());
-                    },
+                    oninput: move |evt| { on_search_change.call(evt.value()); },
                     onblur: move |_| {
                         if search_query.read().is_empty() {
                             search_expanded.set(false);

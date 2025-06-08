@@ -17,68 +17,78 @@ pub struct ErrorPageProps {
 
 #[component]
 pub fn ErrorPage(props: ErrorPageProps) -> Element {
-    stop_progress_bar();
-
-    let icon = match props.error_type.as_str() {
-        "404" => "unknown_document",
-        "500" => "error",
-        "network" => "wifi_off",
-        _ => "error",
-    };
-
-    // Add "error-" prefix to numeric error types to comply with CSS naming conventions
-    let css_class = if props
-        .error_type
-        .chars()
-        .next()
-        .unwrap_or('a')
-        .is_ascii_digit()
-    {
-        format!("error-{}", props.error_type)
-    } else {
-        format!("error-{}", props.error_type)
-    };
-
-    rsx! {
+    stop_progress_bar();    let (icon, icon_color_class) = match props.error_type.as_str() {
+        "404" => ("unknown_document", "error-page-icon-404"),
+        "500" => ("error", "error-page-icon-500"),
+        "network" => ("wifi_off", "error-page-icon-network"),
+        _ => ("error", "error-page-icon-default"),
+    };rsx! {
+        // Main container for the error page
         div {
-            class: "loading-container error",
+            class: "error-page-container",
+            
+            // Content box
             div {
-                class: "loading-content",
+                class: "error-page-content",
+                
+                // Icon
                 div {
-                    class: "loading-icon {css_class}",
-                    span { class: "material-symbols-outlined", "{icon}" }
-                }
-                h2 { "{props.title}" }
-                p { "{props.message}" }
-                if let Some(error_details) = &props.error_details {
-                    details {
-                        class: "error-details",
-                        summary { "Error Detailes" }
-                        p { "{error_details}" }
+                    class: "error-page-icon-container",                    span {
+                        class: "material-symbols-outlined error-page-icon {icon_color_class}",
+                        "{icon}"
                     }
                 }
+                
+                // Title and Message
+                h2 {
+                    class: "error-page-title",
+                    "{props.title}"
+                }
+                p {
+                    class: "error-page-message",
+                    "{props.message}"
+                }
+                
+                // Error Details (collapsible)
+                if let Some(error_details) = &props.error_details {
+                    details {
+                        class: "error-page-details",
+                        summary {
+                            class: "error-page-details-summary",
+                            "Error Details"
+                        }
+                        p {
+                            class: "error-page-details-content",
+                            "{error_details}"
+                        }
+                    }
+                }
+
+                // Action Buttons
                 div {
-                    class: "error-actions",
+                    class: "error-page-actions",
+                    
                     if let Some(on_retry) = props.on_retry {
                         button {
-                            class: "retry-button",
+                            class: "error-page-button error-page-button-primary",
                             onclick: move |_| on_retry.call(()),
-                            span { class: "material-symbols-outlined", "refresh" }
+                            span { class: "material-symbols-outlined error-page-button-icon", "refresh" }
                             "Retry"
                         }
                     }
+                    
                     if props.show_navigation {
                         Link {
                             to: Route::HomePage {},
-                            class: "home-button",
-                            span { class: "material-symbols-outlined", "home" }
+                            class: "error-page-button error-page-button-secondary",
+                            span { class: "material-symbols-outlined error-page-button-icon", "home" }
                             "Home"
                         }
                         if props.error_type == "404" {
                             Link {
                                 to: Route::ArticlesListPage {},
-                                class: "articles-button",
-                                span { class: "material-symbols-outlined", "article" }
+                                class: "error-page-button error-page-button-tertiary",
+                                span { class: "material-symbols-outlined error-page-button-icon", "article" }
                                 "Articles"
                             }
                         }

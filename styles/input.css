@@ -1,0 +1,185 @@
+/* Import Tailwind's base styles, components and utilities */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Import custom component styles */
+@import './components/navbar.css';
+@import './components/theme-toggle.css';
+@import './components/progress-bar.css';
+@import './components/error-page.css';
+@import './components/home.css';
+@import './components/articles-list.css';
+@import './components/articles-title.css';
+@import './components/articles-pagination.css';
+@import './components/article-card.css';
+
+/* Define base layer styles */
+@layer base {
+  body {
+    /* Apply the default sans-serif font family and text color */
+    @apply font-sans text-on-background;
+    /* Apply background color to ensure full coverage */
+    @apply bg-background;
+    /* Smooth transition for color changes */
+    @apply transition-colors duration-300;
+  }
+
+  /* Disable transitions during initial theme load to prevent flash */
+  .no-transition * {
+    transition-property: none !important;
+  }
+}
+
+/* Custom component layer styles */
+@layer components {
+
+  /* Base layout classes */
+  .app-layout {
+    @apply flex flex-col h-screen overflow-hidden text-on-background transition-colors duration-300;
+  }
+
+  .main-content {
+    @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8 overflow-y-auto;
+  }
+
+  .page-container {
+    @apply w-full max-w-content mx-auto mt-4 p-2 md:p-8;
+  }
+
+  .article-container {
+    @apply w-full max-w-content mx-auto mt-4 p-2 md:p-8 transition-colors duration-300;
+  }
+
+  .article-content {
+    @apply max-w-content mx-auto;
+  }
+
+  /* For animation */
+  .page-content {
+    opacity: 0;
+  }
+
+  /* Navigation components */
+  .nav-actions {
+    @apply ml-4 flex items-center;
+  }
+
+  /* Styles for the markdown-rendered content container */
+  .markdown-body {
+    /* Use the 'prose' plugin for beautiful typography defaults.
+      'dark:prose-invert' handles dark mode styling.
+      'max-w-none' removes the default max-width constraint from prose.
+    */
+    @apply prose dark:prose-invert max-w-none w-full;
+  }
+
+  /* Apply custom font size for H1 tags inside markdown */
+  .markdown-body h1 {
+    @apply text-markdown-h1 mb-[0.8em];
+  }
+
+  .markdown-body h2,
+  .markdown-body h3,
+  .markdown-body h4,
+  .markdown-body h5,
+  .markdown-body h6 {
+    @apply mt-[1.5em] mb-[0.5em];
+  }
+
+  /* Apply a more relaxed line-height for paragraphs inside markdown */
+  .markdown-body p,
+  .markdown-body ul,
+  .markdown-body ol,
+  .markdown-body blockquote,
+  .markdown-body table,
+  .markdown-body pre {
+    @apply mb-[1em];
+  }
+
+  .markdown-body pre {
+    @apply border-[1px] border-outline bg-surface-variant text-on-surface-variant p-4 rounded-md overflow-x-auto font-mono text-base;
+  }
+
+  .markdown-body pre code {
+    @apply font-mono bg-transparent p-0 rounded-none text-on-surface-variant text-base;
+  }
+
+  .markdown-body a {
+    @apply hover:decoration-wavy
+  }
+
+  /* Style for KaTeX display math to prevent overflow */
+  .katex-display {
+    @apply overflow-auto;
+  }
+}
+
+/* Syntax highlighting styles for highlight.js.
+  These styles are scoped to pre tags within .markdown-body.
+*/
+.hljs-comment,
+.hljs-quote {
+  @apply text-outline italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  @apply text-primary font-bold;
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-literal {
+  @apply text-tertiary;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  @apply text-secondary;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  @apply text-on-surface-variant;
+}
+
+.hljs-type,
+.hljs-class {
+  @apply text-primary font-bold;
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-selector-id,
+.hljs-number {
+  @apply text-on-tertiary-container
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  @apply text-secondary-container;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  @apply text-tertiary
+}
+
+.hljs-addition {
+  @apply bg-primary-container;
+}
+
+.hljs-deletion {
+  @apply bg-error;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}

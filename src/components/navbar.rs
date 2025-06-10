@@ -125,14 +125,14 @@ pub fn Navbar() -> Element {
                             aria_label: "Close menu",
                             span { class: "material-symbols-outlined mobile-menu-close-icon", "close" }
                         }
-                    }                    // Mobile Menu Links
+                    }                    
+                    // Mobile Menu Links
                     div {
                         class: "mobile-menu-links",
                         Link {
                             to: Route::HomePage {},
                             class: "mobile-menu-link",
                             active_class: "mobile-menu-link-active",
-                            onclick: move |_| close_mobile_menu(),
                             span { class: "material-symbols-outlined mobile-menu-link-icon", "home" }
                             span { "Home" }
                         }
@@ -140,7 +140,6 @@ pub fn Navbar() -> Element {
                             to: Route::ArticlesListPage {},
                             class: "mobile-menu-link",
                             active_class: "mobile-menu-link-active",
-                            onclick: move |_| close_mobile_menu(),
                             span { class: "material-symbols-outlined mobile-menu-link-icon", "description" }
                             span { "Articles" }
                         }
@@ -148,7 +147,6 @@ pub fn Navbar() -> Element {
                             to: Route::ArticlePage { id: "about".to_string() },
                             class: "mobile-menu-link",
                             active_class: "mobile-menu-link-active",
-                            onclick: move |_| close_mobile_menu(),
                             span { class: "material-symbols-outlined mobile-menu-link-icon", "info" }
                             span { "About" }
                         }

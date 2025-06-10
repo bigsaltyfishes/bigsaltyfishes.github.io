@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::layout::ThemeContext;
+use crate::app::ThemeContext;
 
 #[component]
 pub fn ThemeToggle() -> impl IntoView {

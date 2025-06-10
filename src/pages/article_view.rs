@@ -1,6 +1,10 @@
-use dioxus::prelude::*;
 use gloo_timers::future::TimeoutFuture;
 use katex_wasmbind::KaTeXOptions;
+use leptos::prelude::*;
+use leptos::suspense::Suspense;
+use leptos::task::spawn_local;
+use leptos_meta::{Meta, Title};
+use leptos_router::hooks::use_params_map;
 use pulldown_cmark::{Options, TextMergeStream};
 
 use crate::{
@@ -10,99 +14,108 @@ use crate::{
     models::Article,
 };
 
-#[derive(Props, Clone, PartialEq)]
-pub struct ArticlePageProps {
-    pub id: String,
-}
-
 #[component]
-pub fn ArticlePage(props: ArticlePageProps) -> Element {
-    let site = SITE_CONFIGURATION
-        .get()
-        .expect("Site configuration not initialized");
+pub fn ArticlePage() -> impl IntoView {
+    let params = use_params_map();
+    let id =
+        move || params.with(|params| params.get("id").map(|s| s.to_string()).unwrap_or_default());
 
-    // Use use_resource with dependency on props.id to ensure refresh when route changes
-    let article_result = use_resource({
-        let site = site.clone();
-        use_reactive((&props.id,), move |(id,)| {
-            let id = id.clone();
-            let site = site.clone();
-            async move {
-                Article::fetch(&id, &site).await.map(|(meta, body)| {
+    // Get site configuration from global state
+    let site_config = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration should be loaded by AppLayout"); // Use resource with dependency on id to ensure refresh when route changes
+    let article_result = LocalResource::new(move || {
+        let current_id = id();
+        async move {
+            Article::fetch(&current_id, &site_config)
+                .await
+                .map(|(meta, body)| {
                     // Article exists, return title and content
-                    (meta.title, body)
+                    (meta.title, meta.description, body)
                 })
-            }
-        })
+        }
     });
 
-    let animation_class = use_signal(|| "page-content");
+    let animation_class = RwSignal::new("page-content".to_string());
 
-    // Effect for updating page title
-    use_effect(use_reactive((&props.id,), move |(_,)| {
-        let article_result = article_result.read();
-        if let Some(Ok((title, _))) = article_result.as_ref() {
-            let title_clone = title.clone();
-            let site_name = site.long();
-            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                document.set_title(&format!("{} - {}", title_clone, site_name));
-            }
-        }
-    }));
-
-    let animation_class_clone = animation_class;
-    use_effect(use_reactive((&props.id,), move |(_,)| {
-        let mut anim_class = animation_class_clone;
-        spawn(async move {
-            anim_class.set("page-content");
+    Effect::new(move |_| {
+        let _current_id = id(); // Track changes to id
+        spawn_local(async move {
+            animation_class.set("page-content".to_string());
             TimeoutFuture::new(10).await;
-            anim_class.set("page-content animate-fade-in-up");
+            animation_class.set("page-content animate-fade-in-up".to_string());
         });
-    }));
+    });
 
-    let article_result = article_result.read();
-    match article_result.as_ref() {
-        Some(Ok((_, markdown_content))) => {
-            // Article exists, render normally
-            // Render Markdown to HTML
-            let html_output = render_markdown(&markdown_content, &props.id);
-
-            stop_progress_bar();              rsx! {
-                // Padding and animation are now handled by the parent AppLayout.
-                div {
-                    key: "{props.id}",
-                    class: "article-container {animation_class.read()}",
-                    // Article container, centered with a max-width for readability
-                    article {
-                        class: "article-content",
-                        // The 'markdown-body' class is styled by the typography plugin
-                        div {
-                            class: "markdown-body",
-                            dangerous_inner_html: "{html_output}"
+    view! {
+        <Title text=move || {
+            article_result.with(|result| {
+                result.as_ref().map_or("Loading...".to_string(), |r| {
+                    r.as_ref().map_or("Error loading article".to_string(), |(title, _, _)| {
+                        format!("{} - {}", title, site_config.long())
+                    })
+                })
+            })
+        } />
+        <Meta name="description" content=move || {
+            article_result.with(|result| {
+                result.as_ref().map_or("Loading...".to_string(), |r| {
+                    r.as_ref().map_or("Error loading article".to_string(), |(_, descrition, _)| {
+                        descrition.chars().take(150).collect::<String>()
+                    })
+                })
+            })
+        } />
+        <Suspense fallback=move || {
+            view! { <div></div> }
+        }>
+            {move || {
+                article_result
+                    .with(|result| {
+                        match result {
+                            Some(Ok((_, _ , markdown_content))) => {
+                                let html_output = render_markdown(markdown_content, &id());
+                                stop_progress_bar();
+                                
+                                // Article exists, render normally
+                                view! {
+                                    <div class=move || {
+                                        format!("article-container {}", animation_class.get())
+                                    }>
+                                        <article class="article-content">
+                                            <div class="markdown-body" inner_html=html_output></div>
+                                        </article>
+                                    </div>
+                                }
+                                    .into_any()
+                            }
+                            Some(Err(_)) => {
+                                let current_id = id();
+                                // Article not found, show 404 error page
+                                view! {
+                                    <div class="article-container">
+                                        <ErrorPage
+                                            title="Article Not Found".to_string()
+                                            message=format!(
+                                                "The article with ID '{}' does not exist.",
+                                                current_id,
+                                            )
+                                            error_type="404".to_string()
+                                            show_navigation=true
+                                        />
+                                    </div>
+                                }
+                                    .into_any()
+                            }
+                            None => {
+                                // Still loading
+                                view! { <div></div> }
+                                    .into_any()
+                            }
                         }
-                    }
-                }
-            }
-        }
-        Some(Err(_)) => {
-            // Article not found, show 404 error page
-            rsx! {
-                ErrorPage {
-                    title: "Article Not Found".to_string(),
-                    message: format!("The article with ID '{}' does not exist.", props.id),
-                    error_details: None,
-                    on_retry: None,
-                    error_type: "404".to_string(),
-                    show_navigation: true,
-                }
-            }
-        }
-        None => {
-            // Loading, render nothing
-            rsx! {
-                div {}
-            }
-        }
+                    })
+            }}
+        </Suspense>
     }
 }
 
@@ -111,8 +124,6 @@ pub fn ArticlePage(props: ArticlePageProps) -> Element {
 fn render_markdown(markdown_content: &str, article_id: &str) -> String {
     let mut html_output = String::new();
     let mut in_code_block = false;
-    let mut in_link_block = false;
-    let mut link_updated = false;
     let mut lang = String::new();
     let mut iterator = Vec::new();
     let events = pulldown_cmark::Parser::new_ext(markdown_content, Options::all());
@@ -136,8 +147,6 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
                 if in_code_block {
                     let output = format!("<pre>{}</pre>", bindgen::highlight_code(&text, &lang));
                     iterator.push(pulldown_cmark::Event::Html(output.into()));
-                } else if in_link_block && link_updated {
-                    iterator.push(pulldown_cmark::Event::Html(format!("{text}</a>").into()));
                 } else {
                     iterator.push(pulldown_cmark::Event::Text(text));
                 }
@@ -156,9 +165,6 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
                 title,
                 id,
             }) => {
-                in_link_block = true;
-                link_updated = false; // Reset link_updated for each new link
-
                 if let Some(rewritten_url) = try_rewrite_assets_link(&dest_url, article_id) {
                     // Rewrite asset links to point to the correct assets directory
                     iterator.push(pulldown_cmark::Event::Start(pulldown_cmark::Tag::Link {
@@ -167,24 +173,8 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
                         title,
                         id,
                     }));
-                    continue; // Skip to next event to avoid pushing the original link
-                }
-
-                if dest_url.starts_with("/") {
-                    match link_type {
-                        pulldown_cmark::LinkType::Inline => {
-                            // Create SPA navigation link for other internal routes
-                            iterator.push(pulldown_cmark::Event::Html(
-                                format!("<a href=\"{dest_url}\" data-spa-link>",).into(),
-                            ));
-                            link_updated = true;
-                        }
-                        _ => {}
-                    }
-                }
-
-                if !link_updated {
-                    // Fallback to regular link rendering for external links or non-SPA internal links
+                } else {
+                    // Fallback to original link
                     iterator.push(pulldown_cmark::Event::Start(pulldown_cmark::Tag::Link {
                         link_type,
                         dest_url,
@@ -192,14 +182,6 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
                         id,
                     }));
                 }
-            }
-            pulldown_cmark::Event::End(pulldown_cmark::TagEnd::Link) => {
-                in_link_block = false;
-                if !link_updated {
-                    iterator.push(pulldown_cmark::Event::End(pulldown_cmark::TagEnd::Link));
-                }
-                // Reset link_updated for next link
-                link_updated = false;
             }
             pulldown_cmark::Event::Start(pulldown_cmark::Tag::Image {
                 link_type,
@@ -235,9 +217,11 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
 }
 
 fn try_rewrite_assets_link(link: &str, article_id: &str) -> Option<String> {
-    let site = SITE_CONFIGURATION
+    // For now, use a hardcoded site config that matches the expected structure
+    // In a real implementation, this would use the site context
+    let site_config = SITE_CONFIGURATION
         .get()
-        .expect("Site configuration not initialized");
+        .expect("Site configuration should be loaded by AppLayout");
     let assets_re = web_sys::js_sys::RegExp::new(r"\/\$ASSETS\/(.+)", "i");
     let assets_match = assets_re.exec(&link);
     if let Some(m) = assets_match {
@@ -246,8 +230,8 @@ fn try_rewrite_assets_link(link: &str, article_id: &str) -> Option<String> {
         if let Some(asset_path) = asset_path {
             // Rewrite the URL to point to the assets directory
             let assets_url = format!(
-                "/{}/{}/{}/{}",
-                site.assets.directory, site.assets.articles, article_id, asset_path
+                "/{}/articles/{}/{}",
+                site_config.assets.directory, article_id, asset_path
             );
             return Some(assets_url);
         }

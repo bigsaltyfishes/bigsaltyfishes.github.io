@@ -1,50 +1,43 @@
 use crate::{
     app::SITE_CONFIGURATION,
     components::{
-        articles::list::{
-            articles_list::ArticlesList, articles_pagination::ArticlesPagination,
-            articles_title::ArticleTitleBar,
-        },
+        articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination},
         error_page::ErrorPage,
         progress_bar::stop_progress_bar,
     },
-    models::{self, ArticleSearchIndex, SearchCriteria, SearchableArticle},
+    models::{self, ArticleSearchIndex, SearchCriteria},
 };
-use dioxus::prelude::*;
+use leptos::prelude::*;
+use leptos_meta::Title;
+
+const ARTICLES_PER_PAGE: usize = 10;
 
 #[component]
-pub fn ArticlesListPage() -> Element {
+pub fn ArticlesListPage() -> impl IntoView {
     let site = SITE_CONFIGURATION
         .get()
         .expect("Site configuration not initialized");
-    let mut search_query = use_signal(|| String::new());
-    let search_expanded = use_signal(|| false);
-    let mut current_page = use_signal(|| 0usize);
-
-    const ARTICLES_PER_PAGE: usize = 10;
+    let search_query = RwSignal::new(String::new());
+    let search_expanded = RwSignal::new(false);
+    let current_page = RwSignal::new(0usize);
 
     let site_clone = site.clone();
-    let articles_index = use_resource(move || {
+    let articles_index = LocalResource::new(move || {
         let site = site_clone.clone();
         async move {
-            let site = site.clone();
             models::ArticleIndex::fetch(&site)
                 .await
                 .map(|index| index.to_search_index())
         }
     });
+    let animation_class = RwSignal::new("page-content");
 
-    let mut animation_class = use_signal(|| "page-content");
-    use_effect(move || {
-        animation_class.set("page-content animate-fade-in-up");
-    });
-
-    use_effect({
-        let site_name = site.long();
-        move || {
-            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                document.set_title(format!("Articles - {}", site_name).as_str());
-            }
+    // Page animation - trigger only once when component mounts
+    let animation_initialized = RwSignal::new(false);
+    Effect::new(move |_| {
+        if !animation_initialized.get_untracked() {
+            animation_class.set("page-content animate-fade-in-up");
+            animation_initialized.set(true);
         }
     });
 
@@ -57,79 +50,118 @@ pub fn ArticlesListPage() -> Element {
     let handle_page_change = move |page: usize| {
         current_page.set(page);
     };
-    
-    let articles_guard = articles_index.read();
-    match articles_guard.as_ref() {
-        Some(Ok(search_index)) => {
-            // Parse search criteria from query
-            let search_criteria = SearchCriteria::parse(&search_query.read());
+    view! {
+        <Title text=format!("Articles - {}", site.long()) />
+        <Suspense fallback=move || {
+            view! { <div></div> }
+        }>
+            {move || {
+                articles_index
+                    .get()
+                    .map(|result| {
+                        match result {
+                            Ok(search_index) => {
+                                view! {
+                                    <ArticlesListPageContent
+                                        search_index=search_index
+                                        search_query=search_query
+                                        search_expanded=search_expanded
+                                        current_page=current_page
+                                        animation_class=animation_class
+                                        handle_search_change=handle_search_change
+                                        handle_page_change=handle_page_change
+                                    />
+                                }
+                                    .into_any()
+                            }
+                            Err(_) => {
+                                view! {
+                                    <ErrorPage
+                                        title="Unexpected Error".to_string()
+                                        message="An unexpected error occurred while fetching articles."
+                                            .to_string()
+                                        error_type="500".to_string()
+                                        show_navigation=true
+                                    />
+                                }
+                                    .into_any()
+                            }
+                        }
+                    })
+            }}
+        </Suspense>
+    }
+}
 
-            // Filter articles using the new search criteria
-            let filtered_articles: Vec<&SearchableArticle> =
-                search_index.search_with_criteria(&search_criteria);
-
-            let total_articles = filtered_articles.len();
-            let total_pages = ArticleSearchIndex::total_pages(total_articles, ARTICLES_PER_PAGE);
-            let current_page_articles: Vec<SearchableArticle> = ArticleSearchIndex::paginate(
-                &filtered_articles,
-                current_page.read().clone(),
-                ARTICLES_PER_PAGE,
-            )
+#[component]
+fn ArticlesListPageContent(
+    search_index: crate::models::ArticleSearchIndex,
+    search_query: RwSignal<String>,
+    search_expanded: RwSignal<bool>,
+    current_page: RwSignal<usize>,
+    animation_class: RwSignal<&'static str>,
+    handle_search_change: impl Fn(String) + 'static + Copy + Send,
+    handle_page_change: impl Fn(usize) + 'static + Copy + Send,
+) -> impl IntoView {
+    let filtered_articles = Memo::new(move |_| {
+        let criteria = SearchCriteria::parse(&search_query.get());
+        search_index
+            .search_with_criteria(&criteria)
+            .into_iter()
+            .map(|article| article.clone())
+            .collect::<Vec<_>>()
+    });
+    let current_page_articles = Memo::new(move |_| {
+        let articles = filtered_articles.get();
+        let articles_refs: Vec<&_> = articles.iter().collect();
+        ArticleSearchIndex::paginate(&articles_refs, current_page.get(), ARTICLES_PER_PAGE)
             .iter()
             .map(|&article| article.clone())
-            .collect();
+            .collect::<Vec<_>>()
+    });
 
-            let empty_message = if filtered_articles.is_empty() {
-                if search_criteria.is_empty() {
-                    "No articles yet!".to_string()
-                } else {
-                    "No articles found matching your search criteria.".to_string()
-                }
+    let empty_message = Memo::new(move |_| {
+        let articles = filtered_articles.get();
+        let criteria = SearchCriteria::parse(&search_query.get());
+
+        if articles.is_empty() {
+            if criteria.is_empty() {
+                "No articles yet!".to_string()
             } else {
-                "No articles on this page.".to_string()
-            };
-            stop_progress_bar();            
-            rsx! {
-                // Main container. Padding and animation are now handled by the parent layout.
-                div {
-                    class: "page-container {animation_class.read()}",
+                "No articles found matching your search criteria.".to_string()
+            }
+        } else {
+            "No articles on this page.".to_string()
+        }
+    });
 
-                    ArticleTitleBar {
-                        search_query,
-                        search_expanded,
-                        on_search_change: handle_search_change,
-                    }
+    let total_pages = Memo::new(move |_| {
+        let articles = filtered_articles.get();
+        ArticleSearchIndex::total_pages(articles.len(), ARTICLES_PER_PAGE)
+    });
 
-                    ArticlesList {
-                        articles: current_page_articles,
-                        empty_message,
-                    }
+    let total_articles = Memo::new(move |_| filtered_articles.get().len());
 
-                    ArticlesPagination {
-                        current_page,
-                        total_pages,
-                        total_articles,
-                        on_page_change: handle_page_change,
-                    }
+    stop_progress_bar();
+    view! {
+        // Main container.
+        <div class=move || format!("page-container {}", animation_class.get())>
+            <ArticleTitleBar
+                search_query=search_query
+                search_expanded=search_expanded
+                on_search_change=handle_search_change
+            />
+            {move || {
+                view! {
+                    <ArticlesList articles=current_page_articles empty_message=empty_message />
                 }
-            }
-        }
-        Some(Err(_)) => {
-            rsx! {
-                ErrorPage {
-                    title: "Unexpected Error".to_string(),
-                    message: "An unexpected error occurred while fetching articles.".to_string(),
-                    error_details: None,
-                    on_retry: None,
-                    error_type: "500".to_string(),
-                    show_navigation: true,
-                }
-            }
-        }
-        None => {
-            rsx! {
-                div {}
-            }
-        }
+            }}
+            <ArticlesPagination
+                current_page=current_page
+                total_pages=total_pages
+                total_articles=total_articles
+                on_page_change=handle_page_change
+            />
+        </div>
     }
 }

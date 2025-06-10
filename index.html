@@ -19,6 +19,7 @@
     <link data-trunk href="404.html" rel="copy-file" />
     <link data-trunk rel="css" href="target/styles.css" />
     <script data-trunk src="/assets/autoload.js"></script>
+    <base data-trunk-public-url />
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
         // Single Page Apps for GitHub Pages
@@ -43,58 +44,10 @@
         }(window.location))
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
-    <script>
-        // SPA navigation handler for links with data-spa-link attribute
-        document.addEventListener('DOMContentLoaded', function () {
-            // Function to handle SPA navigation
-            function handleSPANavigation(event) {
-                const link = event.target.closest('[data-spa-link]');
-                if (link) {
-                    event.preventDefault();
-                    const href = link.getAttribute('href');
-                    if (href && href !== window.location.pathname) {
-                        // Use the history API to navigate without reloading
-                        window.history.pushState({}, '', href);
-                        // Trigger a popstate event to notify Dioxus router
-                        window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
-                    }
-                }
-            }
-
-            // Add event listener to the document for click events
-            document.addEventListener('click', handleSPANavigation);
-
-            // Also handle dynamically added content
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    mutation.addedNodes.forEach(function (node) {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            // Check if the added node or its children have data-spa-link
-                            const spaLinks = node.querySelectorAll ? node.querySelectorAll('[data-spa-link]') : [];
-                            if (node.hasAttribute && node.hasAttribute('data-spa-link')) {
-                                // The node itself is a spa link - already handled by document listener
-                            }
-                            // No need to add individual listeners as we use event delegation
-                        }
-                    });
-                });
-            });
-
-            // Observe changes in the main content area
-            const mainElement = document.getElementById('main');
-            if (mainElement) {
-                observer.observe(mainElement, {
-                    childList: true,
-                    subtree: true
-                });
-            }
-        });
-    </script>
 </head>
 
 <body>
     <link data-trunk rel="rust" href="Cargo.toml" data-compression-algorithm="gzip" data-compression-level="best" />
-    <div id="main"></div>
 </body>
 
 </html>

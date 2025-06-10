@@ -1,77 +1,88 @@
 use crate::components::articles::list::article_card::ArticleCard;
 use crate::models::SearchableArticle;
-use dioxus::prelude::*;
 use gloo_timers::future::TimeoutFuture;
-
-#[derive(Props, Clone, PartialEq)]
-pub struct ArticlesListProps {
-    pub articles: Vec<SearchableArticle>,
-    pub empty_message: String,
-}
+use leptos::prelude::*;
+use wasm_bindgen_futures::spawn_local;
 
 #[component]
-pub fn ArticlesList(props: ArticlesListProps) -> Element {
-    let ArticlesListProps {
-        articles,
-        empty_message,
-    } = props;
-    let init_signal = use_signal(|| true);
-    let show_group = use_signal(|| true);
-    let update_msg = use_signal(|| empty_message.clone());
-    let update_group = use_signal(|| articles.clone());
+pub fn ArticlesList(
+    #[prop(into)] articles: Signal<Vec<SearchableArticle>>,
+    #[prop(into)] empty_message: Signal<String>,
+) -> impl IntoView {
+    let init_signal = RwSignal::new(true);
+    let show_group = RwSignal::new(true);
+    let update_msg = RwSignal::new(String::new());
+    let update_group = RwSignal::new(Vec::<SearchableArticle>::new());
 
-    use_effect({
-        let reactive_bundle = (articles, empty_message);
-        let mut init_signal = init_signal.clone();
-        let mut show_group = show_group.clone();
-        let mut update_msg = update_msg.clone();
-        let mut update_group = update_group.clone();
-        use_reactive((&reactive_bundle,), move |((articles, empty_message),)| {
-            spawn(async move {
-                if *init_signal.read() {
-                    // No load animation on initial load
-                    init_signal.set(false);
-                    return;
-                }
-                show_group.set(false);
-                TimeoutFuture::new(400).await;
-                update_msg.set(empty_message);
-                show_group.set(true);
-                update_group.set(articles);
-            });
-        })
-    });
+    // Create a reactive effect that responds to prop changes
+    Effect::new(move |prev| {
+        let current_articles = articles.get();
+        let current_message = empty_message.get();
+        let reactive_bundle = (current_articles.clone(), current_message.clone());
 
-    let update_group = update_group.read();
-    let update_msg = update_msg.read();
-      rsx! {
-        // Container with transition for opacity
-        div {
-            class: format!(
-                "articles-list-container {}",
-                if *show_group.read() { "articles-list-visible" } else { "articles-list-hidden" }
-            ),
-            if update_group.is_empty() {
-                // "No articles" message
-                div {
-                    class: "articles-list-empty",
-                    p {
-                        class: "articles-list-empty-text",
-                        "{update_msg}"
-                    }
-                }
-            } else {
-                // List of articles
-                ul {
-                    class: "articles-list",
-                    for article in update_group.iter() {
-                        ArticleCard {
-                            key: "{article.id}",
-                            article: article.clone()
-                        }
-                    }
-                }
+        // Check if this is the first run or if the bundle has actually changed
+        if let Some(prev_bundle) = prev {
+            if prev_bundle == reactive_bundle {
+                return reactive_bundle; // No change, don't animate
             }
         }
+
+        spawn_local(async move {
+            if init_signal.get_untracked() {
+                // No load animation on initial load
+                init_signal.set(false);
+                update_msg.set(current_message);
+                update_group.set(current_articles);
+                return;
+            }
+            show_group.set(false);
+            TimeoutFuture::new(400).await;
+            update_msg.set(current_message);
+            update_group.set(current_articles);
+            show_group.set(true);
+        });
+
+        reactive_bundle
+    });
+
+    view! {
+        // Container with transition for opacity
+        <div class=move || {
+            format!(
+                "articles-list-container {}",
+                if show_group.get() { "articles-list-visible" } else { "articles-list-hidden" },
+            )
+        }>
+            {move || {
+                let articles = update_group.get();
+                let message = update_msg.get();
+                if articles.is_empty() {
+
+                    view! {
+                        // "No articles" message
+                        <div class="articles-list-empty">
+                            <p class="articles-list-empty-text">{message}</p>
+                        </div>
+                    }
+                        .into_any()
+                } else {
+                    // List of articles
+                    view! {
+                        <ul class="articles-list">
+                            {move || {
+                                articles
+                                    .iter()
+                                    .map(|article| {
+                                        let article = article.clone();
+                                        view! { <ArticleCard article=article /> }
+                                    })
+                                    .collect::<Vec<_>>()
+                            }}
+                        </ul>
+                    }
+                        .into_any()
+                }
+            }}
+        </div>
     }
 }

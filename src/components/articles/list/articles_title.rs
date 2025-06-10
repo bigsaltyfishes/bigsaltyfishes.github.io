@@ -1,28 +1,18 @@
-use dioxus::prelude::*;
 use gloo_timers::future::TimeoutFuture;
+use leptos::prelude::*;
+use leptos::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::spawn_local;
 
-#[derive(Props, Clone, PartialEq)]
-pub struct ArticleSearchBarProps {
-    pub search_query: Signal<String>,
-    pub search_expanded: Signal<bool>,
-    pub on_search_change: EventHandler<String>,
-}
-
 #[component]
-pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
-    let ArticleSearchBarProps {
-        search_query,
-        mut search_expanded,
-        on_search_change,
-    } = props;
-
-    let is_expanded = *search_expanded.read();
-
+pub fn ArticleTitleBar(
+    search_query: RwSignal<String>,
+    search_expanded: RwSignal<bool>,
+    on_search_change: impl Fn(String) + 'static + Copy,
+) -> impl IntoView {
     // Auto-focus search input when expanded
-    use_effect(move || {
-        if *search_expanded.read() {
+    Effect::new(move |_| {
+        if search_expanded.get() {
             spawn_local(async move {
                 // A small delay ensures the input is rendered and visible before focusing
                 TimeoutFuture::new(50).await;
@@ -36,56 +26,66 @@ pub fn ArticleTitleBar(props: ArticleSearchBarProps) -> Element {
                 }
             });
         }
-    });    rsx! {
-        // A container that maintains a minimum height and holds both states.
-        div {
-            class: "articles-title-container",
+    });
 
+    view! {
+        // A container that maintains a minimum height and holds both states.
+        <div class="articles-title-container">
             // State 1: Title and Search Icon (Not expanded)
-            div {
-                class: format!(
+            <div class=move || {
+                format!(
                     "articles-title-header {}",
-                    if is_expanded { "articles-title-header-hidden" } else { "articles-title-header-visible" }
-                ),
-                h1 {
-                    class: "articles-title",
-                    "Articles"
-                }
-                button {
-                    class: "articles-search-button",
-                    onclick: move |_| { search_expanded.set(true); },                    span {
-                        // Added `translate-y-px` to vertically align the icon.
-                        class: "material-symbols-outlined articles-search-icon",
-                        "search"
+                    if search_expanded.get() {
+                        "articles-title-header-hidden"
+                    } else {
+                        "articles-title-header-visible"
+                    },
+                )
+            }>
+                <h1 class="articles-title">"Articles"</h1>
+                <button
+                    class="articles-search-button"
+                    on:click=move |_| {
+                        search_expanded.set(true);
                     }
-                }
-            }
+                >
+                    <span class="material-symbols-outlined articles-search-icon">"search"</span>
+                </button>
+            </div>
 
             // State 2: Full-width search input (Expanded)
             // This is absolutely positioned to overlay the other state.
-            div {
-                class: format!(
+            <div class=move || {
+                format!(
                     "articles-search-input-container {}",
-                    if is_expanded { "articles-search-input-visible" } else { "articles-search-input-hidden" }
-                ),
-                input {
-                    class: "search-input articles-search-input",
-                    r#type: "text",
-                    placeholder: "Search: category:<any> tag:<any> keywords",
-                    value: "{search_query.read()}",
-                    oninput: move |evt| { on_search_change.call(evt.value()); },
-                    onblur: move |_| {
-                        if search_query.read().is_empty() {
-                            search_expanded.set(false);
-                        }
+                    if search_expanded.get() {
+                        "articles-search-input-visible"
+                    } else {
+                        "articles-search-input-hidden"
                     },
-                    onkeydown: move |evt| {
-                        if evt.key() == Key::Escape {
+                )
+            }>
+                <input
+                    class="search-input articles-search-input"
+                    type="text"
+                    placeholder="Search: category:<any> tag:<any> keywords"
+                    prop:value=move || search_query.get()
+                    on:input=move |evt| {
+                        let value = event_target_value(&evt);
+                        on_search_change(value);
+                    }
+                    on:blur=move |_| {
+                        if search_query.get().is_empty() {
                             search_expanded.set(false);
                         }
                     }
-                }
-            }
-        }
+                    on:keydown=move |evt| {
+                        if evt.key() == "Escape" {
+                            search_expanded.set(false);
+                        }
+                    }
+                />
+            </div>
+        </div>
     }
 }

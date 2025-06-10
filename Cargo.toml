@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dioxus = { version = "0.6.3", features = ["web", "router"] }
-dioxus-signals = "0.6.3"
+leptos = { version = "0.8.2", features = ["csr"] }
+leptos_router = { version = "0.8.2" }
+leptos_meta = { version = "0.8.2" }
 pulldown-cmark = { version = "0.13.0" }
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 web-sys = { version = "0.3.77", features = [
@@ -35,15 +36,5 @@ zstd = { version = "0.13.3", features = ["wasm"] }
 
 [profile.release]
 lto = true
-opt-level = 's'
+opt-level = 'z'
 codegen-units = 1
-
-[profile.wasm-dev]
-inherits = "dev"
-opt-level = 1
-
-[profile.server-dev]
-inherits = "dev"
-
-[profile.android-dev]
-inherits = "dev"

@@ -18,7 +18,7 @@ pub struct Article {
 }
 
 impl Article {
-    pub async fn fetch_metadata(id: &str, site: &Site) -> Result<Self, ()> {
+    pub async fn fetch_metadata(id: &str, site: &Site) -> Result<Self, String> {
         let url = format!(
             "/{}/{}/{}/meta.json",
             site.assets.directory, site.assets.articles, id
@@ -26,13 +26,18 @@ impl Article {
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
-            .map_err(|_| ())?;
-        let article: Self =
-            serde_json_wasm::from_str(&response.text().await.map_err(|_| ())?).map_err(|_| ())?;
+            .map_err(|e| format!("Failed to fetch metadata: {}", e))?;
+        let article: Self = serde_json_wasm::from_str(
+            &response
+                .text()
+                .await
+                .map_err(|e| format!("Failed to read response text: {}", e))?,
+        )
+        .map_err(|e| format!("Failed to parse JSON: {}", e))?;
         Ok(article)
     }
 
-    pub async fn fetch(id: &str, site: &Site) -> Result<(Self, String), ()> {
+    pub async fn fetch(id: &str, site: &Site) -> Result<(Self, String), String> {
         let url = format!(
             "/{}/{}/{}/index.zst",
             site.assets.directory, site.assets.articles, id
@@ -40,11 +45,15 @@ impl Article {
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
-            .map_err(|_| ())?;
-        let markdown_zstd = response.binary().await.map_err(|_| ())?;
+            .map_err(|e| format!("Failed to fetch article: {}", e))?;
+        let markdown_zstd = response
+            .binary()
+            .await
+            .map_err(|e| format!("Failed to read binary data: {}", e))?;
         let markdown_array = zstd::decode_all(markdown_zstd.as_slice())
-            .map_err(|_| ())?;
-        let markdown = String::from_utf8(markdown_array).map_err(|_| ())?;
+            .map_err(|e| format!("Failed to decompress: {}", e))?;
+        let markdown = String::from_utf8(markdown_array)
+            .map_err(|e| format!("Failed to decode UTF-8: {}", e))?;
         let metadata = Self::fetch_metadata(id, site).await?;
         Ok((metadata, markdown))
     }
@@ -79,22 +88,32 @@ pub struct ArticleSearchIndex {
 impl ArticleIndex {
     /// Fetch the article index from the server.
     /// This will load both the common and special articles.
-    pub async fn fetch(site: &Site) -> Result<Self, ()> {
+    pub async fn fetch(site: &Site) -> Result<Self, String> {
         let prefix = format!("/{}/{}", site.assets.directory, site.assets.articles);
         let common_resp = gloo_net::http::Request::get(&format!("{}/index.json", prefix))
             .send()
             .await
-            .map_err(|_| ())?;
+            .map_err(|e| format!("Failed to fetch common articles: {}", e))?;
         let special_resp = gloo_net::http::Request::get(&format!("{}/special.json", prefix))
             .send()
             .await
-            .map_err(|_| ())?;
+            .map_err(|e| format!("Failed to fetch special articles: {}", e))?;
 
         Ok(Self {
-            common: serde_json_wasm::from_str(&common_resp.text().await.map_err(|_| ())?)
-                .map_err(|_| ())?,
-            special: serde_json_wasm::from_str(&special_resp.text().await.map_err(|_| ())?)
-                .map_err(|_| ())?,
+            common: serde_json_wasm::from_str(
+                &common_resp
+                    .text()
+                    .await
+                    .map_err(|e| format!("Failed to read common response: {}", e))?,
+            )
+            .map_err(|e| format!("Failed to parse common JSON: {}", e))?,
+            special: serde_json_wasm::from_str(
+                &special_resp
+                    .text()
+                    .await
+                    .map_err(|e| format!("Failed to read special response: {}", e))?,
+            )
+            .map_err(|e| format!("Failed to parse special JSON: {}", e))?,
         })
     }
 
@@ -134,7 +153,6 @@ impl ArticleIndex {
 }
 
 impl ArticleSearchIndex {
-
     /// Search articles using SearchCriteria
     pub fn search_with_criteria(&self, criteria: &SearchCriteria) -> Vec<&SearchableArticle> {
         if criteria.is_empty() {
@@ -146,11 +164,14 @@ impl ArticleSearchIndex {
             .filter(|article| {
                 // Check categories
                 if !criteria.categories.is_empty() {
-                    let matches_category = if let Some(ref article_category) = article.article.category {
-                        criteria.categories.iter().any(|c| article_category.to_lowercase().contains(&c.to_lowercase()))
-                    } else {
-                        false
-                    };
+                    let matches_category =
+                        if let Some(ref article_category) = article.article.category {
+                            criteria.categories.iter().any(|c| {
+                                article_category.to_lowercase().contains(&c.to_lowercase())
+                            })
+                        } else {
+                            false
+                        };
                     if !matches_category {
                         return false;
                     }
@@ -159,7 +180,11 @@ impl ArticleSearchIndex {
                 // Check tags
                 if !criteria.tags.is_empty() {
                     let matches_tag = criteria.tags.iter().any(|search_tag| {
-                        article.article.tags.iter().any(|article_tag| article_tag.to_lowercase().contains(&search_tag.to_lowercase()))
+                        article.article.tags.iter().any(|article_tag| {
+                            article_tag
+                                .to_lowercase()
+                                .contains(&search_tag.to_lowercase())
+                        })
                     });
                     if !matches_tag {
                         return false;
@@ -170,7 +195,7 @@ impl ArticleSearchIndex {
                 if !criteria.title_parts.is_empty() {
                     let title_lower = article.article.title.to_lowercase();
                     let description_lower = article.article.description.to_lowercase();
-                    
+
                     let matches_content = criteria.title_parts.iter().all(|part| {
                         let part_lower = part.to_lowercase();
                         title_lower.contains(&part_lower) || description_lower.contains(&part_lower)
@@ -340,7 +365,8 @@ mod tests {
         assert_eq!(criteria.categories, vec!["Tech"]);
 
         // Test multiple categories and tags
-        let criteria = SearchCriteria::parse("category:Tech category:Science tag:blog tag:tutorial");
+        let criteria =
+            SearchCriteria::parse("category:Tech category:Science tag:blog tag:tutorial");
         assert_eq!(criteria.categories, vec!["Tech", "Science"]);
         assert_eq!(criteria.tags, vec!["blog", "tutorial"]);
 

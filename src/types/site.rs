@@ -1,13 +1,13 @@
 use gloo_net::http::Request;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct AssetsOptions {
     pub directory: String,
     pub articles: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Site {
     pub name: String,
     pub assets: AssetsOptions,
@@ -15,17 +15,17 @@ pub struct Site {
 
 impl Site {
     // Fetch site configuration from a JSON file
-    pub async fn fetch() -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn fetch() -> Result<Self, String> {
         let response = Request::get("/site.json")
             .send()
             .await
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| format!("Request failed: {}", e))?;
         let text = response
             .text()
             .await
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        let site = serde_json_wasm::from_str(&text)
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| format!("Failed to get text: {}", e))?;
+        let site =
+            serde_json_wasm::from_str(&text).map_err(|e| format!("Failed to parse JSON: {}", e))?;
         Ok(site)
     }
 

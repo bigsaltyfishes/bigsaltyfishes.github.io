@@ -1,36 +1,30 @@
-use dioxus::prelude::*;
+use leptos::prelude::*;
+use leptos_meta::Title;
 
+use crate::app::SITE_CONFIGURATION;
 use crate::components::progress_bar::stop_progress_bar;
 
 #[component]
-pub fn HomePage() -> Element {
-    let site = crate::app::SITE_CONFIGURATION
+pub fn HomePage() -> impl IntoView {
+    // Get site configuration from global state
+    let site_config = SITE_CONFIGURATION
         .get()
-        .expect("Site configuration not initialized");
-    
-    // Set the document title
-    use_effect(move || {
-        if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-            document.set_title(format!("Home - {}", site.long()).as_str());
-        }
-    });
+        .expect("Site configuration should be loaded by AppLayout");
 
     stop_progress_bar();
+    let animation_class = RwSignal::new("page-content".to_string());
 
-    let mut animation_class = use_signal(|| "page-content"); // Initial state for animation triggerAdd commentMore actions
-    use_effect(move || {
-        animation_class.set("page-content animate-fade-in-up");
+    Effect::new(move |_| {
+        animation_class.set("page-content animate-fade-in-up".to_string());
     });
-    rsx! {
-        // Home page wrapper: grows to fill space and centers content.
-        // Padding and animation are now handled by the parent layout.
-        div {
-            class: "home-page-container {animation_class.read()}",
-            div {
-                h1 { class: "home-page-title", "Welcome" }
-                p { class: "home-page-text", "Happy Molyuu Everyday🐟." }
-                p { class: "home-page-text", "Navigate using the links in the bar." }
-            }
-        }
+    view! {
+        <Title text=format!("Home - {}", site_config.long()) />
+        <div class=move || format!("home-page-container {}", animation_class.get())>
+            <div>
+                <h1 class="home-page-title">"Welcome"</h1>
+                <p class="home-page-text">"Happy Molyuu Everyday🐟."</p>
+                <p class="home-page-text">"Navigate using the links in the bar."</p>
+            </div>
+        </div>
     }
 }

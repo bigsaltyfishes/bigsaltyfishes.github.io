@@ -3,7 +3,7 @@ use katex_wasmbind::KaTeXOptions;
 use leptos::prelude::*;
 use leptos::suspense::Suspense;
 use leptos::task::spawn_local;
-use leptos_meta::{Meta, Title};
+use leptos_meta::{Meta, Title, Stylesheet};
 use leptos_router::hooks::use_params_map;
 use pulldown_cmark::{Options, TextMergeStream};
 
@@ -66,6 +66,7 @@ pub fn ArticlePage() -> impl IntoView {
                 })
             })
         } />
+        <Stylesheet href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
         <Suspense fallback=move || {
             view! { <div></div> }
         }>

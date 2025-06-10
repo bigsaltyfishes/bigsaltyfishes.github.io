@@ -66,8 +66,8 @@ jobs:
 
       - name: Build Assets
         run: |
-          chmod +x compile_assets.sh
-          ./compile_assets.sh || (echo "❌ Asset compilation failed!" && exit 1)
+          chmod +x ./scripts/compile_assets.sh
+          ./scripts/compile_assets.sh || (echo "❌ Asset compilation failed!" && exit 1)
 
       - name: Build with Trunk
         run: trunk build --release --public-url ${{ env.PUBLIC_URL }}
@@ -87,7 +87,7 @@ jobs:
             -exec mv {}.min {} \;
 
           pip install argparse bs4
-          python3 ./integrity_update.py -u ${{ env.PUBLIC_URL }} -i dist/index.html
+          python3 ./scripts/integrity_update.py -u ${{ env.PUBLIC_URL }} -i dist/index.html
 
       - name: Upload static files as artifact
         id: deployment

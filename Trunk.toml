@@ -7,3 +7,8 @@ command_arguments = ["-c", "npm run build:css"]
 stage = "pre_build"
 command = "cmd"
 command_arguments = ["/c", "npm run build:css"]
+
+[[hooks]]
+stage = "pre_build"
+command = "nu"
+command_arguments = ["scripts/nu/compile_assets.nu", "scripts/nu", "assets", "target"]

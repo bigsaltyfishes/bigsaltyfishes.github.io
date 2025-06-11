@@ -42,6 +42,11 @@ jobs:
           node-version: '21'
       - run: npm ci
 
+      - name: Install NuShell
+        uses: hustcer/setup-nu@v3
+        with:
+          version: "0.102.0"
+
       - name: Create ci-tools directory
         run: mkdir ci-tools
 
@@ -61,13 +66,8 @@ jobs:
       - name: Ensure tools exist
         run: |
           test -f ci-tools/trunk || (echo "❌ trunk not found!" && exit 1)
-          command -v jq || (echo "❌ jq not found!" && exit 1)
+          command -v nu || (echo "❌ nushell not found!" && exit 1)
           command -v zstd || (echo "❌ zstd not found!" && exit 1)
-
-      - name: Build Assets
-        run: |
-          chmod +x ./scripts/compile_assets.sh
-          ./scripts/compile_assets.sh || (echo "❌ Asset compilation failed!" && exit 1)
 
       - name: Build with Trunk
         run: trunk build --release --public-url ${{ env.PUBLIC_URL }}

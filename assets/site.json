@@ -1,5 +1,6 @@
 {
     "name": "Molyuu Blog",
+    "copyright_year": 2025,
     "assets": {
         "directory": "_assets",
         "articles": "articles"

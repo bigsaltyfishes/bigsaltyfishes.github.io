@@ -13,6 +13,7 @@
 @import './components/articles-title.css';
 @import './components/articles-pagination.css';
 @import './components/article-card.css';
+@import './components/footer.css';
 
 /* Define base layer styles */
 @layer base {
@@ -33,26 +34,25 @@
 
 /* Custom component layer styles */
 @layer components {
-
   /* Base layout classes */
   .app-layout {
-    @apply flex flex-col h-screen overflow-hidden text-on-background transition-colors duration-300;
+    @apply flex flex-col min-h-screen text-on-background transition-colors duration-300;
   }
 
   .main-content {
-    @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8 overflow-y-auto;
+    @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8;
   }
 
   .page-container {
-    @apply w-full max-w-content mx-auto mt-4 p-2 md:p-8;
+    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8;
   }
 
   .article-container {
-    @apply w-full max-w-content mx-auto mt-4 p-2 md:p-8 transition-colors duration-300;
+    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8 transition-colors duration-300;
   }
 
   .article-content {
-    @apply max-w-content mx-auto;
+    @apply max-w-content w-full mx-auto;
   }
 
   /* For animation */

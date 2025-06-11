@@ -29,8 +29,10 @@ const config = {
         'markdown-h1': '1.8rem',
         'normal': '1rem',
         'small': '0.9rem',
+        'extra-small': '0.8rem',
         'site-title': '1.25rem',
-      },        // Configure typography styles provided by the @tailwindcss/typography plugin
+      },
+      // Configure typography styles provided by the @tailwindcss/typography plugin
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {

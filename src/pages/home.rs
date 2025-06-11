@@ -3,6 +3,7 @@ use leptos::prelude::*;
 use leptos_meta::{Stylesheet, Title};
 
 use crate::app::SITE_CONFIGURATION;
+use crate::components::footer::Footer;
 use crate::components::progress_bar::stop_progress_bar;
 
 #[component]
@@ -23,18 +24,18 @@ pub fn HomePage() -> impl IntoView {
         })
         .collect_view();
 
-    stop_progress_bar();
     let animation_class = RwSignal::new("page-content".to_string());
     Effect::new(move |_| {
         animation_class.set("page-content animate-fade-in-up".to_string());
+        stop_progress_bar();
     });
 
     view! {
         <Title text=format!("Home - {}", site_config.long()) />
         <Stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/brands.min.css" />
         <Stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/fontawesome.min.css" />
-        <div class=move || format!("home-page-container {}", animation_class.get())>
-            <div>
+        <div class=move || format!("page-container {}", animation_class.get())>
+            <div class="home-page-content">
                 <h1 class="home-page-title">{welcome_title}</h1>
                 { welcome_text }
                 <p class="home-page-text mt-4">
@@ -54,6 +55,7 @@ pub fn HomePage() -> impl IntoView {
                     </div>
                 </p>
             </div>
+            <Footer />
         </div>
     }
 }

@@ -1,9 +1,7 @@
 use crate::{
     app::SITE_CONFIGURATION,
     components::{
-        articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination},
-        error_page::ErrorPage,
-        progress_bar::stop_progress_bar,
+        articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination}, error_page::ErrorPage, footer::Footer, progress_bar::stop_progress_bar
     },
     models::{self, ArticleSearchIndex, SearchCriteria},
 };
@@ -33,11 +31,13 @@ pub fn ArticlesListPage() -> impl IntoView {
     let animation_class = RwSignal::new("page-content");
 
     // Page animation - trigger only once when component mounts
+    let content_ready = RwSignal::new(false);
     let animation_initialized = RwSignal::new(false);
     Effect::new(move |_| {
-        if !animation_initialized.get_untracked() {
+        if !animation_initialized.get_untracked() && content_ready.get() {
             animation_class.set("page-content animate-fade-in-up");
             animation_initialized.set(true);
+            stop_progress_bar();
         }
     });
 
@@ -61,6 +61,8 @@ pub fn ArticlesListPage() -> impl IntoView {
                     .map(|result| {
                         match result {
                             Ok(search_index) => {
+                                content_ready.set(true);
+                                
                                 view! {
                                     <ArticlesListPageContent
                                         search_index=search_index
@@ -142,26 +144,28 @@ fn ArticlesListPageContent(
 
     let total_articles = Memo::new(move |_| filtered_articles.get().len());
 
-    stop_progress_bar();
     view! {
         // Main container.
         <div class=move || format!("page-container {}", animation_class.get())>
-            <ArticleTitleBar
-                search_query=search_query
-                search_expanded=search_expanded
-                on_search_change=handle_search_change
-            />
-            {move || {
-                view! {
-                    <ArticlesList articles=current_page_articles empty_message=empty_message />
-                }
-            }}
-            <ArticlesPagination
-                current_page=current_page
-                total_pages=total_pages
-                total_articles=total_articles
-                on_page_change=handle_page_change
-            />
+            <div>
+                <ArticleTitleBar
+                    search_query=search_query
+                    search_expanded=search_expanded
+                    on_search_change=handle_search_change
+                />
+                {move || {
+                    view! {
+                        <ArticlesList articles=current_page_articles empty_message=empty_message />
+                    }
+                }}
+                <ArticlesPagination
+                    current_page=current_page
+                    total_pages=total_pages
+                    total_articles=total_articles
+                    on_page_change=handle_page_change
+                />
+            </div>
+            <Footer />
         </div>
     }
 }

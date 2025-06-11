@@ -5,7 +5,6 @@ use leptos_router::components::Outlet;
 
 use crate::app::SITE_CONFIGURATION;
 use crate::components::error_page::ErrorPage;
-use crate::components::footer::Footer;
 use crate::components::navbar::Navbar;
 use crate::components::progress_bar::ProgressBar;
 use crate::types::site::Site;
@@ -74,7 +73,6 @@ pub fn AppLayout() -> impl IntoView {
                                         <Navbar />
                                         <main class="main-content">
                                             <Outlet />
-                                            <Footer />  
                                         </main>
                                     }
                                         .into_any()

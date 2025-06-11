@@ -7,10 +7,11 @@ use leptos_meta::{Meta, Title, Stylesheet};
 use leptos_router::hooks::use_params_map;
 use pulldown_cmark::{Options, TextMergeStream};
 
+use crate::components::layout::ProgressContext;
 use crate::{
     app::SITE_CONFIGURATION,
     bindgen,
-    components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
+    components::{error_page::ErrorPage},
     models::Article,
 };
 
@@ -36,15 +37,22 @@ pub fn ArticlePage() -> impl IntoView {
         }
     });
 
+    let content_ready = RwSignal::new(false);
     let animation_class = RwSignal::new("page-content".to_string());
-
     Effect::new(move |_| {
-        let _current_id = id(); // Track changes to id
-        spawn_local(async move {
-            animation_class.set("page-content".to_string());
-            TimeoutFuture::new(10).await;
-            animation_class.set("page-content animate-fade-in-up".to_string());
-        });
+        if content_ready.get() {
+            // TODO: Store animation state in a global context.
+            let progress_context = use_context::<ProgressContext>()
+                .expect("ProgressContext must be provided");
+            let progress_activation = progress_context.0;
+            spawn_local(async move {
+                animation_class.set("page-content".to_string());
+                TimeoutFuture::new(10).await;
+                animation_class.set("page-content animate-fade-in-up".to_string());
+                TimeoutFuture::new(400).await;
+                progress_activation.set(false);
+            });
+        }
     });
 
     view! {
@@ -76,15 +84,14 @@ pub fn ArticlePage() -> impl IntoView {
                         match result {
                             Some(Ok((_, _ , markdown_content))) => {
                                 let html_output = render_markdown(markdown_content, &id());
-                                stop_progress_bar();
-                                
+                                content_ready.set(true);                                
                                 // Article exists, render normally
                                 view! {
                                     <div class=move || {
-                                        format!("article-container {}", animation_class.get())
+                                        format!("article-container justify-between {}", animation_class.get())
                                     }>
                                         <article class="article-content">
-                                            <div class="markdown-body" inner_html=html_output></div>
+                                            <div class="markdown-container" inner_html=html_output></div>
                                         </article>
                                     </div>
                                 }
@@ -214,7 +221,37 @@ fn render_markdown(markdown_content: &str, article_id: &str) -> String {
     }
 
     pulldown_cmark::html::push_html(&mut html_output, iterator.into_iter());
-    html_output
+
+    // Get site configuration and generate footer HTML
+    // TODO: Render footer using a component instead of raw HTML
+    let site_config = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration should be loaded by AppLayout");
+    
+    let footer_html = format!(
+        r#"<footer class="footer">
+            <div class="footer-content">
+                <p class="footer-copyright">(C) {} {}</p>
+                <p class="footer-powered-by">
+                    Powered by 
+                    <a href="https://github.com/bigsaltyfishes/bigsaltyfishes.github.io">Molyuu Blog</a>
+                     and 
+                    <a href="https://github.com/leptos-rs/leptos">Leptos</a>
+                </p>
+            </div>
+        </footer>"#,
+        site_config.copyright_year,
+        site_config.author.name
+    );
+
+    // Wrap content and footer in a container with proper layout
+    format!(
+        r#"<div class="markdown-body">{}</div>
+            {}
+        </div>"#,
+        html_output,
+        footer_html
+    )
 }
 
 fn try_rewrite_assets_link(link: &str, article_id: &str) -> Option<String> {

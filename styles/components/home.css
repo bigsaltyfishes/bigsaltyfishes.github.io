@@ -1,5 +1,5 @@
 /* Home Page Components */
-.home-page-container {
+.home-page-content {
   @apply flex-grow flex flex-col justify-center items-center text-center p-5;
 }
 

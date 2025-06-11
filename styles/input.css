@@ -44,7 +44,7 @@
   }
 
   .page-container {
-    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8;
+    @apply flex-grow flex flex-col justify-between w-full max-w-content mx-auto mt-4 p-2 md:p-8;
   }
 
   .article-container {
@@ -52,7 +52,7 @@
   }
 
   .article-content {
-    @apply max-w-content w-full mx-auto;
+    @apply flex-grow flex flex-col max-w-content w-full mx-auto;
   }
 
   /* For animation */
@@ -72,6 +72,10 @@
       'max-w-none' removes the default max-width constraint from prose.
     */
     @apply prose dark:prose-invert max-w-none w-full;
+  }
+
+  .markdown-container {
+    @apply flex-grow flex flex-col justify-between w-full;
   }
 
   /* Apply custom font size for H1 tags inside markdown */

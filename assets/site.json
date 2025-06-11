@@ -3,5 +3,10 @@
     "assets": {
         "directory": "_assets",
         "articles": "articles"
+    },
+    "author": {
+        "name": "Molyuu",
+        "email": "bigsaltyfishes@gmail.com",
+        "github": "bigsaltyfishes"
     }
 }

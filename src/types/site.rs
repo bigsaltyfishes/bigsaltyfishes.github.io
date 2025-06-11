@@ -8,9 +8,17 @@ pub struct AssetsOptions {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct AuthorOptions {
+    pub name: String,
+    pub email: String,
+    pub github: String
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Site {
     pub name: String,
     pub assets: AssetsOptions,
+    pub author: AuthorOptions,
 }
 
 impl Site {

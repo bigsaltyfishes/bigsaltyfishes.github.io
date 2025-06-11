@@ -12,6 +12,17 @@ pub fn HomePage() -> impl IntoView {
         .get()
         .expect("Site configuration should be loaded by AppLayout");
 
+    let welcome_title = site_config.home.welcome_title.clone();
+    let welcome_text = site_config.home.welcome_text
+        .clone()
+        .into_iter()
+        .map(|text| {
+            view! {
+                <p class="home-page-text">{text}</p>
+            }
+        })
+        .collect_view();
+
     stop_progress_bar();
     let animation_class = RwSignal::new("page-content".to_string());
     Effect::new(move |_| {
@@ -24,6 +35,8 @@ pub fn HomePage() -> impl IntoView {
         <Stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/fontawesome.min.css" />
         <div class=move || format!("home-page-container {}", animation_class.get())>
             <div>
+                <h1 class="home-page-title">{welcome_title}</h1>
+                { welcome_text }
                 <p class="home-page-text mt-4">
                     <div class="items-center flex flex-row justify-center gap-4">
                         <A

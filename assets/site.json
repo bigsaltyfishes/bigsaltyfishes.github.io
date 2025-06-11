@@ -9,5 +9,12 @@
         "name": "Molyuu",
         "email": "bigsaltyfishes@gmail.com",
         "github": "bigsaltyfishes"
+    },
+    "home": {
+        "welcome_title": "Welcome",
+        "welcome_text": [
+            "Happy Molyuu Everyday🐟.",
+            "Navigate using the links in the bar."
+        ]
     }
 }

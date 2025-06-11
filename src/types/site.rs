@@ -15,11 +15,19 @@ pub struct AuthorOptions {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+pub struct HomeOptions {
+    pub welcome_title: String,
+    #[serde(default)]
+    pub welcome_text: Vec<String>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct Site {
     pub name: String,
     pub copyright_year: u16,
     pub assets: AssetsOptions,
     pub author: AuthorOptions,
+    pub home: HomeOptions,
 }
 
 impl Site {

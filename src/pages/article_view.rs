@@ -7,11 +7,10 @@ use leptos_meta::{Meta, Title, Stylesheet};
 use leptos_router::hooks::use_params_map;
 use pulldown_cmark::{Options, TextMergeStream};
 
-use crate::components::layout::ProgressContext;
 use crate::{
     app::SITE_CONFIGURATION,
     bindgen,
-    components::{error_page::ErrorPage},
+    components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
     models::Article,
 };
 
@@ -39,19 +38,15 @@ pub fn ArticlePage() -> impl IntoView {
 
     let content_ready = RwSignal::new(false);
     let animation_class = RwSignal::new("page-content".to_string());
+
     Effect::new(move |_| {
+        animation_class.set("page-content".to_string());
         if content_ready.get() {
-            // TODO: Store animation state in a global context.
-            let progress_context = use_context::<ProgressContext>()
-                .expect("ProgressContext must be provided");
-            let progress_activation = progress_context.0;
             spawn_local(async move {
-                animation_class.set("page-content".to_string());
                 TimeoutFuture::new(10).await;
                 animation_class.set("page-content animate-fade-in-up".to_string());
-                TimeoutFuture::new(400).await;
-                progress_activation.set(false);
             });
+            stop_progress_bar();
         }
     });
 

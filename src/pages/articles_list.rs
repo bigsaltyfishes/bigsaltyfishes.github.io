@@ -32,11 +32,9 @@ pub fn ArticlesListPage() -> impl IntoView {
 
     // Page animation - trigger only once when component mounts
     let content_ready = RwSignal::new(false);
-    let animation_initialized = RwSignal::new(false);
     Effect::new(move |_| {
-        if !animation_initialized.get_untracked() && content_ready.get() {
+        if content_ready.get() {
             animation_class.set("page-content animate-fade-in-up");
-            animation_initialized.set(true);
             stop_progress_bar();
         }
     });

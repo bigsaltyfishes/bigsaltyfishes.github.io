@@ -15,16 +15,10 @@ pub fn Footer() -> impl IntoView {
                 <p class="footer-copyright">{format!("(C) {} {}", site_config.copyright_year, site_config.author.name)}</p>
                 <p class="footer-powered-by">
                     "Powered by "
-                    <a 
+                    <a
                         href="https://github.com/bigsaltyfishes/bigsaltyfishes.github.io"
                     >
                         "Molyuu Blog"
-                    </a>
-                    " and "
-                    <a 
-                        href="https://github.com/leptos-rs/leptos"
-                    >
-                        "Leptos"
                     </a>
                 </p>
             </div>

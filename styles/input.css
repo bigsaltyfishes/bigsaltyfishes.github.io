@@ -37,21 +37,13 @@
   .app-layout {
     @apply flex flex-col min-h-screen text-on-background;
   }
+
   .main-content {
     @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8;
   }
   
-  /* Base container with common layout properties */
-  .page-container-base {
-    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8;
-  }
-  
   .page-container {
-    @apply page-container-base justify-between;
-  }
-
-  .article-container {
-    @apply page-container-base;
+    @apply flex-grow flex flex-col justify-between w-full max-w-content mx-auto mt-4 p-2 md:p-8 md:pb-0;
   }
 
   .article-content {

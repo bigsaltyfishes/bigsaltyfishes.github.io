@@ -34,6 +34,7 @@
 
 .pagination-dropdown {
   @apply absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-[60];
+  max-height: calc(100vh - 200px);
 }
 
 .pagination-dropdown-overlay {
@@ -41,7 +42,7 @@
 }
 
 .pagination-dropdown-content {
-  @apply relative bg-surface border border-outline rounded-lg shadow-lg max-h-48 overflow-y-auto min-w-[120px] z-[60];
+  @apply relative bg-surface border border-outline rounded-lg shadow-lg overflow-y-auto min-w-[120px] z-[60] max-h-[120px] max-md:max-h-[90px] max-md:min-w-[100px];
   /* Animation properties */
   @apply transition-all duration-300 ease-in-out;
   @apply transform origin-top;
@@ -76,5 +77,5 @@
 }
 
 .pagination-dropdown-item {
-  @apply w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container border-none cursor-pointer transition-colors duration-200;
+  @apply flex items-center min-h-[40px] max-md:max-h-[90px] max-md:px-3 max-md:py-1 max-md:text-xs w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container border-none cursor-pointer transition-colors duration-200;
 }

@@ -16,5 +16,9 @@
             "Happy Molyuu Everyday🐟.",
             "Navigate using the links in the bar."
         ]
+    },
+    "articles": {
+        "maximum_number_per_page": 10,
+        "pagination_size": 3
     }
 }

@@ -6,13 +6,11 @@ use crate::{
         footer::Footer,
         progress_bar::stop_progress_bar,
     },
-    models::{self, ArticleSearchIndex, SearchCriteria},
+    models::{ArticleIndex, ArticleSearchIndex, SearchCriteria},
 };
 use gloo_timers::future::TimeoutFuture;
 use leptos::{prelude::*, reactive::spawn_local};
 use leptos_meta::Title;
-
-const ARTICLES_PER_PAGE: usize = 10;
 
 #[component]
 pub fn ArticlesListPage() -> impl IntoView {
@@ -27,7 +25,7 @@ pub fn ArticlesListPage() -> impl IntoView {
     let articles_index = LocalResource::new(move || {
         let site = site_clone.clone();
         async move {
-            models::ArticleIndex::fetch(&site)
+            ArticleIndex::fetch(&site)
                 .await
                 .map(|index| index.to_search_index())
         }
@@ -126,6 +124,10 @@ fn ArticlesListPageContent(
     handle_search_change: impl Fn(String) + 'static + Copy + Send + Sync,
     handle_page_change: impl Fn(usize) + 'static + Copy + Send + Sync,
 ) -> impl IntoView {
+    let site_config = SITE_CONFIGURATION
+        .get()
+        .expect("Site configuration not initialized");
+    let articles_per_page = site_config.articles.maximum_number_per_page;
     let filtered_articles = Memo::new(move |_| {
         let criteria = SearchCriteria::parse(&search_query.get());
         search_index
@@ -137,7 +139,7 @@ fn ArticlesListPageContent(
     let current_page_articles = Memo::new(move |_| {
         let articles = filtered_articles.get();
         let articles_refs: Vec<&_> = articles.iter().collect();
-        ArticleSearchIndex::paginate(&articles_refs, current_page.get(), ARTICLES_PER_PAGE)
+        ArticleSearchIndex::paginate(&articles_refs, current_page.get(), articles_per_page)
             .iter()
             .map(|&article| article.clone())
             .collect::<Vec<_>>()
@@ -160,7 +162,7 @@ fn ArticlesListPageContent(
 
     let total_pages = Memo::new(move |_| {
         let articles = filtered_articles.get();
-        ArticleSearchIndex::total_pages(articles.len(), ARTICLES_PER_PAGE)
+        ArticleSearchIndex::total_pages(articles.len(), articles_per_page)
     });
 
     let total_articles = Memo::new(move |_| filtered_articles.get().len());
@@ -174,15 +176,11 @@ fn ArticlesListPageContent(
                     search_expanded=search_expanded
                     on_search_change=handle_search_change
                 />
-                {move || {
-                    view! {
-                        <ArticlesList
-                            articles=current_page_articles
-                            empty_message=empty_message
-                            pagination_visible=pagination_visible
-                        />
-                    }
-                }}
+                <ArticlesList
+                    articles=current_page_articles
+                    empty_message=empty_message
+                    pagination_visible=pagination_visible
+                />
                 <ArticlesPagination
                     current_page=current_page
                     total_pages=total_pages

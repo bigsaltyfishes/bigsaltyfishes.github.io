@@ -9,6 +9,7 @@ mod models;
 mod pages;
 mod router;
 mod types;
+mod utils;
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));

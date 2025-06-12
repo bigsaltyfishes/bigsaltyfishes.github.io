@@ -33,22 +33,25 @@
 }
 
 /* Custom component layer styles */
-@layer components {
-  /* Base layout classes */
+@layer components {  /* Base layout classes */
   .app-layout {
-    @apply flex flex-col min-h-screen text-on-background transition-colors duration-300;
+    @apply flex flex-col min-h-screen text-on-background;
   }
-
   .main-content {
     @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8;
   }
-
+  
+  /* Base container with common layout properties */
+  .page-container-base {
+    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8;
+  }
+  
   .page-container {
-    @apply flex-grow flex flex-col justify-between w-full max-w-content mx-auto mt-4 p-2 md:p-8;
+    @apply page-container-base justify-between;
   }
 
   .article-container {
-    @apply flex-grow flex flex-col w-full max-w-content mx-auto mt-4 p-2 md:p-8 transition-colors duration-300;
+    @apply page-container-base;
   }
 
   .article-content {
@@ -129,7 +132,9 @@
 
 .hljs-keyword,
 .hljs-selector-tag,
-.hljs-subst {
+.hljs-subst,
+.hljs-type,
+.hljs-class {
   @apply text-primary font-bold;
 }
 
@@ -148,11 +153,6 @@
 .hljs-variable,
 .hljs-template-variable {
   @apply text-on-surface-variant;
-}
-
-.hljs-type,
-.hljs-class {
-  @apply text-primary font-bold;
 }
 
 .hljs-attr,

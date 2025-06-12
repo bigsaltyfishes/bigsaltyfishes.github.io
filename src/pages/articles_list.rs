@@ -8,7 +8,8 @@ use crate::{
     },
     models::{self, ArticleSearchIndex, SearchCriteria},
 };
-use leptos::prelude::*;
+use gloo_timers::future::TimeoutFuture;
+use leptos::{prelude::*, reactive::spawn_local};
 use leptos_meta::Title;
 
 const ARTICLES_PER_PAGE: usize = 10;
@@ -32,6 +33,7 @@ pub fn ArticlesListPage() -> impl IntoView {
         }
     });
     let animation_class = RwSignal::new("page-content");
+    let pagination_visible = RwSignal::new(true);
 
     // Page animation - trigger only once when component mounts
     let content_ready = RwSignal::new(false);
@@ -49,8 +51,24 @@ pub fn ArticlesListPage() -> impl IntoView {
     };
 
     let handle_page_change = move |page: usize| {
-        current_page.set(page);
+        // First scroll to top smoothly, then change page after scroll completes
+        spawn_local(async move {
+            // Scroll to top
+            if let Some(window) = web_sys::window() {
+                let options = web_sys::ScrollToOptions::new();
+                options.set_top(0.0);
+                options.set_behavior(web_sys::ScrollBehavior::Smooth);
+                window.scroll_to_with_scroll_to_options(&options);
+            }
+
+            // Wait for smooth scroll to complete
+            TimeoutFuture::new(400).await;
+
+            // Now update the page
+            current_page.set(page);
+        });
     };
+
     view! {
         <Title text=format!("Articles - {}", site.long()) />
         <Suspense fallback=move || {
@@ -71,6 +89,7 @@ pub fn ArticlesListPage() -> impl IntoView {
                                         search_expanded=search_expanded
                                         current_page=current_page
                                         animation_class=animation_class
+                                        pagination_visible=pagination_visible
                                         handle_search_change=handle_search_change
                                         handle_page_change=handle_page_change
                                     />
@@ -103,8 +122,9 @@ fn ArticlesListPageContent(
     search_expanded: RwSignal<bool>,
     current_page: RwSignal<usize>,
     animation_class: RwSignal<&'static str>,
-    handle_search_change: impl Fn(String) + 'static + Copy + Send,
-    handle_page_change: impl Fn(usize) + 'static + Copy + Send,
+    pagination_visible: RwSignal<bool>,
+    handle_search_change: impl Fn(String) + 'static + Copy + Send + Sync,
+    handle_page_change: impl Fn(usize) + 'static + Copy + Send + Sync,
 ) -> impl IntoView {
     let filtered_articles = Memo::new(move |_| {
         let criteria = SearchCriteria::parse(&search_query.get());
@@ -156,17 +176,30 @@ fn ArticlesListPageContent(
                 />
                 {move || {
                     view! {
-                        <ArticlesList articles=current_page_articles empty_message=empty_message />
+                        <ArticlesList
+                            articles=current_page_articles
+                            empty_message=empty_message
+                            pagination_visible=pagination_visible
+                        />
                     }
                 }}
                 <ArticlesPagination
                     current_page=current_page
                     total_pages=total_pages
                     total_articles=total_articles
+                    pagination_visible=Signal::from(pagination_visible)
                     on_page_change=handle_page_change
                 />
             </div>
-            <Footer />
+            <div class=move || {
+                if pagination_visible.get() {
+                    "transition-opacity duration-[400ms] opacity-100"
+                } else {
+                    "transition-opacity duration-[400ms] opacity-0"
+                }
+            }>
+                <Footer />
+            </div>
         </div>
     }
 }

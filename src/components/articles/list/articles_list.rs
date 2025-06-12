@@ -8,13 +8,12 @@ use wasm_bindgen_futures::spawn_local;
 pub fn ArticlesList(
     #[prop(into)] articles: Signal<Vec<SearchableArticle>>,
     #[prop(into)] empty_message: Signal<String>,
+    #[prop(into, optional)] pagination_visible: Option<RwSignal<bool>>,
 ) -> impl IntoView {
     let init_signal = RwSignal::new(true);
     let show_group = RwSignal::new(true);
     let update_msg = RwSignal::new(String::new());
-    let update_group = RwSignal::new(Vec::<SearchableArticle>::new());
-
-    // Create a reactive effect that responds to prop changes
+    let update_group = RwSignal::new(Vec::<SearchableArticle>::new()); // Create a reactive effect that responds to prop changes
     Effect::new(move |prev| {
         let current_articles = articles.get();
         let current_message = empty_message.get();
@@ -35,11 +34,25 @@ pub fn ArticlesList(
                 update_group.set(current_articles);
                 return;
             }
+
+            // Hide both articles list and pagination
             show_group.set(false);
+            if let Some(pagination_signal) = pagination_visible {
+                pagination_signal.set(false);
+            }
+
+            // Wait for hide animation to complete
             TimeoutFuture::new(400).await;
+
+            // Update content
             update_msg.set(current_message);
             update_group.set(current_articles);
+
+            // Show both articles list and pagination
             show_group.set(true);
+            if let Some(pagination_signal) = pagination_visible {
+                pagination_signal.set(true);
+            }
         });
 
         reactive_bundle

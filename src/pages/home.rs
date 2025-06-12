@@ -1,6 +1,6 @@
-use leptos_router::components::A;
 use leptos::prelude::*;
 use leptos_meta::{Stylesheet, Title};
+use leptos_router::components::A;
 
 use crate::app::SITE_CONFIGURATION;
 use crate::components::footer::Footer;
@@ -14,7 +14,9 @@ pub fn HomePage() -> impl IntoView {
         .expect("Site configuration should be loaded by AppLayout");
 
     let welcome_title = site_config.home.welcome_title.clone();
-    let welcome_text = site_config.home.welcome_text
+    let welcome_text = site_config
+        .home
+        .welcome_text
         .clone()
         .into_iter()
         .map(|text| {
@@ -46,7 +48,7 @@ pub fn HomePage() -> impl IntoView {
                         >
                             <i class="fa-brands fa-github"></i>
                         </A>
-                        <A 
+                        <A
                             attr:class="material-symbols-outlined text-2xl"
                             href=move || format!("mailto:{}", site_config.author.email)
                         >

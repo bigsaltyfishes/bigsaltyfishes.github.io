@@ -1,7 +1,10 @@
 use crate::{
     app::SITE_CONFIGURATION,
     components::{
-        articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination}, error_page::ErrorPage, footer::Footer, progress_bar::stop_progress_bar
+        articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination},
+        error_page::ErrorPage,
+        footer::Footer,
+        progress_bar::stop_progress_bar,
     },
     models::{self, ArticleSearchIndex, SearchCriteria},
 };
@@ -60,7 +63,7 @@ pub fn ArticlesListPage() -> impl IntoView {
                         match result {
                             Ok(search_index) => {
                                 content_ready.set(true);
-                                
+
                                 view! {
                                     <ArticlesListPageContent
                                         search_index=search_index

@@ -11,14 +11,14 @@ pub struct AssetsOptions {
 pub struct AuthorOptions {
     pub name: String,
     pub email: String,
-    pub github: String
+    pub github: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct HomeOptions {
     pub welcome_title: String,
     #[serde(default)]
-    pub welcome_text: Vec<String>
+    pub welcome_text: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]

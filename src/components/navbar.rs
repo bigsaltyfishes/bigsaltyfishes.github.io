@@ -35,7 +35,7 @@ pub fn Navbar() -> impl IntoView {
     let site = SITE_CONFIGURATION
         .get()
         .expect("SITE_CONFIGURATION must be initialized before Navbar is rendered"); // Auto-close mobile menu when route changes
-    
+
     // Helper function to handle the closing logic
     let close_mobile_menu = move || {
         if is_mobile_menu_open.get_untracked() {

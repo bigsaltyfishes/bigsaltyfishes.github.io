@@ -52,7 +52,7 @@ pub fn AppLayout() -> impl IntoView {
             body.class_list().remove_1("no-transition").unwrap();
         });
     });
-    
+
     view! {
         <div class="app-layout">
             <ProgressBar />

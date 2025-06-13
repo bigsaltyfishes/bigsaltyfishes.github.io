@@ -1,0 +1,99 @@
+@layer components {
+  /* Layout Components */
+  .app-layout {
+    @apply flex flex-col min-h-screen text-on-background;
+  }
+  
+  .main-content {
+    @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8;
+  }
+  
+  .page-container {
+    @apply flex-grow flex flex-col justify-between w-full max-w-content mx-auto mt-4 p-2 md:p-8 md:pb-0;
+  }
+  
+  .article-content {
+    @apply flex-grow flex flex-col max-w-content w-full mx-auto;
+  }
+  
+  .page-content {
+    /* For animation */
+    opacity: 0;
+  }
+
+  /* Markdown Content Components */
+  .markdown-body {
+    /* Styles for the markdown-rendered content container */
+    /* Use the 'prose' plugin for beautiful typography defaults.
+        'dark:prose-invert' handles dark mode styling.
+        'max-w-none' removes the default max-width constraint from prose.
+      */
+    @apply prose dark:prose-invert max-w-none w-full;
+
+    /* Apply custom font size for H1 tags inside markdown */
+    & h1 {
+      @apply text-markdown-h1 mb-[0.8em];
+    }
+
+    & h2 {
+      @apply mt-[1.5em] mb-[0.5em];
+    }
+
+    & h3 {
+      @apply mt-[1.5em] mb-[0.5em];
+    }
+
+    & h4 {
+      @apply mt-[1.5em] mb-[0.5em];
+    }
+
+    & h5 {
+      @apply mt-[1.5em] mb-[0.5em];
+    }
+
+    & h6 {
+      @apply mt-[1.5em] mb-[0.5em];
+    }
+
+    /* Apply a more relaxed line-height for paragraphs inside markdown */
+    & p {
+      @apply mb-[1em];
+    }
+    & ul {
+      @apply mb-[1em];
+    }
+    & ol {
+      @apply mb-[1em];
+    }
+    & blockquote {
+      @apply mb-[1em];
+    }
+    & table {
+      @apply mb-[1em];
+    }
+    & pre {
+      @apply mb-[1em];
+    }
+
+    & pre {
+      @apply border border-outline bg-surface-variant text-on-surface-variant p-4 rounded-md overflow-x-auto font-mono text-base;
+    }
+
+    & pre code {
+      @apply font-mono bg-transparent p-0 rounded-none text-on-surface-variant text-base;
+    }
+
+    & a {
+      @apply hover:decoration-wavy;
+    }
+  }
+  
+  .markdown-container {
+    @apply flex-grow flex flex-col justify-between w-full;
+  }
+  
+  .katex-display {
+    /* Styles for KaTeX display math */
+    @apply overflow-visible;
+  }
+}

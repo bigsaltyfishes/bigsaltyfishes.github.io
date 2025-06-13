@@ -1,81 +1,85 @@
-/* Articles Pagination Components */
-.pagination-container {
-  @apply flex flex-row flex-wrap items-center justify-center mt-10 gap-2 transition-opacity duration-[400ms] ease-in-out;
-}
-
-.pagination-visible {
-  @apply opacity-100;
-}
-
-.pagination-hidden {
-  @apply opacity-0;
-}
-
-.pagination-button {
-  @apply px-3 py-2 md:px-4 md:py-2 mx-0.5 border rounded cursor-pointer text-sm font-medium transition-colors duration-200;
-}
-
-.pagination-button-active {
-  @apply bg-primary text-on-primary border-primary;
-}
-
-.pagination-button-inactive {
-  @apply bg-surface text-on-surface border-outline hover:bg-primary-container hover:border-primary;
-}
-
-.pagination-info {
-  @apply w-full text-center mt-2 text-xs text-on-surface/70;
-}
-
-/* Dropdown styles */
-.pagination-dropdown-container {
-  @apply relative;
-}
-
-.pagination-dropdown {
-  @apply absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-[60];
-  max-height: calc(100vh - 200px);
-}
-
-.pagination-dropdown-overlay {
-  @apply fixed inset-0 bg-transparent z-50;
-}
-
-.pagination-dropdown-content {
-  @apply relative bg-surface border border-outline rounded-lg shadow-lg overflow-y-auto min-w-[120px] z-[60] max-h-[120px] max-md:max-h-[90px] max-md:min-w-[100px];
-  /* Animation properties */
-  @apply transition-all duration-300 ease-in-out;
-  @apply transform origin-top;
-  /* Initial state for show animation */
-  animation: dropdown-show 0.3s ease-out forwards;
-}
-
-@keyframes dropdown-show {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scaleY(0.8);
+@layer components {
+  /* Articles Pagination Components */
+  .pagination-container {
+    @apply flex flex-row flex-wrap items-center justify-center mt-10 gap-2 transition-opacity duration-400 ease-in-out;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scaleY(1);
-  }
-}
 
-.pagination-dropdown-content.hiding {
-  animation: dropdown-hide 0.2s ease-in forwards;
-}
-
-@keyframes dropdown-hide {
-  from {
-    opacity: 1;
-    transform: translateY(0) scaleY(1);
+  .pagination-visible {
+    @apply opacity-100;
   }
-  to {
-    opacity: 0;
-    transform: translateY(-10px) scaleY(0.8);
-  }
-}
 
-.pagination-dropdown-item {
-  @apply flex items-center min-h-[40px] max-md:max-h-[90px] max-md:px-3 max-md:py-1 max-md:text-xs w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container border-none cursor-pointer transition-colors duration-200;
+  .pagination-hidden {
+    @apply opacity-0;
+  }
+
+  .pagination-button {
+    @apply px-3 py-2 md:px-4 md:py-2 mx-0.5 border rounded-sm cursor-pointer text-sm font-medium transition-colors duration-200;
+  }
+
+  .pagination-button-active {
+    @apply bg-primary text-on-primary border-primary;
+  }
+
+  .pagination-button-inactive {
+    @apply bg-surface text-on-surface border-outline hover:bg-primary-container hover:border-primary;
+  }
+
+  .pagination-info {
+    @apply w-full text-center mt-2 text-xs text-on-surface/70;
+  }
+
+  /* Dropdown styles */
+  .pagination-dropdown-container {
+    @apply relative;
+  }
+
+  .pagination-dropdown {
+    @apply absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-60;
+    max-height: calc(100vh - 200px);
+  }
+
+  .pagination-dropdown-overlay {
+    @apply fixed inset-0 bg-transparent z-50;
+  }
+
+  .pagination-dropdown-content {
+    @apply relative bg-surface border border-outline rounded-lg shadow-lg overflow-y-auto min-w-[120px] z-60 max-h-[120px] max-md:max-h-[90px] max-md:min-w-[100px];
+    /* Animation properties */
+    @apply transition-all duration-300 ease-in-out;
+    @apply transform origin-top;
+    /* Initial state for show animation */
+    animation: dropdown-show 0.3s ease-out forwards;
+  }
+
+  @keyframes dropdown-show {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scaleY(0.8);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+  }
+
+  .pagination-dropdown-content.hiding {
+    animation: dropdown-hide 0.2s ease-in forwards;
+  }
+
+  @keyframes dropdown-hide {
+    from {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(-10px) scaleY(0.8);
+    }
+  }
+
+  .pagination-dropdown-item {
+    @apply flex items-center min-h-[40px] max-md:max-h-[90px] max-md:px-3 max-md:py-1 max-md:text-xs w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container border-none cursor-pointer transition-colors duration-200;
+  }
 }

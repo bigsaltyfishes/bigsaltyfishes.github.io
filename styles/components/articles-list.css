@@ -1,24 +1,26 @@
-/* Articles List Components */
-.articles-list-container {
-  @apply transition-opacity duration-[400ms] ease-in-out;
-}
+@layer components {
+  /* Articles List Components */
+  .articles-list-container {
+    @apply transition-opacity duration-400 ease-in-out;
+  }
 
-.articles-list-visible {
-  @apply opacity-100;
-}
+  .articles-list-visible {
+    @apply opacity-100;
+  }
 
-.articles-list-hidden {
-  @apply opacity-0;
-}
+  .articles-list-hidden {
+    @apply opacity-0;
+  }
 
-.articles-list-empty {
-  @apply text-center py-10 px-5 text-on-surface/70;
-}
+  .articles-list-empty {
+    @apply text-center py-10 px-5 text-on-surface/70;
+  }
 
-.articles-list-empty-text {
-  @apply text-normal;
-}
+  .articles-list-empty-text {
+    @apply text-normal;
+  }
 
-.articles-list {
-  @apply list-none p-0;
+  .articles-list {
+    @apply list-none p-0;
+  }
 }

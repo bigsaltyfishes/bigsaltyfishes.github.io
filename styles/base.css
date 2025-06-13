@@ -1,0 +1,52 @@
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+  html {
+    /* Reserve space for scrollbar to prevent layout shifts */
+    scrollbar-gutter: stable;
+    /* Fallback for browsers that don't support scrollbar-gutter */
+    overflow-y: scroll;
+  }
+
+  body {
+    /* Apply the default sans-serif font family and text color */
+    @apply font-sans text-on-background;
+    /* Apply background color to ensure full coverage */
+    @apply bg-background;
+    /* Smooth transition for color changes */
+    @apply transition-colors duration-300;
+  }
+
+  /* Disable transitions during initial theme load to prevent flash */
+  .no-transition * {
+    transition-property: none !important;
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    height: auto;
+    width: var(--scroll-bar-width);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: hsla(0, 0%, 69%, 0.4);
+    border-radius: calc(var(--scroll-bar-width) / 2);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsla(0, 0%, 69%, 0.8);
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  :root {
+    --scroll-bar-width: 5px;
+  }
+}

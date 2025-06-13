@@ -1,6 +1,7 @@
 def main [
     scripts_dir: string,
     assets_dir: string,
+    styles_dir: string,
     output_dir: string
 ] {
     # Run the asset compression script
@@ -19,5 +20,17 @@ def main [
     }
     if (nu $index_script $assets_dir ($output_dir | path join "assets" "_assets" "articles") | complete).exit_code != 0 {
         error make {msg: "Failed to generate index."}
+    }
+
+    # Copy fonts to the output directory
+    let fonts_dir = $styles_dir | path join "fonts" | str replace "\\" "/"
+    let styles_output_dir = $output_dir | path join "assets" "fonts"
+    if not ($styles_output_dir | path exists) {
+        mkdir $styles_output_dir
+    }
+
+    glob $"($fonts_dir)/*.woff2" 
+    | each {
+        |p| cp $p $styles_output_dir
     }
 }

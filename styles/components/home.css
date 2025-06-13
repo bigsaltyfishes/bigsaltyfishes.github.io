@@ -1,12 +1,14 @@
-/* Home Page Components */
-.home-page-content {
-  @apply flex-grow flex flex-col justify-center items-center text-center p-5;
-}
+@layer components {
+  /* Home Page Components */
+  .home-page-content {
+    @apply flex-grow flex flex-col justify-center items-center text-center p-5;
+  }
 
-.home-page-title {
-  @apply text-page-title text-on-background;
-}
+  .home-page-title {
+    @apply text-page-title text-on-background;
+  }
 
-.home-page-text {
-  @apply text-on-surface-variant;
+  .home-page-text {
+    @apply text-on-surface-variant;
+  }
 }

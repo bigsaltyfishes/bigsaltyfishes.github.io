@@ -87,13 +87,21 @@
       @apply hover:decoration-wavy;
     }
   }
-  
+
   .markdown-container {
     @apply flex-grow flex flex-col justify-between w-full;
   }
-  
+
   .katex-display {
-    /* Styles for KaTeX display math */
-    @apply overflow-visible;
+    /* Style for KaTeX display math to overflow */
+    @apply max-w-full overflow-visible;
+  }
+
+  /* Additional KaTeX stability fixes */
+  .katex,
+  .katex * {
+    /* Prevent any KaTeX element from expanding beyond container */
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }

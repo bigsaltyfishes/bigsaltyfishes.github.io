@@ -11,7 +11,7 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  PUBLIC_URL: "https://blog.molyuu.me/"
+  PUBLIC_URL: "https://blog.ruruka.moe/"
 
 jobs:
   build:

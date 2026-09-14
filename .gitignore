@@ -1,4 +1,5 @@
 /.idea
+/.direnv
 /target
 /dist
 /node_modules

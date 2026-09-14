@@ -10,13 +10,13 @@
   "devDependencies": {
     "@nexim/tailwind-material-colors": "github:bigsaltyfishes/nanolib#tailwindcss",
     "@tailwindcss/postcss": "^4.1.10",
-    "@tailwindcss/typography": "0.5.16",
-    "autoprefixer": "10.4.21",
-    "postcss": "8.5.5",
-    "postcss-cli": "11.0.1",
+    "@tailwindcss/typography": "0.5.20",
+    "autoprefixer": "10.6.0",
+    "postcss": "^8.5.28",
+    "postcss-cli": "12.0.0",
     "postcss-minify": "1.2.0",
     "tailwind-scrollbar": "^4.0.2",
-    "tailwindcss": "4.1.10"
+    "tailwindcss": "4.3.3"
   },
   "keywords": [],
   "author": "",

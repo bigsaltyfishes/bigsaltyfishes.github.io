@@ -12,36 +12,24 @@ pub fn ThemeToggle() -> impl IntoView {
         is_dark.set(!current_is_dark);
     };
 
-    // Use Material 3 colors with automatic dark mode
-    let track_bg = move || {
-        if is_dark.get() {
-            "bg-primary-container"
-        } else {
-            "bg-surface-variant"
-        }
-    };
-
     let thumb_classes = move || {
         if is_dark.get() {
-            ("bg-primary", "text-on-primary", "theme-toggle-thumb-dark")
+            ("theme-toggle-thumb-dark", "theme-toggle-icon-dark")
         } else {
-            (
-                "bg-secondary",
-                "text-on-secondary",
-                "theme-toggle-thumb-light",
-            )
+            ("theme-toggle-thumb-light", "theme-toggle-icon-light")
         }
     };
 
     view! {
         <button
             aria-label="Toggle theme"
-            class=move || format!("theme-toggle-button {}", track_bg())
+            aria-pressed=move || is_dark.get().to_string()
+            class="theme-toggle-button"
             on:click=toggle_theme
         >
             <div class=move || {
-                let (thumb_bg, _, thumb_position) = thumb_classes();
-                format!("theme-toggle-thumb {} {}", thumb_bg, thumb_position)
+                let (thumb_position, _) = thumb_classes();
+                format!("theme-toggle-thumb {thumb_position}")
             }>
                 // Light Mode Icon
                 <span class=move || {
@@ -56,7 +44,7 @@ pub fn ThemeToggle() -> impl IntoView {
                     )
                 }>
                     <span class=move || {
-                        let (_, thumb_icon_color, _) = thumb_classes();
+                        let (_, thumb_icon_color) = thumb_classes();
                         format!("material-symbols-outlined theme-toggle-icon {}", thumb_icon_color)
                     }>"light_mode"</span>
                 </span>
@@ -74,7 +62,7 @@ pub fn ThemeToggle() -> impl IntoView {
                     )
                 }>
                     <span class=move || {
-                        let (_, thumb_icon_color, _) = thumb_classes();
+                        let (_, thumb_icon_color) = thumb_classes();
                         format!("material-symbols-outlined theme-toggle-icon {}", thumb_icon_color)
                     }>"dark_mode"</span>
                 </span>

@@ -3,7 +3,6 @@ use crate::{
     components::{
         articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination},
         error_page::ErrorPage,
-        footer::Footer,
         progress_bar::stop_progress_bar,
     },
     models::{ArticleIndex, ArticleSearchIndex, SearchCriteria},
@@ -20,6 +19,7 @@ pub fn ArticlesListPage() -> impl IntoView {
     let search_query = RwSignal::new(String::new());
     let search_expanded = RwSignal::new(false);
     let current_page = RwSignal::new(0usize);
+    let active_category = RwSignal::new(String::new());
 
     let site_clone = site.clone();
     let articles_index = LocalResource::new(move || {
@@ -86,6 +86,7 @@ pub fn ArticlesListPage() -> impl IntoView {
                                         search_query=search_query
                                         search_expanded=search_expanded
                                         current_page=current_page
+                                        active_category=active_category
                                         animation_class=animation_class
                                         pagination_visible=pagination_visible
                                         handle_search_change=handle_search_change
@@ -119,6 +120,7 @@ fn ArticlesListPageContent(
     search_query: RwSignal<String>,
     search_expanded: RwSignal<bool>,
     current_page: RwSignal<usize>,
+    active_category: RwSignal<String>,
     animation_class: RwSignal<&'static str>,
     pagination_visible: RwSignal<bool>,
     handle_search_change: impl Fn(String) + 'static + Copy + Send + Sync,
@@ -128,12 +130,23 @@ fn ArticlesListPageContent(
         .get()
         .expect("Site configuration not initialized");
     let articles_per_page = site_config.articles.maximum_number_per_page;
+    let mut categories = search_index.categories.clone();
+    categories.sort();
     let filtered_articles = Memo::new(move |_| {
         let criteria = SearchCriteria::parse(&search_query.get());
+        let active_category_value = active_category.get();
+        let criteria = if active_category_value.is_empty() {
+            criteria
+        } else {
+            SearchCriteria {
+                categories: vec![active_category_value],
+                ..criteria
+            }
+        };
         search_index
             .search_with_criteria(&criteria)
             .into_iter()
-            .map(|article| article.clone())
+            .cloned()
             .collect::<Vec<_>>()
     });
     let current_page_articles = Memo::new(move |_| {
@@ -170,12 +183,53 @@ fn ArticlesListPageContent(
     view! {
         // Main container.
         <div class=move || format!("page-container {}", animation_class.get())>
-            <div>
+            <div class="shell">
                 <ArticleTitleBar
                     search_query=search_query
                     search_expanded=search_expanded
+                    search_results=filtered_articles
                     on_search_change=handle_search_change
                 />
+                <div class="archive-filters" aria-label="Filter articles by category">
+                    <button
+                        type="button"
+                        class=move || if active_category.get().is_empty() {
+                            "filter-chip filter-chip-active"
+                        } else {
+                            "filter-chip"
+                        }
+                        on:click=move |_| {
+                            active_category.set(String::new());
+                            current_page.set(0);
+                        }
+                    >
+                        "All notes"
+                    </button>
+                    {categories
+                        .into_iter()
+                        .map(|category| {
+                            let category_for_class = category.clone();
+                            let category_for_click = category.clone();
+                            let category_label = category.clone();
+                            view! {
+                                <button
+                                    type="button"
+                                    class=move || if active_category.get() == category_for_class {
+                                        "filter-chip filter-chip-active"
+                                    } else {
+                                        "filter-chip"
+                                    }
+                                    on:click=move |_| {
+                                        active_category.set(category_for_click.clone());
+                                        current_page.set(0);
+                                    }
+                                >
+                                    {category_label}
+                                </button>
+                            }
+                        })
+                        .collect_view()}
+                </div>
                 <ArticlesList
                     articles=current_page_articles
                     empty_message=empty_message
@@ -188,15 +242,6 @@ fn ArticlesListPageContent(
                     pagination_visible=Signal::from(pagination_visible)
                     on_page_change=handle_page_change
                 />
-            </div>
-            <div class=move || {
-                if pagination_visible.get() {
-                    "transition-opacity duration-[400ms] opacity-100"
-                } else {
-                    "transition-opacity duration-[400ms] opacity-0"
-                }
-            }>
-                <Footer />
             </div>
         </div>
     }

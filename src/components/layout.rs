@@ -5,6 +5,7 @@ use leptos_router::components::Outlet;
 
 use crate::app::SITE_CONFIGURATION;
 use crate::components::error_page::ErrorPage;
+use crate::components::footer::Footer;
 use crate::components::navbar::Navbar;
 use crate::components::progress_bar::ProgressBar;
 use crate::types::site::Site;
@@ -66,7 +67,17 @@ pub fn AppLayout() -> impl IntoView {
                             match site_result {
                                 Ok(site) => {
                                     if SITE_CONFIGURATION.get().is_none() {
-                                        let _ = SITE_CONFIGURATION.set(site);
+                                        let _ = SITE_CONFIGURATION.set(site.clone());
+                                    }
+                                    if let Some(body) = web_sys::window()
+                                        .and_then(|window| window.document())
+                                        .and_then(|document| document.body())
+                                    {
+                                        let wallpaper = site
+                                            .background_url()
+                                            .map(|url| format!("url(\"{url}\")"))
+                                            .unwrap_or_else(|| "none".to_string());
+                                        let _ = body.style().set_property("--site-wallpaper", &wallpaper);
                                     }
                                     // Site config loaded successfully, set global config and render app
                                     view! {
@@ -74,6 +85,7 @@ pub fn AppLayout() -> impl IntoView {
                                         <main class="main-content">
                                             <Outlet />
                                         </main>
+                                        <Footer />
                                     }
                                         .into_any()
                                 }

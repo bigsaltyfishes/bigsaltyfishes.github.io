@@ -1,25 +1,20 @@
-# About This Blog
+## About me
 
-This blog is a demonstration of a pure WASM application built with Rust and the Dioxus framework.
+A master's student majoring in software engineering with a strong interest in operating systems and Rust.
 
-- Minimize the use of JavaScript.
-- Markdown rendering for articles.
-- Custom-styled navigation and theming.
+## This site
 
-## Navigation Tests
+A blog site written in Leptos and Rust, which might be used to record some logs or notes.
 
-Test SPA navigation with the following links:
+## Stack
 
-**Internal Article Links (should use SPA navigation):**
-- [My First Post](/articles/first-post)
-- [Exploring Rust and WASM](/articles/rust-and-wasm)
+- Rust
+- WebAssembly
+- Markdown
+- Material You
+- MathML / LaTeX
 
-**Internal Route Links (should use SPA navigation):**
-- [Home Page](/)
-- [Articles List](/articles)
+## Links
 
-**External Links (should open normally):**
-- [GitHub](https://github.com)
-- [Rust Lang](https://www.rust-lang.org)
-
-The links above marked as "should use SPA navigation" should navigate without page reload and should have the `data-spa-link` attribute when rendered.
+- [Home](/)
+- [Articles](/articles)

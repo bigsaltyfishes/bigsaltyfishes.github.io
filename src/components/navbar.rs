@@ -1,7 +1,7 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::attr::global::ClassAttribute;
 use leptos::prelude::*;
 use leptos_router::{components::A, hooks::use_location};
+use wasm_bindgen::{closure::Closure, JsCast};
 use wasm_bindgen_futures::spawn_local;
 
 use crate::{app::SITE_CONFIGURATION, components::theme_toggle::ThemeToggle};
@@ -18,10 +18,19 @@ impl From<String> for CurrentActiveLink {
     fn from(path: String) -> Self {
         match path.as_str() {
             "/" => CurrentActiveLink::Home,
+            "/about" | "/articles/about" => CurrentActiveLink::About,
             "/articles" => CurrentActiveLink::Articles,
-            "/articles/about" => CurrentActiveLink::About,
-            _ => CurrentActiveLink::None, // Default case
+            path if path.starts_with("/articles/") => CurrentActiveLink::Articles,
+            _ => CurrentActiveLink::None,
         }
+    }
+}
+
+fn nav_link_class(active: bool) -> &'static str {
+    if active {
+        "nav-link nav-link-active"
+    } else {
+        "nav-link"
     }
 }
 
@@ -29,19 +38,18 @@ impl From<String> for CurrentActiveLink {
 pub fn Navbar() -> impl IntoView {
     let (is_mobile_menu_open, set_is_mobile_menu_open) = signal(false);
     let (is_closing, set_is_closing) = signal(false);
+    let (is_scrolled, set_is_scrolled) = signal(false);
     let current_active_link = RwSignal::new(CurrentActiveLink::None);
 
-    // Get site configuration
     let site = SITE_CONFIGURATION
         .get()
-        .expect("SITE_CONFIGURATION must be initialized before Navbar is rendered"); // Auto-close mobile menu when route changes
+        .expect("SITE_CONFIGURATION must be initialized before Navbar is rendered");
 
-    // Helper function to handle the closing logic
     let close_mobile_menu = move || {
         if is_mobile_menu_open.get_untracked() {
             set_is_closing.set(true);
             spawn_local(async move {
-                TimeoutFuture::new(100).await;
+                TimeoutFuture::new(180).await;
                 set_is_mobile_menu_open.set(false);
                 set_is_closing.set(false);
             });
@@ -55,83 +63,89 @@ pub fn Navbar() -> impl IntoView {
         close_mobile_menu();
     });
 
+    // The app bar is transparent over the hero and gains its scrim only after
+    // the user starts scrolling. The closure is intentionally installed once.
+    Effect::new(move |_| {
+        let Some(window) = web_sys::window() else {
+            return;
+        };
+
+        let update = move || {
+            let scrolled = web_sys::window()
+                .and_then(|window| window.scroll_y().ok())
+                .is_some_and(|offset| offset > 24.0);
+            set_is_scrolled.set(scrolled);
+        };
+        update();
+
+        let callback = Closure::wrap(
+            Box::new(move |_event: web_sys::Event| update()) as Box<dyn FnMut(web_sys::Event)>
+        );
+        let _ =
+            window.add_event_listener_with_callback("scroll", callback.as_ref().unchecked_ref());
+        callback.forget();
+    });
+
     let toggle_mobile_menu = move |_| {
-        // Open menu
         set_is_mobile_menu_open.set(true);
         set_is_closing.set(false);
     };
 
     view! {
-        <nav class="navbar">
-            <div class="navbar-inner">
-                <div>
-                    <A href="/" attr:class="navbar-brand">
-                        <span class="navbar-brand-long">{site.long()}</span>
-                        <span class="navbar-brand-short">{site.short()}</span>
-                    </A>
-                </div>
+        <header class=move || {
+            format!("site-header {}", if is_scrolled.get() { "scrolled" } else { "" })
+        }>
+            <nav class="shell nav" aria-label="Primary navigation">
+                <A href="/" attr:class="brand">
+                    <span class="navbar-brand-long">{site.long()}</span>
+                    <span class="navbar-brand-short">{site.short()}</span>
+                </A>
 
                 <div class="navbar-desktop">
-                    <div class="navbar-desktop-links">
-                        <A
-                            href="/"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::Home {
-                                    "navbar-desktop-link navbar-desktop-link-active"
-                                } else {
-                                    "navbar-desktop-link"
-                                }
-                            }
-                        >
-                            <span class="material-symbols-outlined navbar-desktop-link-icon">
-                                "home"
-                            </span>
-                            <span>"Home"</span>
-                        </A>
-                        <A
-                            href="/articles"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::Articles {
-                                    "navbar-desktop-link navbar-desktop-link-active"
-                                } else {
-                                    "navbar-desktop-link"
-                                }
-                            }
-                        >
-                            <span class="material-symbols-outlined navbar-desktop-link-icon">
-                                "description"
-                            </span>
-                            <span>"Articles"</span>
-                        </A>
-                        <A
-                            href="/articles/about"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::About {
-                                    "navbar-desktop-link navbar-desktop-link-active"
-                                } else {
-                                    "navbar-desktop-link"
-                                }
-                            }
-                        >
-                            <span class="material-symbols-outlined navbar-desktop-link-icon">
-                                "info"
-                            </span>
-                            <span>"About"</span>
-                        </A>
-                    </div>
-                    <div class="navbar-actions">
-                        <ThemeToggle />
-                    </div>
+                    <A
+                        href="/"
+                        attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::Home)
+                        attr:aria-current=move || {
+                            (current_active_link.get() == CurrentActiveLink::Home).then_some("page")
+                        }
+                    >
+                        <span class="material-symbols-outlined" aria-hidden="true">"home"</span>
+                        <span>"Home"</span>
+                    </A>
+                    <A
+                        href="/articles"
+                        attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::Articles)
+                        attr:aria-current=move || {
+                            (current_active_link.get() == CurrentActiveLink::Articles).then_some("page")
+                        }
+                    >
+                        <span class="material-symbols-outlined" aria-hidden="true">"description"</span>
+                        <span>"Articles"</span>
+                    </A>
+                    <A
+                        href="/about"
+                        attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::About)
+                        attr:aria-current=move || {
+                            (current_active_link.get() == CurrentActiveLink::About).then_some("page")
+                        }
+                    >
+                        <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
+                        <span>"About"</span>
+                    </A>
+                    <ThemeToggle />
                 </div>
 
                 <button
-                    class="navbar-mobile-button"
+                    type="button"
+                    class="icon-button navbar-mobile-button"
                     on:click=toggle_mobile_menu
-                    aria-label="Toggle mobile menu"
+                    aria-label="Open navigation menu"
+                    aria-controls="mobile-navigation"
+                    aria-expanded=move || is_mobile_menu_open.get().to_string()
                 >
-                    <span class="material-symbols-outlined navbar-mobile-button-icon">"menu"</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">"menu"</span>
                 </button>
-            </div>
+            </nav>
 
             <Show when=move || is_mobile_menu_open.get()>
                 <div
@@ -146,82 +160,63 @@ pub fn Navbar() -> impl IntoView {
                         )
                     }
                     on:click=move |_| close_mobile_menu()
-                />
-                <div class=move || {
-                    format!(
-                        "mobile-menu-panel {}",
-                        if is_closing.get() {
-                            "mobile-menu-panel-slide-out"
-                        } else {
-                            "mobile-menu-panel-slide-in"
-                        },
-                    )
-                }>
+                ></div>
+                <aside
+                    id="mobile-navigation"
+                    class=move || {
+                        format!(
+                            "mobile-menu-panel {}",
+                            if is_closing.get() {
+                                "mobile-menu-panel-slide-out"
+                            } else {
+                                "mobile-menu-panel-slide-in"
+                            },
+                        )
+                    }
+                    aria-label="Mobile navigation"
+                >
                     <div class="mobile-menu-header">
-                        <h3 class="mobile-menu-title">"Navigation"</h3>
+                        <h2 class="mobile-menu-title">"Navigation"</h2>
                         <button
-                            class="mobile-menu-close-button"
+                            type="button"
+                            class="icon-button mobile-menu-close-button"
                             on:click=move |_| close_mobile_menu()
-                            aria-label="Close menu"
+                            aria-label="Close navigation menu"
                         >
-                            <span class="material-symbols-outlined mobile-menu-close-icon">
-                                "close"
-                            </span>
+                            <span class="material-symbols-outlined" aria-hidden="true">"close"</span>
                         </button>
                     </div>
                     <div class="mobile-menu-links">
                         <A
                             href="/"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::Home {
-                                    "mobile-menu-link mobile-menu-link-active"
-                                } else {
-                                    "mobile-menu-link"
-                                }
-                            }
+                            attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::Home)
+                            on:click=move |_| close_mobile_menu()
                         >
-                            <span class="material-symbols-outlined mobile-menu-link-icon">
-                                "home"
-                            </span>
+                            <span class="material-symbols-outlined" aria-hidden="true">"home"</span>
                             <span>"Home"</span>
                         </A>
                         <A
                             href="/articles"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::Articles {
-                                    "mobile-menu-link mobile-menu-link-active"
-                                } else {
-                                    "mobile-menu-link"
-                                }
-                            }
+                            attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::Articles)
+                            on:click=move |_| close_mobile_menu()
                         >
-                            <span class="material-symbols-outlined mobile-menu-link-icon">
-                                "description"
-                            </span>
+                            <span class="material-symbols-outlined" aria-hidden="true">"description"</span>
                             <span>"Articles"</span>
                         </A>
                         <A
-                            href="/articles/about"
-                            attr:class=move || {
-                                if current_active_link.get() == CurrentActiveLink::About {
-                                    "mobile-menu-link mobile-menu-link-active"
-                                } else {
-                                    "mobile-menu-link"
-                                }
-                            }
+                            href="/about"
+                            attr:class=move || nav_link_class(current_active_link.get() == CurrentActiveLink::About)
+                            on:click=move |_| close_mobile_menu()
                         >
-                            <span class="material-symbols-outlined mobile-menu-link-icon">
-                                "info"
-                            </span>
+                            <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
                             <span>"About"</span>
                         </A>
                     </div>
-
                     <div class="mobile-menu-footer">
                         <ThemeToggle />
                     </div>
-                </div>
+                </aside>
             </Show>
-        </nav>
+        </header>
     }
 }

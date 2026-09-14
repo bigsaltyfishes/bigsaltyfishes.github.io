@@ -1,107 +1,240 @@
 @layer components {
-  /* Layout Components */
   .app-layout {
-    @apply flex flex-col min-h-screen text-on-background;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
   }
-  
+
   .main-content {
-    @apply flex-grow flex flex-col pt-[60px] p-4 md:p-8;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 0;
   }
-  
+
   .page-container {
-    @apply flex-grow flex flex-col justify-between w-full max-w-content mx-auto mt-4 p-2 md:p-8 md:pb-0;
+    width: 100%;
+    flex: 1 1 auto;
+    padding: 0 0 80px;
   }
-  
-  .article-content {
-    @apply flex-grow flex flex-col max-w-content w-full mx-auto;
+
+  .shell,
+  .article-frame {
+    width: min(calc(100% - 42px), var(--page-width));
+    margin-inline: auto;
   }
-  
+
+  .article-frame {
+    width: min(calc(100% - 42px), var(--article-frame));
+  }
+
   .page-content {
-    /* For animation */
     opacity: 0;
   }
 
-  /* Markdown Content Components */
-  .markdown-body {
-    /* Styles for the markdown-rendered content container */
-    /* Use the 'prose' plugin for beautiful typography defaults.
-        'dark:prose-invert' handles dark mode styling.
-        'max-w-none' removes the default max-width constraint from prose.
-      */
-    @apply prose dark:prose-invert max-w-none w-full;
-
-    /* Apply custom font size for H1 tags inside markdown */
-    & h1 {
-      @apply text-markdown-h1 mb-[0.8em];
-    }
-
-    & h2 {
-      @apply mt-[1.5em] mb-[0.5em];
-    }
-
-    & h3 {
-      @apply mt-[1.5em] mb-[0.5em];
-    }
-
-    & h4 {
-      @apply mt-[1.5em] mb-[0.5em];
-    }
-
-    & h5 {
-      @apply mt-[1.5em] mb-[0.5em];
-    }
-
-    & h6 {
-      @apply mt-[1.5em] mb-[0.5em];
-    }
-
-    /* Apply a more relaxed line-height for paragraphs inside markdown */
-    & p {
-      @apply mb-[1em];
-    }
-    & ul {
-      @apply mb-[1em];
-    }
-    & ol {
-      @apply mb-[1em];
-    }
-    & blockquote {
-      @apply mb-[1em];
-    }
-    & table {
-      @apply mb-[1em];
-    }
-    & pre {
-      @apply mb-[1em];
-    }
-
-    & pre {
-      @apply border border-outline bg-surface-variant text-on-surface-variant p-4 rounded-md overflow-x-auto font-mono text-base;
-    }
-
-    & pre code {
-      @apply font-mono bg-transparent p-0 rounded-none text-on-surface-variant text-base;
-    }
-
-    & a {
-      @apply hover:decoration-wavy;
-    }
+  .muted {
+    color: color-mix(in srgb, rgb(var(--ref-color-on-surface-variant, var(--fallback-on-surface-variant))) 82%, transparent);
   }
 
+  .kicker {
+    color: rgb(var(--ref-color-primary, var(--fallback-primary)));
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .display-title,
+  .page-title,
+  .article-title {
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+  }
+
+  .btn {
+    display: inline-flex;
+    min-height: 43px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-weight: 650;
+    transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .btn:hover {
+    box-shadow: 0 10px 24px color-mix(in srgb, rgb(var(--ref-color-shadow, 0, 0, 0)) 16%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .btn-tonal {
+    color: rgb(var(--ref-color-on-secondary-container, var(--fallback-on-secondary-container)));
+    background: color-mix(in srgb, rgb(var(--ref-color-secondary-container, var(--fallback-secondary-container))) 86%, transparent);
+  }
+
+  .btn-outlined {
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    border-color: color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 70%, transparent);
+    background: color-mix(in srgb, rgb(var(--ref-color-surface, var(--fallback-surface))) 22%, transparent);
+  }
+
+  /* Markdown remains content-only; the shared shell owns the footer. */
   .markdown-container {
-    @apply flex-grow flex flex-col justify-between w-full;
+    min-width: 0;
+  }
+
+  .markdown-body {
+    min-width: 0;
+    color: color-mix(in srgb, rgb(var(--ref-color-on-surface, var(--fallback-on-surface))) 96%, transparent);
+    font-size: 1.03rem;
+    line-height: 1.82;
+  }
+
+  .markdown-body > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-body p {
+    margin: 0 0 1.45em;
+  }
+
+  .markdown-body > p:first-child {
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    font-family: var(--font-display);
+    font-size: 1.14rem;
+  }
+
+  .markdown-body h1,
+  .markdown-body h2,
+  .markdown-body h3,
+  .markdown-body h4,
+  .markdown-body h5,
+  .markdown-body h6 {
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.22;
+    scroll-margin-top: 96px;
+  }
+
+  .markdown-body h1 {
+    margin: 0 0 1em;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .markdown-body h2 {
+    margin: 2.5em 0 0.8em;
+    font-size: 1.95rem;
+    letter-spacing: -0.03em;
+  }
+
+  .markdown-body h3 {
+    margin: 2em 0 0.75em;
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+  }
+
+  .markdown-body a {
+    color: rgb(var(--ref-color-primary, var(--fallback-primary)));
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, rgb(var(--ref-color-primary, var(--fallback-primary))) 48%, transparent);
+    text-underline-offset: 3px;
+  }
+
+  .markdown-body ul,
+  .markdown-body ol {
+    margin: 0 0 1.5em;
+    padding-left: 1.3em;
+  }
+
+  .markdown-body li {
+    margin: 0.38em 0;
+  }
+
+  .markdown-body blockquote {
+    margin: 2em 0;
+    padding: 0.15em 0 0.15em 20px;
+    border-left: 2px solid color-mix(in srgb, rgb(var(--ref-color-primary, var(--fallback-primary))) 72%, transparent);
+    color: rgb(var(--ref-color-on-surface-variant, var(--fallback-on-surface-variant)));
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+  }
+
+  .markdown-body table {
+    display: block;
+    max-width: 100%;
+    margin: 1.6em 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  .markdown-body th,
+  .markdown-body td {
+    padding: 0.65em 0.9em;
+    border-bottom: 1px solid color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 45%, transparent);
+    text-align: left;
+  }
+
+  .markdown-body th {
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+  }
+
+  .markdown-body code,
+  .article-meta,
+  .article-card-extra {
+    font-family: var(--font-mono);
+  }
+
+  .markdown-body p code,
+  .markdown-body li code {
+    padding: 0.12em 0.34em;
+    border-radius: 6px;
+    background: color-mix(in srgb, rgb(var(--ref-color-surface-container-high, var(--fallback-surface))) 78%, transparent);
+    font-size: 0.9em;
+  }
+
+  .markdown-body pre {
+    max-width: 100%;
+    margin: 1.8em 0;
+    padding: 18px 20px;
+    overflow: auto;
+    border: 1px solid color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 48%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, rgb(var(--ref-color-surface-container-high, var(--fallback-surface))) 78%, transparent);
+    font: 0.9rem/1.65 var(--font-mono);
+  }
+
+  .markdown-body pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
   }
 
   .katex-display {
-    /* Style for KaTeX display math to overflow */
-    @apply max-w-full overflow-visible;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 18px 0 8px;
   }
 
-  /* Additional KaTeX stability fixes */
   .katex,
   .katex * {
-    /* Prevent any KaTeX element from expanding beyond container */
-    max-width: 100%;
     box-sizing: border-box;
+  }
+
+  @media (max-width: 700px) {
+    .shell,
+    .article-frame {
+      width: calc(100% - 28px);
+    }
+
+    .page-container {
+      padding-bottom: 56px;
+    }
   }
 }

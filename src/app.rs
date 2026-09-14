@@ -28,7 +28,7 @@ pub fn App() -> impl IntoView {
                 .match_media("(prefers-color-scheme: dark)")
                 .ok()
                 .flatten()
-                .map_or(false, |mql| mql.matches())
+                .is_some_and(|mql| mql.matches())
         }
     });
     provide_context(ThemeContext(is_dark_mode));
@@ -41,6 +41,8 @@ pub fn App() -> impl IntoView {
             .unwrap()
             .body()
             .unwrap();
+        let document = web_sys::window().unwrap().document().unwrap();
+        let root = document.document_element().unwrap();
 
         let current_is_dark = is_dark_mode.get();
 
@@ -49,6 +51,7 @@ pub fn App() -> impl IntoView {
         let storage = window.local_storage().unwrap().unwrap();
         let theme_value = if current_is_dark { "dark" } else { "light" };
         let _ = storage.set_item("theme", theme_value);
+        let _ = root.set_attribute("data-theme", theme_value);
 
         if current_is_dark {
             body.class_list().add_1("dark").unwrap();

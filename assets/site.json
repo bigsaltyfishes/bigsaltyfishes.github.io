@@ -1,9 +1,12 @@
 {
     "name": "Molyuu Blog",
-    "copyright_year": 2025,
+    "copyright_year": 2026,
     "assets": {
         "directory": "_assets",
         "articles": "articles"
+    },
+    "theme": {
+        "background": "_assets/site-wallpaper.jpg"
     },
     "author": {
         "name": "Molyuu",

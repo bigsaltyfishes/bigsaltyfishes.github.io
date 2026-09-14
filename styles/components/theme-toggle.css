@@ -1,34 +1,70 @@
 @layer components {
-  /* Theme Toggle Switch */
   .theme-toggle-button {
-    @apply relative inline-flex items-center w-[52px] h-8 max-md:w-14 max-md:h-9 rounded-full cursor-pointer p-0 border-none outline-hidden transition-colors duration-300;
+    position: relative;
+    display: inline-flex;
+    width: 52px;
+    height: 32px;
+    align-items: center;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 50%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, rgb(var(--ref-color-surface-container-high, var(--fallback-surface))) 78%, transparent);
+    cursor: pointer;
+    transition: background-color 300ms ease, border-color 300ms ease;
+  }
+
+  .theme-toggle-button:hover {
+    border-color: color-mix(in srgb, rgb(var(--ref-color-primary, var(--fallback-primary))) 72%, transparent);
   }
 
   .theme-toggle-thumb {
-    @apply absolute top-1 left-1 w-6 h-6 max-md:w-7 max-md:h-7 rounded-full shadow-md transition-transform duration-300 ease-in-out flex items-center justify-center;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgb(var(--ref-color-secondary, var(--fallback-secondary)));
+    box-shadow: 0 3px 10px rgb(0 0 0 / 18%);
+    transition: transform 300ms ease, background-color 300ms ease;
   }
 
   .theme-toggle-thumb-light {
-    @apply translate-x-0;
+    transform: translateX(0);
   }
 
   .theme-toggle-thumb-dark {
-    @apply translate-x-5;
+    background: rgb(var(--ref-color-primary, var(--fallback-primary)));
+    transform: translateX(20px);
   }
 
   .theme-toggle-icon-container {
-    @apply absolute flex items-center justify-center w-full h-full transition-opacity duration-300 ease-in-out;
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 300ms ease;
   }
 
   .theme-toggle-icon-visible {
-    @apply opacity-100;
+    opacity: 1;
   }
 
   .theme-toggle-icon-hidden {
-    @apply opacity-0;
+    opacity: 0;
   }
 
   .theme-toggle-icon {
-    @apply text-base max-md:text-lg;
+    color: rgb(var(--ref-color-on-secondary, var(--fallback-on-secondary)));
+    font-size: 15px;
+  }
+
+  .theme-toggle-icon-dark {
+    color: rgb(var(--ref-color-on-primary, var(--fallback-on-primary)));
   }
 }

@@ -1,85 +1,129 @@
 @layer components {
-  /* Articles Pagination Components */
   .pagination-container {
-    @apply flex flex-row flex-wrap items-center justify-center mt-10 gap-2 transition-opacity duration-400 ease-in-out;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 34px;
+    transition: opacity 400ms ease-in-out;
   }
 
   .pagination-visible {
-    @apply opacity-100;
+    opacity: 1;
   }
 
   .pagination-hidden {
-    @apply opacity-0;
+    opacity: 0;
   }
 
   .pagination-button {
-    @apply px-3 py-2 md:px-4 md:py-2 mx-0.5 border rounded-sm cursor-pointer text-sm font-medium transition-colors duration-200;
+    min-width: 38px;
+    min-height: 36px;
+    padding: 0 11px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font: 0.78rem var(--font-mono);
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .pagination-button:hover {
+    transform: translateY(-1px);
   }
 
   .pagination-button-active {
-    @apply bg-primary text-on-primary border-primary;
+    border-color: rgb(var(--ref-color-primary, var(--fallback-primary)));
+    color: rgb(var(--ref-color-on-primary, var(--fallback-on-primary)));
+    background: rgb(var(--ref-color-primary, var(--fallback-primary)));
   }
 
   .pagination-button-inactive {
-    @apply bg-surface text-on-surface border-outline hover:bg-primary-container hover:border-primary;
+    border-color: color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 56%, transparent);
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    background: color-mix(in srgb, rgb(var(--ref-color-surface, var(--fallback-surface))) 35%, transparent);
+  }
+
+  .pagination-button-inactive:hover {
+    border-color: rgb(var(--ref-color-primary, var(--fallback-primary)));
+    color: rgb(var(--ref-color-on-primary-container, var(--fallback-on-primary-container)));
+    background: rgb(var(--ref-color-primary-container, var(--fallback-primary-container)));
   }
 
   .pagination-info {
-    @apply w-full text-center mt-2 text-xs text-on-surface/70;
+    width: 100%;
+    margin-top: 7px;
+    color: rgb(var(--ref-color-on-surface-variant, var(--fallback-on-surface-variant)));
+    font: 0.72rem var(--font-mono);
+    text-align: center;
   }
 
-  /* Dropdown styles */
   .pagination-dropdown-container {
-    @apply relative;
+    position: relative;
   }
 
   .pagination-dropdown {
-    @apply absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-60;
+    position: absolute;
+    z-index: 60;
+    top: calc(100% + 7px);
+    left: 50%;
     max-height: calc(100vh - 200px);
+    transform: translateX(-50%);
   }
 
   .pagination-dropdown-overlay {
-    @apply fixed inset-0 bg-transparent z-50;
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    background: transparent;
   }
 
   .pagination-dropdown-content {
-    @apply relative bg-surface border border-outline rounded-lg shadow-lg overflow-y-auto min-w-[120px] z-60 max-h-[120px] max-md:max-h-[90px] max-md:min-w-[100px];
-    /* Animation properties */
-    @apply transition-all duration-300 ease-in-out;
-    @apply transform origin-top;
-    /* Initial state for show animation */
-    animation: dropdown-show 0.3s ease-out forwards;
-  }
-
-  @keyframes dropdown-show {
-    from {
-      opacity: 0;
-      transform: translateY(-10px) scaleY(0.8);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0) scaleY(1);
-    }
+    position: relative;
+    z-index: 60;
+    min-width: 130px;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid color-mix(in srgb, rgb(var(--ref-color-outline, var(--fallback-outline))) 64%, transparent);
+    border-radius: 12px;
+    background: rgb(var(--ref-color-surface-container, var(--fallback-surface)));
+    box-shadow: 0 14px 32px rgb(0 0 0 / 24%);
+    transform-origin: top;
+    animation: dropdown-show 300ms ease-out forwards;
   }
 
   .pagination-dropdown-content.hiding {
-    animation: dropdown-hide 0.2s ease-in forwards;
-  }
-
-  @keyframes dropdown-hide {
-    from {
-      opacity: 1;
-      transform: translateY(0) scaleY(1);
-    }
-
-    to {
-      opacity: 0;
-      transform: translateY(-10px) scaleY(0.8);
-    }
+    animation: dropdown-hide 200ms ease-in forwards;
   }
 
   .pagination-dropdown-item {
-    @apply flex items-center min-h-[40px] max-md:max-h-[90px] max-md:px-3 max-md:py-1 max-md:text-xs w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container border-none cursor-pointer transition-colors duration-200;
+    display: flex;
+    width: 100%;
+    min-height: 40px;
+    align-items: center;
+    padding: 8px 15px;
+    border: 0;
+    color: rgb(var(--ref-color-on-surface, var(--fallback-on-surface)));
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.82rem;
+    text-align: left;
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+
+  .pagination-dropdown-item:hover {
+    color: rgb(var(--ref-color-on-primary-container, var(--fallback-on-primary-container)));
+    background: rgb(var(--ref-color-primary-container, var(--fallback-primary-container)));
+  }
+
+  @media (max-width: 700px) {
+    .pagination-container {
+      margin-top: 27px;
+    }
+
+    .pagination-dropdown-content {
+      min-width: 110px;
+      max-height: 130px;
+    }
   }
 }

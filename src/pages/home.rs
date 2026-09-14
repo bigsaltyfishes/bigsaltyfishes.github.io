@@ -1,32 +1,33 @@
 use leptos::prelude::*;
-use leptos_meta::{Stylesheet, Title};
+use leptos_meta::Title;
 use leptos_router::components::A;
 
-use crate::app::SITE_CONFIGURATION;
-use crate::components::footer::Footer;
-use crate::components::progress_bar::stop_progress_bar;
-
-const FONT_AWESOME_FREE_6_7_2_GITHUB_ICON: &str = "M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z";
+use crate::{
+    app::SITE_CONFIGURATION,
+    components::{articles::list::ArticleCard, progress_bar::stop_progress_bar},
+    models::ArticleIndex,
+};
 
 #[component]
 pub fn HomePage() -> impl IntoView {
-    // Get site configuration from global state
-    let site_config = SITE_CONFIGURATION
+    let site = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded by AppLayout");
+    let site_name = site.long();
+    let author_github = site.author.github.clone();
+    let author_email = site.author.email.clone();
+    let welcome_title = site.home.welcome_title.clone();
+    let welcome_text = site.home.welcome_text.clone();
 
-    let welcome_title = site_config.home.welcome_title.clone();
-    let welcome_text = site_config
-        .home
-        .welcome_text
-        .clone()
-        .into_iter()
-        .map(|text| {
-            view! {
-                <p class="home-page-text">{text}</p>
-            }
-        })
-        .collect_view();
+    let site_for_articles = site.clone();
+    let recent_articles = LocalResource::new(move || {
+        let site = site_for_articles.clone();
+        async move {
+            ArticleIndex::fetch(&site)
+                .await
+                .map(|index| index.to_search_index())
+        }
+    });
 
     let animation_class = RwSignal::new("page-content".to_string());
     Effect::new(move |_| {
@@ -35,43 +36,89 @@ pub fn HomePage() -> impl IntoView {
     });
 
     view! {
-        <Title text=format!("Home - {}", site_config.long()) />
+        <Title text=format!("Home - {site_name}") />
         <div class=move || format!("page-container {}", animation_class.get())>
-            <div class="home-page-content">
-                <h1 class="home-page-title">{welcome_title}</h1>
-                { welcome_text }
-                <p class="home-page-text mt-4">
-                    <div class="items-center flex flex-row justify-center gap-4">
-                        <A
-                            attr:class="text-[20px]"
-                            href=move || format!("https://github.com/{}", site_config.author.github)
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 496 512"
-                                width="20px"
-                                height="20px"
-                                role="graphics-symbol"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    clip-rule="evenodd"
-                                    shape-rendering="geometricPrecision"
-                                    d=FONT_AWESOME_FREE_6_7_2_GITHUB_ICON
-                                />
-                            </svg>
+            <section class="shell home-hero">
+                <div class="home-hero-inner">
+                    <span class="kicker">"Personal notes · code · life"</span>
+                    <h1 class="display-title">
+                        {welcome_title}
+                        <span class="display-title-subtitle">"Molyuu Blog."</span>
+                    </h1>
+                    <div class="home-copy">
+                        {welcome_text
+                            .into_iter()
+                            .map(|text| view! { <p>{text}</p> })
+                            .collect_view()}
+                    </div>
+                    <div class="hero-actions">
+                        <A href="/articles" attr:class="btn btn-tonal">
+                            <span class="material-symbols-outlined" aria-hidden="true">"menu_book"</span>
+                            "Browse articles"
                         </A>
-                        <A
-                            attr:class="material-symbols-outlined text-2xl"
-                            href=move || format!("mailto:{}", site_config.author.email)
-                        >
-                            "mail"
+                        <A href="/about" attr:class="btn btn-outlined">
+                            <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
+                            "About this site"
                         </A>
                     </div>
-                </p>
-            </div>
-            <Footer />
+                    <div class="socials" aria-label="Social links">
+                        <a
+                            class="social-link"
+                            href=format!("https://github.com/{author_github}")
+                            aria-label="GitHub"
+                        >
+                            <span class="material-symbols-outlined" aria-hidden="true">"code"</span>
+                        </a>
+                        <a
+                            class="social-link"
+                            href=format!("mailto:{author_email}")
+                            aria-label="Email"
+                        >
+                            <span class="material-symbols-outlined" aria-hidden="true">"mail"</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="shell layered-divider" aria-hidden="true"></div>
+
+            <section class="shell recent">
+                <div class="section-head">
+                    <div>
+                        <span class="kicker">"Latest notes"</span>
+                        <h2>"Recent posts"</h2>
+                    </div>
+                    <A href="/articles" attr:class="section-link">"All articles →"</A>
+                </div>
+                <Suspense fallback=move || {
+                    view! {
+                        <div class="article-list-skeleton" aria-label="Loading recent articles">
+                            <span></span><span></span><span></span>
+                        </div>
+                    }
+                }>
+                    {move || {
+                        recent_articles.get().map(|result| match result {
+                            Ok(index) => {
+                                let articles = index.articles.iter().take(3).cloned().collect::<Vec<_>>();
+                                view! {
+                                    <ul class="articles-list article-list-home">
+                                        {articles
+                                            .into_iter()
+                                            .map(|article| view! { <ArticleCard article=article /> })
+                                            .collect_view()}
+                                    </ul>
+                                }
+                                    .into_any()
+                            }
+                            Err(_) => view! {
+                                <p class="muted article-load-note">"Recent posts are taking a little longer to arrive."</p>
+                            }
+                                .into_any(),
+                        })
+                    }}
+                </Suspense>
+            </section>
         </div>
     }
 }

@@ -1,4 +1,5 @@
 use crate::components::layout::AppLayout;
+use crate::pages::about::AboutPage;
 use crate::pages::article_view::ArticlePage;
 use crate::pages::articles_list::ArticlesListPage;
 use crate::pages::error_pages::NotFoundPage;
@@ -17,6 +18,8 @@ pub fn AppRouter() -> impl IntoView {
                 <ParentRoute path=path!("") view=AppLayout>
                     <Route path=path!("") view=HomePage />
                     <Route path=path!("articles") view=ArticlesListPage />
+                    <Route path=path!("about") view=AboutPage />
+                    <Route path=path!("articles/about") view=AboutPage />
                     <Route path=path!("articles/:id") view=ArticlePage />
                 </ParentRoute>
             </Routes>

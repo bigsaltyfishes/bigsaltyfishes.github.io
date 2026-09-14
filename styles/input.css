@@ -1,5 +1,6 @@
 /* Import Tailwind's base styles, components and utilities */
 @import 'tailwindcss';
+@import '../target/material-theme.css';
 
 /* Source configuration for content scanning */
 @source '../src/**/*.rs';
@@ -54,6 +55,7 @@
 @import './components/articles-title.css';
 @import './components/articles-pagination.css';
 @import './components/article-card.css';
+@import './components/article-page.css';
 @import './components/footer.css';
 
 /* Import custom plugins */

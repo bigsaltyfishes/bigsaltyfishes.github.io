@@ -74,7 +74,7 @@ pub fn ArticlesPagination(
     };
 
     let visibility_class = move || {
-        if pagination_visible.map_or(true, |v| v.get()) {
+        if pagination_visible.is_none_or(|v| v.get()) {
             "pagination-visible"
         } else {
             "pagination-hidden"

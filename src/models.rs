@@ -15,14 +15,13 @@ pub struct Article {
     pub tags: Vec<String>,
     #[serde(default)]
     pub date: Option<String>,
+    #[serde(default)]
+    pub cover: Option<String>,
 }
 
 impl Article {
     pub async fn fetch_metadata(id: &str, site: &Site) -> Result<Self, String> {
-        let url = format!(
-            "/{}/{}/{}/meta.json",
-            site.assets.directory, site.assets.articles, id
-        );
+        let url = site.article_asset_url(id, "meta.json").to_string();
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
@@ -38,10 +37,7 @@ impl Article {
     }
 
     pub async fn fetch(id: &str, site: &Site) -> Result<(Self, String), String> {
-        let url = format!(
-            "/{}/{}/{}/index.zst",
-            site.assets.directory, site.assets.articles, id
-        );
+        let url = site.article_asset_url(id, "index.zst").to_string();
         let response = gloo_net::http::Request::get(&url)
             .send()
             .await
@@ -89,7 +85,8 @@ impl ArticleIndex {
     /// Fetch the article index from the server.
     /// This will load both the common and special articles.
     pub async fn fetch(site: &Site) -> Result<Self, String> {
-        let prefix = format!("/{}/{}", site.assets.directory, site.assets.articles);
+        let prefix = site.article_asset_url("", "");
+        let prefix = prefix.trim_end_matches('/');
         let common_resp = gloo_net::http::Request::get(&format!("{}/index.json", prefix))
             .send()
             .await
@@ -228,7 +225,7 @@ impl ArticleSearchIndex {
 
     /// Get total number of pages
     pub fn total_pages(total_articles: usize, per_page: usize) -> usize {
-        (total_articles + per_page - 1) / per_page
+        total_articles.div_ceil(per_page)
     }
 }
 
@@ -263,12 +260,12 @@ impl SearchCriteria {
             return criteria;
         }
 
-        let mut chars = pattern.chars().peekable();
+        let chars = pattern.chars().peekable();
         let mut current_token = String::new();
         let mut in_quotes = false;
         let mut escape_next = false;
 
-        while let Some(ch) = chars.next() {
+        for ch in chars {
             if escape_next {
                 current_token.push(ch);
                 escape_next = false;

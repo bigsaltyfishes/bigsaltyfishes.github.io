@@ -10,7 +10,8 @@
   }
 
   .progress-bar-active,
-  .progress-bar-inactive {
+  .progress-bar-inactive,
+  .progress-bar-reading {
     height: 100%;
     background: rgb(var(--ref-color-primary, var(--fallback-primary)));
     transition: width 400ms ease-out;
@@ -25,20 +26,9 @@
     transition-duration: 100ms;
   }
 
-  .article-reading-progress-track {
-    position: fixed;
-    top: 3px;
-    left: 0;
-    z-index: 109;
-    width: 100%;
-    height: 2px;
-    pointer-events: none;
+  .progress-bar-reading {
+    width: 0;
+    transition: width 120ms linear;
   }
 
-  .article-reading-progress {
-    height: 100%;
-    background: color-mix(in srgb, rgb(var(--ref-color-primary, var(--fallback-primary))) 84%, white 8%);
-    opacity: 0.86;
-    transition: width 100ms linear;
-  }
 }

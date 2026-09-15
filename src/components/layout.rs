@@ -11,15 +11,59 @@ use crate::components::progress_bar::ProgressBar;
 use crate::types::site::Site;
 
 #[derive(Clone, Copy, PartialEq)]
-pub struct ProgressContext(pub RwSignal<bool>);
+pub struct ProgressContext {
+    pub navigation_active: RwSignal<bool>,
+    pub reading_progress: RwSignal<Option<f64>>,
+}
+
+impl ProgressContext {
+    pub fn refresh_progress() {
+        if let Some(progress_context) = use_context::<ProgressContext>() {
+            progress_context.update_progress();
+        }
+    }
+
+    pub fn update_progress(&self) {
+        let Some(window) = web_sys::window() else {
+            return;
+        };
+        let Some(document) = window.document() else {
+            return;
+        };
+        let has_article_page = document
+            .query_selector(".article-page")
+            .ok()
+            .flatten()
+            .is_some();
+        if !has_article_page {
+            self.reading_progress.set(None);
+            return;
+        }
+        let Some(root) = document.document_element() else {
+            return;
+        };
+        let viewport = window
+            .inner_height()
+            .ok()
+            .and_then(|height| height.as_f64())
+            .unwrap_or(0.0);
+        let total = (root.scroll_height() as f64 - viewport).max(1.0);
+        let value = (window.scroll_y().unwrap_or(0.0) / total * 100.0).clamp(0.0, 100.0);
+        self.reading_progress.set(Some(value));
+    }
+}
 
 // This component is used in the router to wrap all pages and provide navbar
 #[component]
 pub fn AppLayout() -> impl IntoView {
     let nav_progress_active = RwSignal::new(false);
+    let reading_progress = RwSignal::new(None::<f64>);
 
     // Provide ProgressContext to all child components
-    provide_context(ProgressContext(nav_progress_active));
+    provide_context(ProgressContext {
+        navigation_active: nav_progress_active,
+        reading_progress,
+    });
 
     // Load site configuration
     let (site_signal, set_site_signal) = signal(None::<Result<Site, String>>);

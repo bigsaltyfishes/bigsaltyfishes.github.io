@@ -7,7 +7,11 @@ use wasm_bindgen::{closure::Closure, JsCast};
 
 use crate::{
     app::SITE_CONFIGURATION,
-    components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
+    components::{
+        error_page::ErrorPage,
+        layout::ProgressContext,
+        progress_bar::{stop_progress_bar},
+    },
     models::Article,
     utils::{MarkdownArticle, MarkdownHeading},
 };
@@ -27,6 +31,9 @@ pub fn ArticlePage() -> impl IntoView {
     let site_config = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded by AppLayout");
+    let reading_progress = use_context::<ProgressContext>()
+        .expect("ProgressContext must be provided by AppLayout")
+        .reading_progress;
     let article_result = LocalResource::new(move || {
         let current_id = id();
         async move { Article::fetch(&current_id, site_config).await }
@@ -37,6 +44,9 @@ pub fn ArticlePage() -> impl IntoView {
     Effect::new(move |_| {
         animation_class.set("page-content".to_string());
         if content_ready.get() {
+            ProgressContext::refresh_progress();
+            on_cleanup(move || reading_progress.set(None));
+
             spawn_local(async move {
                 TimeoutFuture::new(10).await;
                 animation_class.set("page-content animate-fade-in-up".to_string());
@@ -90,7 +100,6 @@ pub fn ArticlePage() -> impl IntoView {
 
                         view! {
                             <div class=move || format!("page-container article-page {}", animation_class.get())>
-                                <ArticleReadingProgress />
                                 <article class="article-frame">
                                     <header class="article-head">
                                         <div class="article-head-main">
@@ -111,10 +120,6 @@ pub fn ArticlePage() -> impl IntoView {
                                                 <span class="article-meta-date">{date}</span>
                                             </div>
                                         </div>
-                                        <ArticleToc
-                                            headings=headings.clone()
-                                            article_path=article_path
-                                        />
                                     </header>
 
                                     <div class="article-cover">
@@ -134,6 +139,10 @@ pub fn ArticlePage() -> impl IntoView {
 
                                     <div class="article-layout">
                                         <div class="markdown-container" inner_html=html_output></div>
+                                        <ArticleToc
+                                            headings=headings.clone()
+                                            article_path=article_path
+                                        />
                                     </div>
 
                                     <div class="article-end">
@@ -169,52 +178,6 @@ pub fn ArticlePage() -> impl IntoView {
                 })
             }}
         </Suspense>
-    }
-}
-
-#[component]
-fn ArticleReadingProgress() -> impl IntoView {
-    let progress = RwSignal::new(0.0_f64);
-
-    Effect::new(move |_| {
-        let Some(window) = web_sys::window() else {
-            return;
-        };
-
-        let update = move || {
-            let Some(document) = web_sys::window().and_then(|window| window.document()) else {
-                return;
-            };
-            let Some(root) = document.document_element() else {
-                return;
-            };
-            let viewport = web_sys::window()
-                .and_then(|window| window.inner_height().ok())
-                .and_then(|height| height.as_f64())
-                .unwrap_or(0.0);
-            let total = (root.scroll_height() as f64 - viewport).max(1.0);
-            let value = (web_sys::window()
-                .and_then(|window| window.scroll_y().ok())
-                .unwrap_or(0.0)
-                / total
-                * 100.0)
-                .clamp(0.0, 100.0);
-            progress.set(value);
-        };
-        update();
-
-        let callback = Closure::wrap(
-            Box::new(move |_event: web_sys::Event| update()) as Box<dyn FnMut(web_sys::Event)>
-        );
-        let _ =
-            window.add_event_listener_with_callback("scroll", callback.as_ref().unchecked_ref());
-        callback.forget();
-    });
-
-    view! {
-        <div class="article-reading-progress-track" aria-hidden="true">
-            <div class="article-reading-progress" style=move || format!("width: {:.2}%", progress.get())></div>
-        </div>
     }
 }
 

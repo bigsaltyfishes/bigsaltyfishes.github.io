@@ -2,8 +2,7 @@ use leptos::prelude::*;
 use leptos_meta::provide_meta_context;
 use once_cell::sync::OnceCell;
 
-use crate::router::AppRouter;
-use crate::types::site::Site;
+use crate::{router::AppRouter, types::site::Site};
 
 pub static SITE_CONFIGURATION: OnceCell<Site> = OnceCell::new();
 
@@ -14,7 +13,8 @@ pub struct ThemeContext(pub RwSignal<bool>); // true for dark mode
 pub fn App() -> impl IntoView {
     provide_meta_context();
 
-    // Read saved theme state from localStorage, use system preference as fallback
+    // Read saved theme state from localStorage, use system preference as
+    // fallback
     let is_dark_mode = RwSignal::new({
         let window = web_sys::window().expect("no global `window` exists");
         let storage = window.local_storage().unwrap().unwrap();

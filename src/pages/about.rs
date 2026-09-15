@@ -1,6 +1,5 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::prelude::*;
-use leptos::task::spawn_local;
+use leptos::{prelude::*, task::spawn_local};
 use leptos_meta::{Meta, Stylesheet, Title};
 use leptos_router::components::A;
 

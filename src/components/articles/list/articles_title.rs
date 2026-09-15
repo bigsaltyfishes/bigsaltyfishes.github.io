@@ -1,13 +1,10 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::portal::Portal;
-use leptos::prelude::*;
-use leptos::task::spawn_local;
+use leptos::{portal::Portal, prelude::*, task::spawn_local};
 use leptos_router::hooks::use_navigate;
 use wasm_bindgen::JsCast;
 
-use crate::models::SearchableArticle;
-
 use super::article_card::ArticleSearchResult;
+use crate::models::SearchableArticle;
 
 #[component]
 pub fn ArticleTitleBar(

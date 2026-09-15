@@ -1,10 +1,10 @@
+use std::{collections::HashMap, fmt::Debug};
+
 use katex_wasmbind::KaTeXOptions;
 use leptos::prelude::*;
 use pulldown_cmark::{
     html, CodeBlockKind, Event, HeadingLevel, Options, Parser, Tag, TagEnd, TextMergeStream,
 };
-use std::collections::HashMap;
-use std::fmt::Debug;
 
 use crate::{app::SITE_CONFIGURATION, bindgen};
 
@@ -68,8 +68,8 @@ impl MarkdownArticle {
         self.render_markdown(true)
     }
 
-    // The render_markdown and try_rewrite_assets_link functions remain the same.
-    // They are not directly affected by the CSS framework change.
+    // The render_markdown and try_rewrite_assets_link functions remain the
+    // same. They are not directly affected by the CSS framework change.
     fn render_markdown(&self, wrap_about_sections: bool) -> String {
         let mut html_output = String::new();
         let mut in_code_block = false;
@@ -121,7 +121,8 @@ impl MarkdownArticle {
                             lang = lang_str.to_string();
                         }
                         CodeBlockKind::Indented => {
-                            lang.clear(); // Clear language marker for indented code blocks without language info
+                            lang.clear(); // Clear language marker for indented
+                                          // code blocks without language info
                         }
                     }
                     in_code_block = true;
@@ -156,7 +157,8 @@ impl MarkdownArticle {
                     id,
                 }) => {
                     if let Some(rewritten_url) = self.try_rewrite_assets_link(&dest_url) {
-                        // Rewrite asset links to point to the correct assets directory
+                        // Rewrite asset links to point to the correct assets
+                        // directory
                         iterator.push(Event::Start(Tag::Link {
                             link_type,
                             dest_url: rewritten_url.into(),
@@ -181,7 +183,8 @@ impl MarkdownArticle {
                 }) => {
                     // Handle image links
                     if let Some(rewritten_url) = self.try_rewrite_assets_link(&dest_url) {
-                        // Rewrite asset links to point to the correct assets directory
+                        // Rewrite asset links to point to the correct assets
+                        // directory
                         iterator.push(Event::Start(Tag::Image {
                             link_type,
                             dest_url: rewritten_url.into(),
@@ -214,8 +217,9 @@ impl MarkdownArticle {
     }
 
     fn try_rewrite_assets_link(&self, link: &str) -> Option<String> {
-        // For now, use a hardcoded site config that matches the expected structure
-        // In a real implementation, this would use the site context
+        // For now, use a hardcoded site config that matches the expected
+        // structure In a real implementation, this would use the site
+        // context
         let site_config = SITE_CONFIGURATION
             .get()
             .expect("Site configuration should be loaded by AppLayout");

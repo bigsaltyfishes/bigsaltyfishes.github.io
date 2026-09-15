@@ -1,17 +1,12 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::prelude::*;
-use leptos::task::spawn_local;
+use leptos::{prelude::*, task::spawn_local};
 use leptos_meta::{Meta, Stylesheet, Title};
 use leptos_router::{components::A, hooks::use_params_map};
 use wasm_bindgen::{closure::Closure, JsCast};
 
 use crate::{
     app::SITE_CONFIGURATION,
-    components::{
-        error_page::ErrorPage,
-        layout::ProgressContext,
-        progress_bar::{stop_progress_bar},
-    },
+    components::{error_page::ErrorPage, layout::ProgressContext, progress_bar::stop_progress_bar},
     models::Article,
     utils::{MarkdownArticle, MarkdownHeading},
 };

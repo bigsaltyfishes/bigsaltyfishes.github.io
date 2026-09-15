@@ -1,8 +1,8 @@
-use crate::components::articles::list::article_card::ArticleCard;
-use crate::models::SearchableArticle;
 use gloo_timers::future::TimeoutFuture;
 use leptos::prelude::*;
 use wasm_bindgen_futures::spawn_local;
+
+use crate::{components::articles::list::article_card::ArticleCard, models::SearchableArticle};
 
 #[component]
 pub fn ArticlesList(
@@ -13,7 +13,12 @@ pub fn ArticlesList(
     let init_signal = RwSignal::new(true);
     let show_group = RwSignal::new(true);
     let update_msg = RwSignal::new(String::new());
-    let update_group = RwSignal::new(Vec::<SearchableArticle>::new()); // Create a reactive effect that responds to prop changes
+    let update_group = RwSignal::new(Vec::<SearchableArticle>::new()); // Create
+                                                                       // a reactive
+                                                                       // effect
+                                                                       // that responds
+                                                                       // to prop
+                                                                       // changes
     Effect::new(move |prev| {
         let current_articles = articles.get();
         let current_message = empty_message.get();

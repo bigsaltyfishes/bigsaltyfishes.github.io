@@ -1,6 +1,5 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::prelude::*;
-use leptos::task::spawn_local;
+use leptos::{prelude::*, task::spawn_local};
 use leptos_router::hooks::use_location;
 use wasm_bindgen::{closure::Closure, JsCast};
 
@@ -13,7 +12,8 @@ pub fn ProgressBar() -> impl IntoView {
         use_context::<ProgressContext>().expect("ProgressContext must be provided");
 
     // Keep one app-lifetime listener and update the shared track only while an
-    // article page is present. This avoids leaking one listener per route visit.
+    // article page is present. This avoids leaking one listener per route
+    // visit.
     Effect::new(move |_| {
         let Some(window) = web_sys::window() else {
             return;
@@ -21,9 +21,11 @@ pub fn ProgressBar() -> impl IntoView {
 
         progress_context.update_progress();
 
-        let callback = Closure::wrap(
-            Box::new(move |_event: web_sys::Event| progress_context.update_progress()) as Box<dyn FnMut(web_sys::Event)>
-        );
+        let callback =
+            Closure::wrap(
+                Box::new(move |_event: web_sys::Event| progress_context.update_progress())
+                    as Box<dyn FnMut(web_sys::Event)>,
+            );
         let _ =
             window.add_event_listener_with_callback("scroll", callback.as_ref().unchecked_ref());
         callback.forget();
@@ -36,14 +38,17 @@ pub fn ProgressBar() -> impl IntoView {
             if progress_context.navigation_active.get_untracked() {
                 // If animation was somehow stuck true, reset
                 progress_context.navigation_active.set(false);
-                // Brief pause to ensure CSS can pick up the change if re-triggering fast
+                // Brief pause to ensure CSS can pick up the change if
+                // re-triggering fast
                 TimeoutFuture::new(10).await;
             }
-            progress_context.navigation_active.set(true); // Activate progress bar
+            progress_context.navigation_active.set(true); // Activate progress
+                                                          // bar
         });
     });
 
-    // Reuse the same fixed track for route loading and article reading progress.
+    // Reuse the same fixed track for route loading and article reading
+    // progress.
     let progress_class = move || {
         if progress_context.navigation_active.get() {
             // Active state: full width with a longer ease-out transition
@@ -59,7 +64,8 @@ pub fn ProgressBar() -> impl IntoView {
         if progress_context.navigation_active.get() {
             String::new()
         } else {
-            progress_context.reading_progress
+            progress_context
+                .reading_progress
                 .get()
                 .map(|value| format!("width: {value:.2}%"))
                 .unwrap_or_default()

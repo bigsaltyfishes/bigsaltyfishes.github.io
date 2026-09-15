@@ -1,5 +1,4 @@
-use leptos::attr::global::ClassAttribute;
-use leptos::prelude::*;
+use leptos::{attr::global::ClassAttribute, prelude::*};
 use leptos_router::components::A;
 
 use crate::components::progress_bar::stop_progress_bar;

@@ -1,3 +1,7 @@
+use gloo_timers::future::TimeoutFuture;
+use leptos::{prelude::*, reactive::spawn_local};
+use leptos_meta::Title;
+
 use crate::{
     app::SITE_CONFIGURATION,
     components::{
@@ -7,9 +11,6 @@ use crate::{
     },
     models::{ArticleIndex, ArticleSearchIndex, SearchCriteria},
 };
-use gloo_timers::future::TimeoutFuture;
-use leptos::{prelude::*, reactive::spawn_local};
-use leptos_meta::Title;
 
 #[component]
 pub fn ArticlesListPage() -> impl IntoView {

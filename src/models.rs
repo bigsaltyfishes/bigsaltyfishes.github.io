@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use web_time::Instant;
 
 use serde::Deserialize;
+use web_time::Instant;
 
 use crate::types::site::Site;
 

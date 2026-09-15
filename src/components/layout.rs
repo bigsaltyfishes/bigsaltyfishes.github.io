@@ -1,14 +1,14 @@
 use gloo_timers::future::TimeoutFuture;
-use leptos::prelude::*;
-use leptos::task::spawn_local;
+use leptos::{prelude::*, task::spawn_local};
 use leptos_router::components::Outlet;
 
-use crate::app::SITE_CONFIGURATION;
-use crate::components::error_page::ErrorPage;
-use crate::components::footer::Footer;
-use crate::components::navbar::Navbar;
-use crate::components::progress_bar::ProgressBar;
-use crate::types::site::Site;
+use crate::{
+    app::SITE_CONFIGURATION,
+    components::{
+        error_page::ErrorPage, footer::Footer, navbar::Navbar, progress_bar::ProgressBar,
+    },
+    types::site::Site,
+};
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct ProgressContext {
@@ -83,7 +83,8 @@ pub fn AppLayout() -> impl IntoView {
             .body()
             .unwrap();
 
-        // Use `no-transition` class defined in CSS to disable transitions initially
+        // Use `no-transition` class defined in CSS to disable transitions
+        // initially
         body.class_list().add_1("no-transition").unwrap();
 
         spawn_local(async move {

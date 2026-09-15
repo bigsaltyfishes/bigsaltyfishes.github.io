@@ -1,6 +1,7 @@
-use crate::models::SearchableArticle;
 use leptos::prelude::*;
 use leptos_router::components::A;
+
+use crate::models::SearchableArticle;
 
 fn category_icon(category: &str) -> &'static str {
     match category.to_ascii_lowercase().as_str() {

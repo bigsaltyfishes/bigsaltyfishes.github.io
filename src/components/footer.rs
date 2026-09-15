@@ -1,5 +1,4 @@
-use leptos::component;
-use leptos::prelude::*;
+use leptos::{component, prelude::*};
 
 use crate::app::SITE_CONFIGURATION;
 

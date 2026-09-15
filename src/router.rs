@@ -1,12 +1,16 @@
-use crate::components::layout::AppLayout;
-use crate::pages::about::AboutPage;
-use crate::pages::article_view::ArticlePage;
-use crate::pages::articles_list::ArticlesListPage;
-use crate::pages::error_pages::NotFoundPage;
-use crate::pages::home::HomePage;
 use leptos::prelude::*;
-use leptos_router::components::{ParentRoute, Route, Router, Routes};
-use leptos_router::path;
+use leptos_router::{
+    components::{ParentRoute, Route, Router, Routes},
+    path,
+};
+
+use crate::{
+    components::layout::AppLayout,
+    pages::{
+        about::AboutPage, article_view::ArticlePage, articles_list::ArticlesListPage,
+        error_pages::NotFoundPage, home::HomePage,
+    },
+};
 
 #[component]
 pub fn AppRouter() -> impl IntoView {

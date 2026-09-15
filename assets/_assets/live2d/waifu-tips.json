@@ -1,0 +1,376 @@
+{
+  "mouseover": [
+    {
+      "selector": "#waifu-tool-hitokoto",
+      "text": ["……嗯。", "让我想想。", "一言？……随便看看也好。"]
+    },
+    {
+      "selector": "#waifu-tool-asteroids",
+      "text": ["要玩游戏？……好吧，陪你一下。", "飞机大战……我以前调查案件时也玩过。", "别点那个按钮。……我说真的。"]
+    },
+    {
+      "selector": "#waifu-tool-switch-model",
+      "text": ["……要换人了吗？", "我还在这里。", "另一个我……你想见见吗？"]
+    },
+    {
+      "selector": "#waifu-tool-switch-texture",
+      "text": ["换装……侦探也需要变装。", "用Pre-Kit唇彩的话，可以变成任何人哦。", "这次要扮演谁？"]
+    },
+    {
+      "selector": "#waifu-tool-photo",
+      "text": ["拍照？……可以。", "茄子……大概是这样说的吧。", "别拍太久。"]
+    },
+    {
+      "selector": "#waifu-tool-info",
+      "text": ["想知道我的事？", "……我是侦探，也是怪盗。", "推理的话，我不会输。"]
+    },
+    {
+      "selector": "#waifu-tool-quit",
+      "text": ["……要走了吗？", "嗯。再见。", "……还会再见的吧。", "冰淇淋还没吃完呢。"]
+    },
+    {
+      "selector": "a.nav-link[href='/'], .brand",
+      "text": ["回首页……嗯，走吧。", "从这里可以回到最初的地方。"]
+    },
+    {
+      "selector": "a.nav-link[href='/about']",
+      "text": ["主人的事情……我知道一些。", "想了解主人的话，从这里开始。"]
+    },
+    {
+      "selector": ".article-card-tag",
+      "text": ["标签……就像案件的线索一样。", "点这里可以看到所有标签。"]
+    },
+    {
+      "selector": ".filter-chip",
+      "text": ["分类整理好了。……嗯，很整齐。", "从这里可以查看文章分类。"]
+    },
+    {
+      "selector": ".article-card-date",
+      "text": ["归档……按时间顺序排列的。", "翻页麻烦的话，看归档就好。"]
+    },
+    {
+      "selector": ".social-link[href*='github']",
+      "text": ["朋友吗……嗯，去看看吧。", "……我的朋友们。"]
+    },
+    {
+      "selector": ".search-button",
+      "text": ["搜索……侦探的基本功。", "要找什么？我帮你找。"]
+    },
+    {
+      "selector": ".nav-link, .btn, .theme-toggle-button, .navbar-mobile-button, .mobile-menu-close-button",
+      "text": ["……嗯。"]
+    },
+    {
+      "selector": ".about-lead",
+      "text": ["……这是主人。", "主人……是个好人。"]
+    },
+    {
+      "selector": ".pagination-info",
+      "text": ["统计信息……文章的数量。", "……嗯，有不少。"]
+    },
+    {
+      "selector": ".feed-link, [data-feed-link]",
+      "text": ["RSS 订阅……很方便的东西。", "用这个可以知道博客有没有更新。"]
+    },
+    {
+      "selector": ".footer-copyright",
+      "text": ["转载要守规矩。", "CC BY-NC-SA 4.0……记住这个协议。", "……版权很重要。"]
+    },
+    {
+      "selector": ".socials",
+      "text": ["主人常驻的地方。", "联系方式……都在这里。"]
+    },
+    {
+      "selector": ".follow-me, [data-follow-me]",
+      "text": ["扫一下……嗯。", "手机扫这个就能继续看。"]
+    },
+    {
+      "selector": ".markdown-container img, .article-cover img",
+      "text": ["点击可以放大。", "……细节很重要。"]
+    },
+    {
+      "selector": "pre code",
+      "text": ["点一下就能复制。", "……很方便吧。"]
+    },
+    {
+      "selector": "pre",
+      "text": ["代码……我看得懂。", "……侦探也要会这个。"]
+    },
+    {
+      "selector": "a[href^='mailto']",
+      "text": ["邮件……嗯，会回的。", "点这里可以发邮件。"]
+    },
+    {
+      "selector": ".article-meta-tag",
+      "text": ["<span>{text}</span> 标签……要去看看吗？", "点它可以看这个标签下的文章。"]
+    },
+    {
+      "selector": ".article-card-category",
+      "text": ["<span>{text}</span> 分类……嗯。", "点它可以看这个分类下的文章。"]
+    },
+    {
+      "selector": ".article-card-link, .search-result",
+      "text": ["<span>{text}</span>……要看这篇吗？", "……标题看起来不错。"]
+    },
+    {
+      "selector": ".toc-link",
+      "text": ["点这里阅读全文。"]
+    },
+    {
+      "selector": ".comments, .comment-form",
+      "text": ["评论……要去看看吗？"]
+    },
+    {
+      "selector": ".legal-link, [data-legal-link]",
+      "text": ["……合法合规。", "主人是个守规矩的人。"]
+    },
+    {
+      "selector": "a[href^='http']",
+      "text": ["<span>{text}</span>……要去看看吗？", "去 <span>{text}</span> 逛逛吧。"]
+    },
+    {
+      "selector": "[data-back-to-top]",
+      "text": ["回到顶部……嗯。", "……从这里可以回去。"]
+    },
+    {
+      "selector": ".reward-container, [data-reward]",
+      "text": ["……要打赏吗？", "主人最近……可能在吃土。"]
+    },
+    {
+      "selector": "#wechat, [data-payment='wechat']",
+      "text": ["微信二维码……嗯。"]
+    },
+    {
+      "selector": "#alipay, [data-payment='alipay']",
+      "text": ["支付宝……扫这个。"]
+    },
+    {
+      "selector": "#bitcoin, [data-payment='bitcoin']",
+      "text": ["比特币……数字的东西。"]
+    },
+    {
+      "selector": ".share-actions, [data-share-actions]",
+      "text": ["分享……好东西要让更多人看到。"]
+    },
+    {
+      "selector": ".share-action-weibo, [data-share='weibo']",
+      "text": ["微博……分享吧。"]
+    },
+    {
+      "selector": ".share-action-wechat, [data-share='wechat']",
+      "text": ["微信……嗯。"]
+    },
+    {
+      "selector": ".share-action-douban, [data-share='douban']",
+      "text": ["豆瓣……也不错。"]
+    },
+    {
+      "selector": ".share-action-qqzone, [data-share='qqzone']",
+      "text": ["QQ空间……转发。"]
+    },
+    {
+      "selector": ".share-action-twitter, [data-share='twitter']",
+      "text": ["……那是什么？"]
+    },
+    {
+      "selector": ".share-action-facebook, [data-share='facebook']",
+      "text": ["……好像不存在的东西。"]
+    },
+    {
+      "selector": ".next-article",
+      "text": ["下一篇……嗯。", "……要看下一篇文章吗？"]
+    },
+    {
+      "selector": ".article-back",
+      "text": ["上一篇……嗯。", "……要看上一篇文章吗？"]
+    },
+    {
+      "selector": ".pagination-button:not(.pagination-button-active)",
+      "text": ["下一页……走吧。"]
+    },
+    {
+      "selector": ".pagination-button-active",
+      "text": ["上一页……嗯。"]
+    },
+    {
+      "selector": "input[data-comment-author]",
+      "text": ["名字……该怎么称呼你？"]
+    },
+    {
+      "selector": "[data-comment-email]",
+      "text": ["邮箱……留下吧。", "……不然就没有头像了。"]
+    },
+    {
+      "selector": "[data-comment-url]",
+      "text": ["你的主页……告诉我吧。"]
+    },
+    {
+      "selector": "textarea[data-comment-content]",
+      "text": ["……要说什么？", "写点什么吧。"]
+    },
+    {
+      "selector": "[data-comment-markdown]",
+      "text": ["Markdown……会用吗？"]
+    },
+    {
+      "selector": "[data-comment-emoji]",
+      "text": ["……表情。"]
+    },
+    {
+      "selector": "[data-comment-preview]",
+      "text": ["预览……嗯。"]
+    },
+    {
+      "selector": "[data-comment-submit]",
+      "text": ["提交……嗯。", "……请耐心等待回复。"]
+    },
+    {
+      "selector": ".comment-content, [data-comment-content-display]",
+      "text": ["……这条评论不错。"]
+    }
+  ],
+  "click": [
+    {
+      "selector": ".articles-search-input",
+      "text": ["……想说什么就说吧。"]
+    },
+    {
+      "selector": "[data-comment-submit]",
+      "text": ["……输入验证码就可以提交了。"]
+    }
+  ],
+  "seasons": [
+    {
+      "date": "01/01",
+      "text": "<span>元旦</span>……新的一年，{year}年了。"
+    },
+    {
+      "date": "02/14",
+      "text": "<span>情人节</span>……{year}年，你有对象了吗？"
+    },
+    {
+      "date": "03/08",
+      "text": "今天是<span>国际妇女节</span>。……嗯。"
+    },
+    {
+      "date": "03/12",
+      "text": "<span>植树节</span>……要保护环境。"
+    },
+    {
+      "date": "04/01",
+      "text": "<span>愚人节</span>……别被骗了。侦探的提醒。"
+    },
+    {
+      "date": "05/01",
+      "text": "<span>五一劳动节</span>……假期计划好了吗？"
+    },
+    {
+      "date": "06/01",
+      "text": "<span>儿童节</span>……要是永远长不大就好了。"
+    },
+    {
+      "date": "09/03",
+      "text": "<span>中国人民抗日战争胜利纪念日</span>……铭记历史。"
+    },
+    {
+      "date": "09/10",
+      "text": "<span>教师节</span>……记得问老师好。"
+    },
+    {
+      "date": "10/01",
+      "text": "<span>国庆节</span>……为祖国庆生。"
+    },
+    {
+      "date": "11/01",
+      "text": "……今天是我的生日。……谢谢你还记得。"
+    },
+    {
+      "date": "11/05-11/12",
+      "text": "<span>双十一</span>……今年和谁一起过？"
+    },
+    {
+      "date": "12/20-12/31",
+      "text": "<span>圣诞节</span>……主人肯定又在买东西了。"
+    }
+  ],
+  "time": [
+    {
+      "hour": "6-7",
+      "text": "早上好……一日之计在于晨。"
+    },
+    {
+      "hour": "8-11",
+      "text": "上午好……工作顺利吗？"
+    },
+    {
+      "hour": "12-13",
+      "text": "中午了……该吃午饭了。……不过我更想吃冰淇淋。"
+    },
+    {
+      "hour": "14-17",
+      "text": "午后……容易犯困。……来点冰淇淋提神吧。"
+    },
+    {
+      "hour": "18-19",
+      "text": "傍晚了……夕阳很美。"
+    },
+    {
+      "hour": "20-21",
+      "text": "晚上好……今天过得怎么样？"
+    },
+    {
+      "hour": "22-23",
+      "text": ["很晚了……早点休息。", "晚安……做个好梦。"]
+    },
+    {
+      "hour": "0-5",
+      "text": "……这么晚还不睡？夜猫子。"
+    }
+  ],
+  "message": {
+    "default": [
+      "……嗯。",
+      "……好久不见。",
+      "今天想吃冰淇淋……",
+      "……推理的话，我不会输。",
+      "我是侦探……也是怪盗。",
+      "……你在看什么？",
+      "巧克力薄荷……最好吃了。",
+      "……绵糖探在的话，它会替我说话。",
+      "……猫？……嗯，喜欢。",
+      "……别太吵。"
+    ],
+    "console": "……你打开了控制台。……侦探的直觉告诉我，你发现了什么。",
+    "copy": "复制了……转载要注明出处。……我说真的。",
+    "visibilitychange": "……你回来了。",
+    "changeSuccess": "……换好了。",
+    "changeFail": "……只有这一套。",
+    "photo": "……拍好了。",
+    "goodbye": "……愿你有一天能与重要的人重逢。",
+    "hitokoto": "这句一言来自 <span>「$1」</span>，是 <span>$2</span> 投稿的。",
+    "welcome": "……欢迎阅读<span>「$1」</span>。",
+    "referrer": "来自 <span>$1</span> 的朋友……欢迎。",
+    "hoverBody": [
+      "……嗯？",
+      "……别碰。",
+      "……有事吗？",
+      "……我在吃冰淇淋。",
+      "……侦探也是会生气的。",
+      "……再碰的话，我要报警了。"
+    ],
+    "tapBody": [
+      "……嗯。",
+      "……我知道了。",
+      "……然后呢？",
+      "……冰淇淋要化了。",
+      "……真是个奇怪的人。"
+    ]
+  },
+  "models": [
+    {
+      "name": "森亚露露卡",
+      "paths": ["_assets/live2d/sen-ya-lulu/model3.json"],
+      "message": "……森亚露露卡。……嗯。"
+    }
+  ]
+}

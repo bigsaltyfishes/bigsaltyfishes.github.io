@@ -1,0 +1,36 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "model.moc3",
+    "Textures": [
+      "texture_00.png",
+      "texture_01.png"
+    ],
+    "Physics": "physics3.json",
+    "DisplayInfo": "displayinfo.cdi3.json"
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": [
+        "ParamEyeROpen",
+        "ParamEyeLOpen"
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": []
+    }
+  ],
+  "BlogAdaptation": {
+    "parameterOverrides": [
+      {
+        "Id": "KEY1",
+        "Value": -1,
+        "Reason": "Disable the user-facing model watermark/license overlay."
+      }
+    ]
+  }
+}

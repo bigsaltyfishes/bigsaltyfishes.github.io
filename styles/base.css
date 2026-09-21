@@ -24,6 +24,7 @@
     --article-gap: 68px;
     --article-frame: calc(var(--reading-width) + var(--toc-width) + var(--article-gap));
     --site-wallpaper: none;
+    --site-wallpaper-position: 50% 50%;
     --bg-image-opacity: 0.48;
     --bg-image-filter: saturate(0.78) contrast(0.92) brightness(0.84);
     --scrim-top: color-mix(in srgb, rgb(var(--ref-color-background, var(--fallback-background))) 21%, transparent);
@@ -92,7 +93,7 @@
   body::before {
     z-index: 0;
     background-image: var(--site-wallpaper);
-    background-position: center;
+    background-position: var(--site-wallpaper-position, center);
     background-size: cover;
     opacity: var(--bg-image-opacity);
     filter: var(--bg-image-filter);

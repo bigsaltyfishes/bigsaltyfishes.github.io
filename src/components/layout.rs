@@ -7,7 +7,7 @@ use wasm_bindgen::{closure::Closure, JsCast};
 use web_sys::{HtmlElement, HtmlImageElement};
 
 use crate::{
-    app::SITE_CONFIGURATION,
+    app::{TranslationContext, SITE_CONFIGURATION},
     components::{
         error_page::ErrorPage, footer::Footer, navbar::Navbar, progress_bar::ProgressBar,
     },
@@ -227,11 +227,11 @@ pub fn AppLayout() -> impl IntoView {
                                 }
                                 Err(e) => {
                                     // Loading error, display error message using ErrorPage component
+                                    let translator = expect_context::<TranslationContext>();
                                     view! {
                                         <ErrorPage
-                                            title="Failed to Load Configuration".to_string()
-                                            message="Unable to load site configuration. Please check your network connection and try again."
-                                                .to_string()
+                                            title=translator.translate("Failed to Load Configuration")
+                                            message=translator.translate("Unable to load site configuration. Please check your network connection and try again.")
                                             error_details=e.to_string()
                                             error_type="network".to_string()
                                             show_navigation=false

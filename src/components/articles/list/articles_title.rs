@@ -4,7 +4,7 @@ use leptos_router::hooks::use_navigate;
 use wasm_bindgen::JsCast;
 
 use super::article_card::ArticleSearchResult;
-use crate::models::SearchableArticle;
+use crate::{app::TranslationContext, models::SearchableArticle};
 
 #[component]
 pub fn ArticleTitleBar(
@@ -15,6 +15,7 @@ pub fn ArticleTitleBar(
 ) -> impl IntoView {
     let search_closing = RwSignal::new(false);
     let navigate = use_navigate();
+    let translator = expect_context::<TranslationContext>();
 
     Effect::new(move |_| {
         let is_open = search_expanded.get();
@@ -88,9 +89,9 @@ pub fn ArticleTitleBar(
     view! {
         <div class="archive-head">
             <div>
-                <span class="kicker">"Archive"</span>
-                <h1 class="page-title">"Articles"</h1>
-                <p>"A small, searchable shelf of notes about code, tools and the things around them."</p>
+                <span class="kicker">{translator.translate("Archive")}</span>
+                <h1 class="page-title">{translator.translate("Articles")}</h1>
+                <p>{translator.translate("A small, searchable shelf of notes about code, tools and the things around them.")}</p>
             </div>
             <button
                 type="button"
@@ -99,7 +100,7 @@ pub fn ArticleTitleBar(
                     search_closing.set(false);
                     search_expanded.set(true);
                 }
-                aria-label="Open article search"
+                attr:aria-label=translator.translate("Open article search")
             >
                 <span class="material-symbols-outlined" aria-hidden="true">"search"</span>
             </button>
@@ -117,7 +118,7 @@ pub fn ArticleTitleBar(
                     }
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Search articles"
+                    attr:aria-label=translator.translate("Search articles")
                     on:click=move |_| close_search()
                 >
                     <div class="search-panel" on:click=|event| event.stop_propagation()>
@@ -127,8 +128,8 @@ pub fn ArticleTitleBar(
                                 class="search-input articles-search-input"
                                 type="search"
                                 autocomplete="off"
-                                aria-label="Search articles"
-                                placeholder="Search: category:<any> tag:<any> keywords"
+                                attr:aria-label=translator.translate("Search articles")
+                                placeholder=translator.translate("Search: category:<any> tag:<any> keywords")
                                 prop:value=move || search_query.get()
                                 on:input=move |event| on_search_change(event_target_value(&event))
                                 on:blur=move |_| {
@@ -146,7 +147,7 @@ pub fn ArticleTitleBar(
                                 type="button"
                                 class="icon-button search-close-button"
                                 on:click=move |_| close_search()
-                                aria-label="Close article search"
+                                attr:aria-label=translator.translate("Close article search")
                             >
                                 <span class="material-symbols-outlined" aria-hidden="true">"close"</span>
                             </button>
@@ -161,9 +162,9 @@ pub fn ArticleTitleBar(
                                 };
                                 if results.is_empty() {
                                     let message = if query.trim().is_empty() {
-                                        "Type to search articles."
+                                        translator.translate("Type to search articles.")
                                     } else {
-                                        "No matching articles."
+                                        translator.translate("No matching articles.")
                                     };
                                     view! { <div class="search-empty">{message}</div> }.into_any()
                                 } else {
@@ -183,8 +184,8 @@ pub fn ArticleTitleBar(
                             }}
                         </div>
                         <div class="search-footer">
-                            <span><kbd>"/"</kbd> " Search"</span>
-                            <span><kbd>"Esc"</kbd> " Close"</span>
+                            <span><kbd>"/"</kbd> {format!(" {}", translator.translate("Search"))}</span>
+                            <span><kbd>"Esc"</kbd> {format!(" {}", translator.translate("Close"))}</span>
                         </div>
                     </div>
                 </div>

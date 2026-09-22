@@ -1,10 +1,11 @@
 use leptos::prelude::*;
 
-use crate::app::ThemeContext;
+use crate::app::{ThemeContext, TranslationContext};
 
 #[component]
 pub fn ThemeToggle() -> impl IntoView {
     let theme_ctx = expect_context::<ThemeContext>();
+    let translator = expect_context::<TranslationContext>();
     let is_dark = theme_ctx.0; // is_dark_mode signal
 
     let toggle_theme = move |_| {
@@ -22,7 +23,7 @@ pub fn ThemeToggle() -> impl IntoView {
 
     view! {
         <button
-            aria-label="Toggle theme"
+            attr:aria-label=translator.translate("Toggle theme")
             aria-pressed=move || is_dark.get().to_string()
             class="theme-toggle-button"
             on:click=toggle_theme

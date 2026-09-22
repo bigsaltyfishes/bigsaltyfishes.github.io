@@ -1,7 +1,7 @@
 use leptos::{attr::global::ClassAttribute, prelude::*};
 use leptos_router::components::A;
 
-use crate::components::progress_bar::stop_progress_bar;
+use crate::{app::TranslationContext, components::progress_bar::stop_progress_bar};
 
 #[component]
 pub fn ErrorPage(
@@ -13,6 +13,7 @@ pub fn ErrorPage(
     #[prop(default = false)] show_navigation: bool,
 ) -> impl IntoView {
     stop_progress_bar();
+    let translator = expect_context::<TranslationContext>();
 
     let (icon, icon_color_class) = match error_type.as_str() {
         "404" => ("unknown_document", "error-page-icon-404"),
@@ -44,7 +45,7 @@ pub fn ErrorPage(
                         view! {
                             <details class="error-page-details">
                                 <summary class="error-page-details-summary">
-                                    "Error Details"
+                                    {translator.translate("Error Details")}
                                 </summary>
                                 <p class="error-page-details-content">{details}</p>
                             </details>
@@ -63,7 +64,7 @@ pub fn ErrorPage(
                                     <span class="material-symbols-outlined error-page-button-icon">
                                         "refresh"
                                     </span>
-                                    "Retry"
+                                    {translator.translate("Retry")}
                                 </button>
                             }
                         })}
@@ -77,7 +78,7 @@ pub fn ErrorPage(
                                     <span class="material-symbols-outlined error-page-button-icon">
                                         "home"
                                     </span>
-                                    "Home"
+                                    {translator.translate("Home")}
                                 </A>
                                 {(error_type == "404")
                                     .then(|| {
@@ -89,7 +90,7 @@ pub fn ErrorPage(
                                                 <span class="material-symbols-outlined error-page-button-icon">
                                                     "article"
                                                 </span>
-                                                "Articles"
+                                                {translator.translate("Articles")}
                                             </A>
                                         }
                                     })}

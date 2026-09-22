@@ -3,7 +3,7 @@ use leptos_meta::Title;
 use leptos_router::components::A;
 
 use crate::{
-    app::SITE_CONFIGURATION,
+    app::{TranslationContext, SITE_CONFIGURATION},
     components::{articles::list::ArticleCard, progress_bar::stop_progress_bar},
     models::ArticleIndex,
 };
@@ -13,6 +13,7 @@ pub fn HomePage() -> impl IntoView {
     let site = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded by AppLayout");
+    let translator = expect_context::<TranslationContext>();
     let site_name = site.long();
     let author_github = site.author.github.clone();
     let author_email = site.author.email.clone();
@@ -36,11 +37,11 @@ pub fn HomePage() -> impl IntoView {
     });
 
     view! {
-        <Title text=format!("Home - {site_name}") />
+        <Title text=format!("{} - {site_name}", translator.translate("Home")) />
         <div class=move || format!("page-container {}", animation_class.get())>
             <section class="shell home-hero">
                 <div class="home-hero-inner">
-                    <span class="kicker">"Personal notes · code · life"</span>
+                    <span class="kicker">{translator.translate("Personal notes · code · life")}</span>
                     <h1 class="display-title">
                         {welcome_title}
                         <span class="display-title-subtitle">"Molyuu Blog."</span>
@@ -54,25 +55,25 @@ pub fn HomePage() -> impl IntoView {
                     <div class="hero-actions">
                         <A href="/articles" attr:class="btn btn-tonal">
                             <span class="material-symbols-outlined" aria-hidden="true">"menu_book"</span>
-                            "Browse articles"
+                            {translator.translate("Browse articles")}
                         </A>
                         <A href="/about" attr:class="btn btn-outlined">
                             <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
-                            "About this site"
+                            {translator.translate("About this site")}
                         </A>
                     </div>
-                    <div class="socials" aria-label="Social links">
+                    <div class="socials" attr:aria-label=translator.translate("Social links")>
                         <a
                             class="social-link"
                             href=format!("https://github.com/{author_github}")
-                            aria-label="GitHub"
+                            attr:aria-label=translator.translate("GitHub")
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"code"</span>
                         </a>
                         <a
                             class="social-link"
                             href=format!("mailto:{author_email}")
-                            aria-label="Email"
+                            attr:aria-label=translator.translate("Email")
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"mail"</span>
                         </a>
@@ -85,14 +86,14 @@ pub fn HomePage() -> impl IntoView {
             <section class="shell recent">
                 <div class="section-head">
                     <div>
-                        <span class="kicker">"Latest notes"</span>
-                        <h2>"Recent posts"</h2>
+                        <span class="kicker">{translator.translate("Latest notes")}</span>
+                        <h2>{translator.translate("Recent posts")}</h2>
                     </div>
-                    <A href="/articles" attr:class="section-link">"All articles →"</A>
+                    <A href="/articles" attr:class="section-link">{translator.translate("All articles →")}</A>
                 </div>
                 <Suspense fallback=move || {
                     view! {
-                        <div class="article-list-skeleton" aria-label="Loading recent articles">
+                        <div class="article-list-skeleton" attr:aria-label=translator.translate("Loading recent articles")>
                             <span></span><span></span><span></span>
                         </div>
                     }
@@ -112,7 +113,7 @@ pub fn HomePage() -> impl IntoView {
                                     .into_any()
                             }
                             Err(_) => view! {
-                                <p class="muted article-load-note">"Recent posts are taking a little longer to arrive."</p>
+                                <p class="muted article-load-note">{translator.translate("Recent posts are taking a little longer to arrive.")}</p>
                             }
                                 .into_any(),
                         })

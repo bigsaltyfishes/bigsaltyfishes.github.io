@@ -3,7 +3,7 @@ use leptos::{prelude::*, reactive::spawn_local};
 use leptos_meta::Title;
 
 use crate::{
-    app::SITE_CONFIGURATION,
+    app::{TranslationContext, SITE_CONFIGURATION},
     components::{
         articles::list::{ArticleTitleBar, ArticlesList, ArticlesPagination},
         error_page::ErrorPage,
@@ -17,6 +17,7 @@ pub fn ArticlesListPage() -> impl IntoView {
     let site = SITE_CONFIGURATION
         .get()
         .expect("Site configuration not initialized");
+    let translator = expect_context::<TranslationContext>();
     let search_query = RwSignal::new(String::new());
     let search_expanded = RwSignal::new(false);
     let current_page = RwSignal::new(0usize);
@@ -69,7 +70,7 @@ pub fn ArticlesListPage() -> impl IntoView {
     };
 
     view! {
-        <Title text=format!("Articles - {}", site.long()) />
+        <Title text=format!("{} - {}", translator.translate("Articles"), site.long()) />
         <Suspense fallback=move || {
             view! { <div></div> }
         }>
@@ -99,9 +100,8 @@ pub fn ArticlesListPage() -> impl IntoView {
                             Err(_) => {
                                 view! {
                                     <ErrorPage
-                                        title="Unexpected Error".to_string()
-                                        message="An unexpected error occurred while fetching articles."
-                                            .to_string()
+                                        title=translator.translate("Unexpected Error")
+                                        message=translator.translate("An unexpected error occurred while fetching articles.")
                                         error_type="500".to_string()
                                         show_navigation=true
                                     />
@@ -130,6 +130,7 @@ fn ArticlesListPageContent(
     let site_config = SITE_CONFIGURATION
         .get()
         .expect("Site configuration not initialized");
+    let translator = expect_context::<TranslationContext>();
     let articles_per_page = site_config.articles.maximum_number_per_page;
     let mut categories = search_index.categories.clone();
     categories.sort();
@@ -165,12 +166,12 @@ fn ArticlesListPageContent(
 
         if articles.is_empty() {
             if criteria.is_empty() {
-                "No articles yet!".to_string()
+                translator.translate("No articles yet!")
             } else {
-                "No articles found matching your search criteria.".to_string()
+                translator.translate("No articles found matching your search criteria.")
             }
         } else {
-            "No articles on this page.".to_string()
+            translator.translate("No articles on this page.")
         }
     });
 
@@ -191,7 +192,7 @@ fn ArticlesListPageContent(
                     search_results=filtered_articles
                     on_search_change=handle_search_change
                 />
-                <div class="archive-filters" aria-label="Filter articles by category">
+                <div class="archive-filters" attr:aria-label=translator.translate("Filter articles by category")>
                     <button
                         type="button"
                         class=move || if active_category.get().is_empty() {
@@ -204,7 +205,7 @@ fn ArticlesListPageContent(
                             current_page.set(0);
                         }
                     >
-                        "All notes"
+                        {translator.translate("All notes")}
                     </button>
                     {categories
                         .into_iter()

@@ -4,7 +4,7 @@ use leptos_meta::{Meta, Stylesheet, Title};
 use leptos_router::components::A;
 
 use crate::{
-    app::SITE_CONFIGURATION,
+    app::{TranslationContext, SITE_CONFIGURATION},
     components::{error_page::ErrorPage, progress_bar::stop_progress_bar},
     models::Article,
     utils::MarkdownArticle,
@@ -17,6 +17,7 @@ pub fn AboutPage() -> impl IntoView {
     let site_config = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded by AppLayout");
+    let translator = expect_context::<TranslationContext>();
     let site_name = site_config.long();
     let github_url = format!("https://github.com/{}", site_config.author.github);
     let article_result =
@@ -40,8 +41,8 @@ pub fn AboutPage() -> impl IntoView {
     view! {
         <Title text=move || {
             article_result.with(|result| {
-                result.as_ref().map_or("Loading...".to_string(), |result| {
-                    result.as_ref().map_or("Error loading About page".to_string(), |(article, _)| {
+                result.as_ref().map_or(translator.translate("Loading..."), |result| {
+                    result.as_ref().map_or(translator.translate("Error loading About page"), |(article, _)| {
                         format!("{} - {}", article.title, site_name)
                     })
                 })
@@ -49,15 +50,15 @@ pub fn AboutPage() -> impl IntoView {
         } />
         <Meta name="description" content=move || {
             article_result.with(|result| {
-                result.as_ref().map_or("Loading...".to_string(), |result| {
-                    result.as_ref().map_or("Error loading About page".to_string(), |(article, _)| {
+                result.as_ref().map_or(translator.translate("Loading..."), |result| {
+                    result.as_ref().map_or(translator.translate("Error loading About page"), |(article, _)| {
                         article.description.chars().take(150).collect::<String>()
                     })
                 })
             })
         } />
         <Stylesheet href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
-        <Suspense fallback=|| view! { <div class="article-loading" aria-label="Loading About page"></div> }>
+        <Suspense fallback=move || view! { <div class="article-loading" attr:aria-label=translator.translate("Loading About page")></div> }>
             {move || {
                 article_result.with(|result| match result {
                     Some(Ok((article, markdown_content))) => {
@@ -84,11 +85,11 @@ pub fn AboutPage() -> impl IntoView {
                                     <div class="about-actions">
                                         <A href="/articles" attr:class="btn btn-tonal">
                                             <span class="material-symbols-outlined" aria-hidden="true">"menu_book"</span>
-                                            "Browse articles"
+                                            {translator.translate("Browse articles")}
                                         </A>
                                         <a href=github_button_url class="btn btn-outlined">
                                             <span class="material-symbols-outlined" aria-hidden="true">"open_in_new"</span>
-                                            "GitHub"
+                                            {translator.translate("GitHub")}
                                         </a>
                                     </div>
                                 </section>
@@ -104,8 +105,8 @@ pub fn AboutPage() -> impl IntoView {
                         view! {
                             <div class="page-container">
                                 <ErrorPage
-                                    title="About Page Unavailable".to_string()
-                                    message="The About article could not be loaded.".to_string()
+                                    title=translator.translate("About Page Unavailable")
+                                    message=translator.translate("The About article could not be loaded.")
                                     error_details=error.clone()
                                     error_type="network".to_string()
                                     show_navigation=true
@@ -114,7 +115,7 @@ pub fn AboutPage() -> impl IntoView {
                         }
                             .into_any()
                     }
-                    None => view! { <div class="article-loading" aria-label="Loading About page"></div> }.into_any(),
+                    None => view! { <div class="article-loading" attr:aria-label=translator.translate("Loading About page")></div> }.into_any(),
                 })
             }}
         </Suspense>

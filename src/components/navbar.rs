@@ -4,7 +4,10 @@ use leptos_router::{components::A, hooks::use_location};
 use wasm_bindgen::{closure::Closure, JsCast};
 use wasm_bindgen_futures::spawn_local;
 
-use crate::{app::SITE_CONFIGURATION, components::theme_toggle::ThemeToggle};
+use crate::{
+    app::{TranslationContext, SITE_CONFIGURATION},
+    components::theme_toggle::ThemeToggle,
+};
 
 #[derive(Clone, Copy, PartialEq)]
 enum CurrentActiveLink {
@@ -44,6 +47,7 @@ pub fn Navbar() -> impl IntoView {
     let site = SITE_CONFIGURATION
         .get()
         .expect("SITE_CONFIGURATION must be initialized before Navbar is rendered");
+    let translator = expect_context::<TranslationContext>();
 
     let close_mobile_menu = move || {
         if is_mobile_menu_open.get_untracked() {
@@ -95,7 +99,7 @@ pub fn Navbar() -> impl IntoView {
         <header class=move || {
             format!("site-header {}", if is_scrolled.get() { "scrolled" } else { "" })
         }>
-            <nav class="shell nav" aria-label="Primary navigation">
+            <nav class="shell nav" attr:aria-label=translator.translate("Primary navigation")>
                 <A href="/" attr:class="brand">
                     <span class="navbar-brand-long">{site.long()}</span>
                     <span class="navbar-brand-short">{site.short()}</span>
@@ -110,7 +114,7 @@ pub fn Navbar() -> impl IntoView {
                         }
                     >
                         <span class="material-symbols-outlined" aria-hidden="true">"home"</span>
-                        <span>"Home"</span>
+                        <span>{translator.translate("Home")}</span>
                     </A>
                     <A
                         href="/articles"
@@ -120,7 +124,7 @@ pub fn Navbar() -> impl IntoView {
                         }
                     >
                         <span class="material-symbols-outlined" aria-hidden="true">"description"</span>
-                        <span>"Articles"</span>
+                        <span>{translator.translate("Articles")}</span>
                     </A>
                     <A
                         href="/about"
@@ -130,7 +134,7 @@ pub fn Navbar() -> impl IntoView {
                         }
                     >
                         <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
-                        <span>"About"</span>
+                        <span>{translator.translate("About")}</span>
                     </A>
                     <ThemeToggle />
                 </div>
@@ -139,7 +143,7 @@ pub fn Navbar() -> impl IntoView {
                     type="button"
                     class="icon-button navbar-mobile-button"
                     on:click=toggle_mobile_menu
-                    aria-label="Open navigation menu"
+                    attr:aria-label=translator.translate("Open navigation menu")
                     aria-controls="mobile-navigation"
                     aria-expanded=move || is_mobile_menu_open.get().to_string()
                 >
@@ -173,15 +177,15 @@ pub fn Navbar() -> impl IntoView {
                             },
                         )
                     }
-                    aria-label="Mobile navigation"
+                    attr:aria-label=translator.translate("Mobile navigation")
                 >
                     <div class="mobile-menu-header">
-                        <h2 class="mobile-menu-title">"Navigation"</h2>
+                        <h2 class="mobile-menu-title">{translator.translate("Navigation")}</h2>
                         <button
                             type="button"
                             class="icon-button mobile-menu-close-button"
                             on:click=move |_| close_mobile_menu()
-                            aria-label="Close navigation menu"
+                            attr:aria-label=translator.translate("Close navigation menu")
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"close"</span>
                         </button>
@@ -193,7 +197,7 @@ pub fn Navbar() -> impl IntoView {
                             on:click=move |_| close_mobile_menu()
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"home"</span>
-                            <span>"Home"</span>
+                            <span>{translator.translate("Home")}</span>
                         </A>
                         <A
                             href="/articles"
@@ -201,7 +205,7 @@ pub fn Navbar() -> impl IntoView {
                             on:click=move |_| close_mobile_menu()
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"description"</span>
-                            <span>"Articles"</span>
+                            <span>{translator.translate("Articles")}</span>
                         </A>
                         <A
                             href="/about"
@@ -209,7 +213,7 @@ pub fn Navbar() -> impl IntoView {
                             on:click=move |_| close_mobile_menu()
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">"info"</span>
-                            <span>"About"</span>
+                            <span>{translator.translate("About")}</span>
                         </A>
                     </div>
                     <div class="mobile-menu-footer">

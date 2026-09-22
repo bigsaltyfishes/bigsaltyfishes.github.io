@@ -1,13 +1,31 @@
-use leptos::prelude::*;
+use leptos::{prelude::*, task::spawn_local};
 use leptos_meta::provide_meta_context;
 use once_cell::sync::OnceCell;
 
-use crate::{router::AppRouter, types::site::Site};
+use crate::{
+    router::AppRouter,
+    types::{site::Site, translation::Translator},
+};
 
 pub static SITE_CONFIGURATION: OnceCell<Site> = OnceCell::new();
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct ThemeContext(pub RwSignal<bool>); // true for dark mode
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct TranslationContext(pub RwSignal<Translator>);
+
+impl TranslationContext {
+    pub fn translate(&self, english: &str) -> String {
+        self.0.get_untracked().translate(english)
+    }
+
+    pub fn translate_template(&self, english: &str, replacements: &[(&str, &str)]) -> String {
+        self.0
+            .get_untracked()
+            .translate_template(english, replacements)
+    }
+}
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -32,6 +50,14 @@ pub fn App() -> impl IntoView {
         }
     });
     provide_context(ThemeContext(is_dark_mode));
+
+    let translations = RwSignal::new(Translator::default());
+    let translation_ready = RwSignal::new(false);
+    provide_context(TranslationContext(translations));
+    spawn_local(async move {
+        translations.set(Translator::fetch().await);
+        translation_ready.set(true);
+    });
 
     // Set body class for global styling
     Effect::new(move |_| {
@@ -62,5 +88,12 @@ pub fn App() -> impl IntoView {
         }
     });
 
-    view! { <AppRouter /> }
+    view! {
+        <Show
+            when=move || translation_ready.get()
+            fallback=|| view! { <div class="app-loading"></div> }
+        >
+            <AppRouter />
+        </Show>
+    }
 }

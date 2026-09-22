@@ -5,7 +5,7 @@ use leptos_router::{components::A, hooks::use_params_map};
 use wasm_bindgen::{closure::Closure, JsCast};
 
 use crate::{
-    app::SITE_CONFIGURATION,
+    app::{TranslationContext, SITE_CONFIGURATION},
     components::{error_page::ErrorPage, layout::ProgressContext, progress_bar::stop_progress_bar},
     models::Article,
     utils::{MarkdownArticle, MarkdownHeading},
@@ -26,6 +26,7 @@ pub fn ArticlePage() -> impl IntoView {
     let site_config = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded by AppLayout");
+    let translator = expect_context::<TranslationContext>();
     let reading_progress = use_context::<ProgressContext>()
         .expect("ProgressContext must be provided by AppLayout")
         .reading_progress;
@@ -53,8 +54,8 @@ pub fn ArticlePage() -> impl IntoView {
     view! {
         <Title text=move || {
             article_result.with(|result| {
-                result.as_ref().map_or("Loading...".to_string(), |result| {
-                    result.as_ref().map_or("Error loading article".to_string(), |(article, _)| {
+                result.as_ref().map_or(translator.translate("Loading..."), |result| {
+                    result.as_ref().map_or(translator.translate("Error loading article"), |(article, _)| {
                         format!("{} - {}", article.title, site_config.long())
                     })
                 })
@@ -62,15 +63,15 @@ pub fn ArticlePage() -> impl IntoView {
         } />
         <Meta name="description" content=move || {
             article_result.with(|result| {
-                result.as_ref().map_or("Loading...".to_string(), |result| {
-                    result.as_ref().map_or("Error loading article".to_string(), |(article, _)| {
+                result.as_ref().map_or(translator.translate("Loading..."), |result| {
+                    result.as_ref().map_or(translator.translate("Error loading article"), |(article, _)| {
                         article.description.chars().take(150).collect::<String>()
                     })
                 })
             })
         } />
         <Stylesheet href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
-        <Suspense fallback=|| view! { <div class="article-loading" aria-label="Loading article"></div> }>
+        <Suspense fallback=move || view! { <div class="article-loading" attr:aria-label=translator.translate("Loading article")></div> }>
             {move || {
                 article_result.with(|result| match result {
                     Some(Ok((article, markdown_content))) => {
@@ -84,6 +85,7 @@ pub fn ArticlePage() -> impl IntoView {
                             .map(|cover| site_config.article_asset_url(&article_id, cover));
                         let tags = article.tags.clone();
                         let category = article.category.clone();
+                        let category_label = category.unwrap_or_else(|| "Article".to_string());
                         let title = article.title.clone();
                         let description = article.description.clone();
                         let date = article.date.clone().unwrap_or_default();
@@ -100,9 +102,9 @@ pub fn ArticlePage() -> impl IntoView {
                                         <div class="article-head-main">
                                             <A href="/articles" attr:class="article-back">
                                                 <span class="material-symbols-outlined" aria-hidden="true">"arrow_back"</span>
-                                                "Back to articles"
+                                                {translator.translate("Back to articles")}
                                             </A>
-                                            <span class="kicker">{category.clone().unwrap_or_else(|| "Article".to_string())}</span>
+                                            <span class="kicker">{category_label}</span>
                                             <h1 class="article-title">{title.clone()}</h1>
                                             <p class="article-deck">{description}</p>
                                             <div class="article-meta">
@@ -120,7 +122,16 @@ pub fn ArticlePage() -> impl IntoView {
                                     <div class="article-cover">
                                         {cover_url
                                             .map(|url| {
-                                                view! { <img src=url alt=format!("Cover for {title}") /> }.into_any()
+                                                view! {
+                                                    <img
+                                                        src=url
+                                                        alt=translator.translate_template(
+                                                            "Cover for {title}",
+                                                            &[("title", title.as_str())],
+                                                        )
+                                                    />
+                                                }
+                                                .into_any()
                                             })
                                             .unwrap_or_else(|| {
                                                 view! {
@@ -143,8 +154,8 @@ pub fn ArticlePage() -> impl IntoView {
                                     <div class="article-end">
                                         <A href="/articles" attr:class="next-article">
                                             <span>
-                                                <span class="next-label">"Continue browsing"</span>
-                                                <span class="next-title">"All articles"</span>
+                                                <span class="next-label">{translator.translate("Continue browsing")}</span>
+                                                <span class="next-title">{translator.translate("All articles")}</span>
                                             </span>
                                             <span class="next-arrow" aria-hidden="true">"→"</span>
                                         </A>
@@ -156,11 +167,15 @@ pub fn ArticlePage() -> impl IntoView {
                     }
                     Some(Err(error)) => {
                         let current_id = id();
+                        let message = translator.translate_template(
+                            "The article with ID '{id}' does not exist.",
+                            &[("id", current_id.as_str())],
+                        );
                         view! {
                             <div class="page-container">
                                 <ErrorPage
-                                    title="Article Not Found".to_string()
-                                    message=format!("The article with ID '{current_id}' does not exist.")
+                                    title=translator.translate("Article Not Found")
+                                    message=message
                                     error_details=error.clone()
                                     error_type="404".to_string()
                                     show_navigation=true
@@ -178,6 +193,7 @@ pub fn ArticlePage() -> impl IntoView {
 
 #[component]
 fn ArticleToc(headings: Vec<MarkdownHeading>, article_path: String) -> impl IntoView {
+    let translator = expect_context::<TranslationContext>();
     let headings = headings
         .into_iter()
         .filter(|heading| heading.level <= 3)
@@ -221,8 +237,8 @@ fn ArticleToc(headings: Vec<MarkdownHeading>, article_path: String) -> impl Into
     view! {
         <aside class=if headings.is_empty() { "toc toc-empty" } else { "toc" }>
             <div class="toc-inner">
-                <div class="toc-label">"On this page"</div>
-                <nav aria-label="Table of contents">
+                <div class="toc-label">{translator.translate("On this page")}</div>
+                <nav attr:aria-label=translator.translate("Table of contents")>
                     {headings
                         .clone()
                         .into_iter()

@@ -2,7 +2,7 @@ use gloo_timers::future::TimeoutFuture;
 use leptos::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
-use crate::app::SITE_CONFIGURATION;
+use crate::app::{TranslationContext, SITE_CONFIGURATION};
 
 #[component]
 pub fn ArticlesPagination(
@@ -15,6 +15,7 @@ pub fn ArticlesPagination(
     let site_config = SITE_CONFIGURATION
         .get()
         .expect("Site configuration should be loaded before rendering pagination");
+    let translator = expect_context::<TranslationContext>();
     let pagination_size = site_config.articles.pagination_size;
 
     let dropdown_open = RwSignal::new(false);
@@ -187,11 +188,16 @@ pub fn ArticlesPagination(
 
                                 <div class="pagination-info">
                                     {move || {
-                                        format!(
-                                            "Page {} of {} ({} articles)",
-                                            current_page.get() + 1,
-                                            total_pages.get(),
-                                            total_articles.get(),
+                                        let current = (current_page.get() + 1).to_string();
+                                        let total = total_pages.get().to_string();
+                                        let articles = total_articles.get().to_string();
+                                        translator.translate_template(
+                                            "Page {current} of {total} ({articles} articles)",
+                                            &[
+                                                ("current", current.as_str()),
+                                                ("total", total.as_str()),
+                                                ("articles", articles.as_str()),
+                                            ],
                                         )
                                     }}
                                 </div>

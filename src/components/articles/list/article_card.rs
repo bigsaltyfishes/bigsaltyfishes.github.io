@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use leptos_router::components::A;
 
-use crate::models::SearchableArticle;
+use crate::{app::TranslationContext, models::SearchableArticle};
 
 fn category_icon(category: &str) -> &'static str {
     match category.to_ascii_lowercase().as_str() {
@@ -13,6 +13,7 @@ fn category_icon(category: &str) -> &'static str {
 
 #[component]
 pub fn ArticleCard(article: SearchableArticle) -> impl IntoView {
+    let translator = expect_context::<TranslationContext>();
     let category = article
         .article
         .category
@@ -39,7 +40,11 @@ pub fn ArticleCard(article: SearchableArticle) -> impl IntoView {
                     <h2 class="article-card-title">{article.article.title.clone()}</h2>
                     <p class="article-card-description">{article.article.description.clone()}</p>
                     <div class="article-card-extra">
-                        <span>{article.article.tags.len()} " tags"</span>
+                        <span>{format!(
+                            "{} {}",
+                            article.article.tags.len(),
+                            translator.translate("tags")
+                        )}</span>
                         <span class="article-card-arrow" aria-hidden="true">"↗"</span>
                     </div>
                 </div>
@@ -54,12 +59,18 @@ pub fn ArticleSearchResult(
     article: SearchableArticle,
     on_select: Callback<String>,
 ) -> impl IntoView {
+    let translator = expect_context::<TranslationContext>();
     let category = article
         .article
         .category
         .clone()
         .unwrap_or_else(|| "Notes".to_string());
-    let metadata = format!("{} · {} tags", category, article.article.tags.len());
+    let metadata = format!(
+        "{} · {} {}",
+        category,
+        article.article.tags.len(),
+        translator.translate("tags")
+    );
     let icon = category_icon(&category);
     let article_path = format!("/articles/{}", article.id);
 

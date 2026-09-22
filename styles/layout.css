@@ -153,6 +153,15 @@
     padding-left: 1.3em;
   }
 
+  /* Tailwind Preflight removes native list markers; Markdown restores them. */
+  .markdown-body ul {
+    list-style-type: disc;
+  }
+
+  .markdown-body ol {
+    list-style-type: decimal;
+  }
+
   .markdown-body li {
     margin: 0.38em 0;
   }
@@ -164,6 +173,14 @@
     color: rgb(var(--ref-color-on-surface-variant, var(--fallback-on-surface-variant)));
     font-family: var(--font-display);
     font-size: 1.12rem;
+  }
+
+  .markdown-body blockquote > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-body blockquote > :last-child {
+    margin-bottom: 0;
   }
 
   .markdown-body table {

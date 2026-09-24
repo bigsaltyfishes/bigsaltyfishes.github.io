@@ -183,6 +183,17 @@
       min-height: 62px;
     }
 
+    /* Avoid mobile sticky/backdrop-filter compositing glitches over the fixed wallpaper. */
+    .site-header.scrolled {
+      background: rgb(var(--ref-color-background, var(--fallback-background)));
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .site-header.scrolled::after {
+      filter: none;
+    }
+
     .navbar-desktop {
       display: none;
     }
